@@ -1,13 +1,13 @@
 # Site settings
-description: A blog about lorem ipsum dolor sit amet
-baseurl: "/cards-jekyll-template" # the subpath of your site, e.g. /blog
-url: "http://willianjusten.com.br" # the base hostname & protocol for your site e.g. http://willianjusten.com.br
+description: A blog about discovering through data
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "http://awesomestats.in" # the base hostname & protocol for your site e.g. http://willianjusten.com.br
 
 # User settings
-username: Lorem Ipsum
-user_description: Anon Developer at Lorem Ipsum Dolor
-user_title: Anon Developer
-email: anon@anon.com
+username: Manaranjan Pradhan
+user_description: A data enthusiast
+user_title: Awesomestats
+email: manaranjan@enablecloud.com
 twitter_username: lorem_ipsum
 github_username:  lorem_ipsum
 gplus_username:  lorem_ipsum
@@ -31,10 +31,12 @@ compress_html:
 links:
   - title: Home
     url: /
-  - title: Series
-    url: /series
-  - title: Tags
-    url: /tags
+  - title: Spark
+    url: /spark
+  - title: Python
+    url: /python
+  - title: Stats
+    url: /stats
   - title: About Me
     url: /about
 
