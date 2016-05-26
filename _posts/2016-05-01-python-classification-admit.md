@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Predicting if a student will get admission or not"
-date: 2016-05-01
+date: 2016-05-25
 description: "Building a classificaiton model using python sklearn library to predict student admission"
 main-class: 'python'
 published: true
