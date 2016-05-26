@@ -1,16 +1,18 @@
 ---
 layout: post
 title: "Predicting if a student will get admission or not"
-date: 2016-05-25 00:00:00
+date: 2016-05-01
 description: "Building a classificaiton model using python sklearn library to predict student admission"
 main-class: 'Data Science'
+published: true
 color: '#637a91'
 tags:
 - python
 - sklearn 
-- data science 
+- "data Science" 
 - classification
-categories: 'Data Science'
+categories: 
+- "Python"
 introduction: "Building a classificaiton model using python sklearn library to predict student admission".
 ---
 
