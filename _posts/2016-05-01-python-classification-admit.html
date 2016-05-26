@@ -16,6 +16,7 @@ categories:
 introduction: "Building a classification model using python sklearn library to predict student admission"
 ---
 
+
 # Predicting if a student will get admission or not
 
 **In [2]:**
@@ -315,7 +316,7 @@ sn.barplot( admit_by_rankings.ranking, admit_by_rankings.total,
 
 
 
-![png]({{ BASE_PATH }}/images/admit_classification_1.0_13_1.png)
+![png](/assets/img/python/admit/admit_classification_1.0_13_1.png)
 
 
 ## Is the mean GRE and GPA score different for student who got admitted and who
@@ -341,7 +342,7 @@ sn.distplot( gre_0 )
 
 
 
-![png]({{ BASE_PATH }}/images/admit_classification_1.0_16_1.png)
+![png](/assets/img/python/admit/admit_classification_1.0_16_1.png)
 
 
 **In [16]:**
@@ -364,7 +365,7 @@ sn.distplot( gre_1 )
 
 
 
-![png]({{ BASE_PATH }}/images/admit_classification_1.0_18_1.png)
+![png](/assets/img/python/admit/admit_classification_1.0_18_1.png)
 
 
 **In [18]:**
@@ -382,7 +383,7 @@ g.map(sn.distplot, "gre")
 
 
 
-![png]({{ BASE_PATH }}/images/admit_classification_1.0_19_1.png)
+![png](/assets/img/python/admit/admit_classification_1.0_19_1.png)
 
 
 **In [19]:**
@@ -400,7 +401,7 @@ g.map(sn.distplot, "gpa")
 
 
 
-![png]({{ BASE_PATH }}/images/admit_classification_1.0_20_1.png)
+![png](/assets/img/python/admit/admit_classification_1.0_20_1.png)
 
 
 **In [20]:**
@@ -417,7 +418,7 @@ sn.pairplot( admission[["gre", "gpa"]], size = 4 )
 
 
 
-![png]({{ BASE_PATH }}/images/admit_classification_1.0_21_1.png)
+![png](/assets/img/python/admit/admit_classification_1.0_21_1.png)
 
 
 **In [21]:**
@@ -435,7 +436,7 @@ g.map(sn.distplot, "gre")
 
 
 
-![png]({{ BASE_PATH }}/images/admit_classification_1.0_22_1.png)
+![png](/assets/img/python/admit/admit_classification_1.0_22_1.png)
 
 
 **In [22]:**
@@ -452,7 +453,7 @@ sn.boxplot( "ranking", "gre", data = admission )
 
 
 
-![png]({{ BASE_PATH }}/images/admit_classification_1.0_23_1.png)
+![png](/assets/img/python/admit/admit_classification_1.0_23_1.png)
 
 
 ## Building a Classification Model
@@ -779,7 +780,7 @@ sn.heatmap(cm, annot=True,  fmt='.2f' );
 {% endhighlight %}
 
 
-![png]({{ BASE_PATH }}/images/admit_classification_1.0_44_0.png)
+![png](/assets/img/python/admit/admit_classification_1.0_44_0.png)
 
 
 ## Accuracy Score
@@ -852,7 +853,7 @@ pyplt.show()
 {% endhighlight %}
 
 
-![png]({{ BASE_PATH }}/images/admit_classification_1.0_52_0.png)
+![png](/assets/img/python/admit/admit_classification_1.0_52_0.png)
 
 
 **In [52]:**
