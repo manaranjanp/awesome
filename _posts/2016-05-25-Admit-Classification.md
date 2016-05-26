@@ -3,11 +3,15 @@ layout: post
 title: "Predicting if a student will get admission or not"
 date: 2016-05-25 00:00:00
 description: "Building a classificaiton model using python sklearn library to predict student admission"
-main-class: 'dev'
+main-class: 'Data Science'
 color: '#637a91'
 tags:
-- "python", "sklearn", "data science", "classification"
-introduction: ""Building a classificaiton model using python sklearn library to predict student admission"."
+- python
+- sklearn 
+- data science 
+- classification
+categories: 'Data Science'
+introduction: "Building a classificaiton model using python sklearn library to predict student admission".
 ---
 
 # Predicting if a student will get admission or not
@@ -267,7 +271,7 @@ introduction: ""Building a classificaiton model using python sklearn library to 
 
 
 
-![png](/assets/img/output_13_1.png)
+![png](/assets/img/python/admit/output_13_1.png)
 
 
 ## Is the mean GRE and GPA score different for student who got admitted and who did not?
@@ -286,7 +290,7 @@ introduction: ""Building a classificaiton model using python sklearn library to 
 
 
 
-![png](/assets/img/output_16_1.png)
+![png](/assets/img/python/admit/output_16_1.png)
 
 
 
@@ -303,7 +307,7 @@ introduction: ""Building a classificaiton model using python sklearn library to 
 
 
 
-![png](/assets/img/output_18_1.png)
+![png](/assets/img/python/admit/output_18_1.png)
 
 
 
@@ -318,7 +322,7 @@ introduction: ""Building a classificaiton model using python sklearn library to 
 
 
 
-![png](/assets/img/output_19_1.png)
+![png](/assets/img/python/admit/output_19_1.png)
 
 
 
@@ -333,7 +337,7 @@ introduction: ""Building a classificaiton model using python sklearn library to 
 
 
 
-![png](/assets/img/output_20_1.png)
+![png](/assets/img/python/admit/output_20_1.png)
 
 
 
@@ -347,7 +351,7 @@ introduction: ""Building a classificaiton model using python sklearn library to 
 
 
 
-![png](/assets/img/output_21_1.png)
+![png](/assets/img/python/admit/output_21_1.png)
 
 
 
@@ -362,7 +366,7 @@ introduction: ""Building a classificaiton model using python sklearn library to 
 
 
 
-![png](/assets/img/output_22_1.png)
+![png](/assets/img/python/admit/output_22_1.png)
 
 
 
@@ -376,7 +380,7 @@ introduction: ""Building a classificaiton model using python sklearn library to 
 
 
 
-![png](/assets/img/output_23_1.png)
+![png](/assets/img/python/admit/output_23_1.png)
 
 
 ## Building a Classification Model
@@ -649,7 +653,7 @@ introduction: ""Building a classificaiton model using python sklearn library to 
     sn.heatmap(cm, annot=True,  fmt='.2f' );
 
 
-![png](/assets/img/output_44_0.png)
+![png](/assets/img/python/admit/output_44_0.png)
 
 
 ## Accuracy Score
@@ -704,7 +708,7 @@ http://blog.yhathq.com/posts/roc-curves.html
     pyplt.show()
 
 
-![png](/assets/img/output_52_0.png)
+![png](/assets/img/python/admit/output_52_0.png)
 
 
 
