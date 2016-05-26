@@ -16,30 +16,14 @@ categories:
 introduction: "Building a classification model using python sklearn library to predict student admission"
 ---
 
-
 # Predicting if a student will get admission or not
 
-**In [2]:**
+    import pandas as pd
+    import numpy as np
 
-{% highlight python %}
-import pandas as pd
-import numpy as np
-{% endhighlight %}
+    admission = pd.read_csv( "admission.csv" )
 
-**In [3]:**
-
-{% highlight python %}
-admission = pd.read_csv( "admission.csv" )
-{% endhighlight %}
-
-**In [4]:**
-
-{% highlight python %}
-admission.head()
-{% endhighlight %}
-
-
-
+    admission.head()
 
 <div>
 <table border="1" class="dataframe">
@@ -94,19 +78,13 @@ admission.head()
 
 
 
-**In [5]:**
 
-{% highlight python %}
-admission.columns = ["admit", "gre", "gpa", "ranking" ]
-{% endhighlight %}
+    admission.columns = ["admit", "gre", "gpa", "ranking" ]
 
 ## Does the ranking of the college impact the admissions and how much
 
-**In [6]:**
 
-{% highlight python %}
-pd.crosstab( admission.admit, admission.ranking )
-{% endhighlight %}
+    pd.crosstab( admission.admit, admission.ranking )
 
 
 
@@ -150,19 +128,13 @@ pd.crosstab( admission.admit, admission.ranking )
 
 
 
-**In [57]:**
 
-{% highlight python %}
-admit_by_rankings = pd.crosstab(
-    admission.admit,
-    admission.ranking ).apply( lambda x: x/x.sum(), axis = 0 )
-{% endhighlight %}
+    admit_by_rankings = pd.crosstab(
+        admission.admit,
+        admission.ranking ).apply( lambda x: x/x.sum(), axis = 0 )
 
-**In [8]:**
 
-{% highlight python %}
-admit_by_rankings
-{% endhighlight %}
+    admit_by_rankings
 
 
 
@@ -206,18 +178,12 @@ admit_by_rankings
 
 
 
-**In [9]:**
 
-{% highlight python %}
-admit_by_rankings = pd.DataFrame(
-    admit_by_rankings.unstack() ).reset_index()
-{% endhighlight %}
+    admit_by_rankings = pd.DataFrame(
+        admit_by_rankings.unstack() ).reset_index()
 
-**In [10]:**
 
-{% highlight python %}
-admit_by_rankings
-{% endhighlight %}
+    admit_by_rankings
 
 
 
@@ -287,26 +253,17 @@ admit_by_rankings
 
 
 
-**In [11]:**
 
-{% highlight python %}
-admit_by_rankings.columns = ["ranking", "admit", "total" ]
-{% endhighlight %}
+    admit_by_rankings.columns = ["ranking", "admit", "total" ]
 
-**In [12]:**
 
-{% highlight python %}
-import matplotlib as plt
-import seaborn as sn
-%matplotlib inline
-{% endhighlight %}
+    import matplotlib as plt
+    import seaborn as sn
+    %matplotlib inline
 
-**In [13]:**
 
-{% highlight python %}
-sn.barplot( admit_by_rankings.ranking, admit_by_rankings.total,
-           hue = admit_by_rankings.admit )
-{% endhighlight %}
+    sn.barplot( admit_by_rankings.ranking, admit_by_rankings.total,
+               hue = admit_by_rankings.admit )
 
 
 
@@ -316,23 +273,16 @@ sn.barplot( admit_by_rankings.ranking, admit_by_rankings.total,
 
 
 
-![png](/assets/img/python/admit/admit_classification_1.0_13_1.png)
+![png](/assets/img/python/admit/output_13_1.png)
 
 
-## Is the mean GRE and GPA score different for student who got admitted and who
-did not?
+## Is the mean GRE and GPA score different for student who got admitted and who did not?
 
-**In [14]:**
 
-{% highlight python %}
-gre_0 = admission[admission.admit == 0]["gre"]
-{% endhighlight %}
+    gre_0 = admission[admission.admit == 0]["gre"]
 
-**In [15]:**
 
-{% highlight python %}
-sn.distplot( gre_0 )
-{% endhighlight %}
+    sn.distplot( gre_0 )
 
 
 
@@ -342,20 +292,14 @@ sn.distplot( gre_0 )
 
 
 
-![png](/assets/img/python/admit/admit_classification_1.0_16_1.png)
+![png](/assets/img/python/admit/output_16_1.png)
 
 
-**In [16]:**
 
-{% highlight python %}
-gre_1 = admission[admission.admit == 1]["gre"]
-{% endhighlight %}
+    gre_1 = admission[admission.admit == 1]["gre"]
 
-**In [17]:**
 
-{% highlight python %}
-sn.distplot( gre_1 )
-{% endhighlight %}
+    sn.distplot( gre_1 )
 
 
 
@@ -365,15 +309,12 @@ sn.distplot( gre_1 )
 
 
 
-![png](/assets/img/python/admit/admit_classification_1.0_18_1.png)
+![png](/assets/img/python/admit/output_18_1.png)
 
 
-**In [18]:**
 
-{% highlight python %}
-g = sn.FacetGrid(admission, col="admit", size = 10)
-g.map(sn.distplot, "gre")
-{% endhighlight %}
+    g = sn.FacetGrid(admission, col="admit", size = 10)
+    g.map(sn.distplot, "gre")
 
 
 
@@ -383,15 +324,12 @@ g.map(sn.distplot, "gre")
 
 
 
-![png](/assets/img/python/admit/admit_classification_1.0_19_1.png)
+![png](/assets/img/python/admit/output_19_1.png)
 
 
-**In [19]:**
 
-{% highlight python %}
-g = sn.FacetGrid(admission, col="admit", size = 10)
-g.map(sn.distplot, "gpa")
-{% endhighlight %}
+    g = sn.FacetGrid(admission, col="admit", size = 10)
+    g.map(sn.distplot, "gpa")
 
 
 
@@ -401,14 +339,11 @@ g.map(sn.distplot, "gpa")
 
 
 
-![png](/assets/img/python/admit/admit_classification_1.0_20_1.png)
+![png](/assets/img/python/admit/output_20_1.png)
 
 
-**In [20]:**
 
-{% highlight python %}
-sn.pairplot( admission[["gre", "gpa"]], size = 4 )
-{% endhighlight %}
+    sn.pairplot( admission[["gre", "gpa"]], size = 4 )
 
 
 
@@ -418,15 +353,12 @@ sn.pairplot( admission[["gre", "gpa"]], size = 4 )
 
 
 
-![png](/assets/img/python/admit/admit_classification_1.0_21_1.png)
+![png](/assets/img/python/admit/output_21_1.png)
 
 
-**In [21]:**
 
-{% highlight python %}
-g = sn.FacetGrid(admission, row="ranking", size = 6)
-g.map(sn.distplot, "gre")
-{% endhighlight %}
+    g = sn.FacetGrid(admission, row="ranking", size = 6)
+    g.map(sn.distplot, "gre")
 
 
 
@@ -436,14 +368,11 @@ g.map(sn.distplot, "gre")
 
 
 
-![png](/assets/img/python/admit/admit_classification_1.0_22_1.png)
+![png](/assets/img/python/admit/output_22_1.png)
 
 
-**In [22]:**
 
-{% highlight python %}
-sn.boxplot( "ranking", "gre", data = admission )
-{% endhighlight %}
+    sn.boxplot( "ranking", "gre", data = admission )
 
 
 
@@ -453,35 +382,26 @@ sn.boxplot( "ranking", "gre", data = admission )
 
 
 
-![png](/assets/img/python/admit/admit_classification_1.0_23_1.png)
+![png](/assets/img/python/admit/output_23_1.png)
 
 
 ## Building a Classification Model
 
 ### Convert the categorical variables into dummy variables
 
-**In [23]:**
 
-{% highlight python %}
-def create_dummies( df, colname ):
-    col_dummies = pd.get_dummies(df[colname], prefix=colname)
-    col_dummies.drop(col_dummies.columns[0], axis=1, inplace=True)
-    df = pd.concat([df, col_dummies], axis=1)
-    df.drop( colname, axis = 1, inplace = True )
-    return df
-{% endhighlight %}
+    def create_dummies( df, colname ):
+        col_dummies = pd.get_dummies(df[colname], prefix=colname)
+        col_dummies.drop(col_dummies.columns[0], axis=1, inplace=True)
+        df = pd.concat([df, col_dummies], axis=1)
+        df.drop( colname, axis = 1, inplace = True )
+        return df
 
-**In [24]:**
 
-{% highlight python %}
-admission_new = create_dummies( admission, "ranking" )
-{% endhighlight %}
+    admission_new = create_dummies( admission, "ranking" )
 
-**In [25]:**
 
-{% highlight python %}
-admission_new.head()
-{% endhighlight %}
+    admission_new.head()
 
 
 
@@ -551,23 +471,14 @@ admission_new.head()
 
 
 
-**In [26]:**
 
-{% highlight python %}
-from sklearn.linear_model import LogisticRegression
-{% endhighlight %}
+    from sklearn.linear_model import LogisticRegression
 
-**In [27]:**
 
-{% highlight python %}
-logreg = LogisticRegression()
-{% endhighlight %}
+    logreg = LogisticRegression()
 
-**In [28]:**
 
-{% highlight python %}
-admission_new.columns
-{% endhighlight %}
+    admission_new.columns
 
 
 
@@ -576,17 +487,11 @@ admission_new.columns
 
 
 
-**In [29]:**
 
-{% highlight python %}
-feature_cols = ['gre', 'gpa', 'ranking_2', 'ranking_3', 'ranking_4']
-{% endhighlight %}
+    feature_cols = ['gre', 'gpa', 'ranking_2', 'ranking_3', 'ranking_4']
 
-**In [30]:**
 
-{% highlight python %}
-logreg.fit( admission_new[feature_cols], admission_new.admit )
-{% endhighlight %}
+    logreg.fit( admission_new[feature_cols], admission_new.admit )
 
 
 
@@ -598,11 +503,8 @@ logreg.fit( admission_new[feature_cols], admission_new.admit )
 
 
 
-**In [31]:**
 
-{% highlight python %}
-list( zip( feature_cols, logreg.coef_ ) )
-{% endhighlight %}
+    list( zip( feature_cols, logreg.coef_ ) )
 
 
 
@@ -612,11 +514,8 @@ list( zip( feature_cols, logreg.coef_ ) )
 
 
 
-**In [32]:**
 
-{% highlight python %}
-logreg.coef_
-{% endhighlight %}
+    logreg.coef_
 
 
 
@@ -625,11 +524,8 @@ logreg.coef_
 
 
 
-**In [33]:**
 
-{% highlight python %}
-logreg.intercept_
-{% endhighlight %}
+    logreg.intercept_
 
 
 
@@ -638,25 +534,16 @@ logreg.intercept_
 
 
 
-**In [34]:**
 
-{% highlight python %}
-admission_new["predicted_class"] = logreg.predict( admission_new[feature_cols] )
-{% endhighlight %}
+    admission_new["predicted_class"] = logreg.predict( admission_new[feature_cols] )
 
-**In [35]:**
 
-{% highlight python %}
-admission_new = pd.concat( [admission_new,
-                            pd.DataFrame(
-            logreg.predict_proba( admission_new[feature_cols] ) )], axis = 1 )
-{% endhighlight %}
+    admission_new = pd.concat( [admission_new,
+                                pd.DataFrame(
+                logreg.predict_proba( admission_new[feature_cols] ) )], axis = 1 )
 
-**In [36]:**
 
-{% highlight python %}
-admission_new.head()
-{% endhighlight %}
+    admission_new.head()
 
 
 
@@ -746,24 +633,15 @@ admission_new.head()
 
 ## Evaluating the model - Confusion Matrix
 
-**In [37]:**
 
-{% highlight python %}
-from sklearn import metrics
-{% endhighlight %}
+    from sklearn import metrics
 
-**In [39]:**
 
-{% highlight python %}
-cm = metrics.confusion_matrix( admission_new.admit,
-                              admission_new.predicted_class )
-{% endhighlight %}
+    cm = metrics.confusion_matrix( admission_new.admit,
+                                  admission_new.predicted_class )
 
-**In [40]:**
 
-{% highlight python %}
-cm
-{% endhighlight %}
+    cm
 
 
 
@@ -773,30 +651,21 @@ cm
 
 
 
-**In [41]:**
 
-{% highlight python %}
-sn.heatmap(cm, annot=True,  fmt='.2f' );
-{% endhighlight %}
+    sn.heatmap(cm, annot=True,  fmt='.2f' );
 
 
-![png](/assets/img/python/admit/admit_classification_1.0_44_0.png)
+![png](/assets/img/python/admit/output_44_0.png)
 
 
 ## Accuracy Score
 
-**In [42]:**
 
-{% highlight python %}
-score = metrics.accuracy_score( admission_new.admit,
-                               admission_new.predicted_class )
-{% endhighlight %}
+    score = metrics.accuracy_score( admission_new.admit,
+                                   admission_new.predicted_class )
 
-**In [45]:**
 
-{% highlight python %}
-score
-{% endhighlight %}
+    score
 
 
 
@@ -809,18 +678,12 @@ score
 
 http://blog.yhathq.com/posts/roc-curves.html
 
-**In [46]:**
 
-{% highlight python %}
-auc_score = metrics.roc_auc_score( admission_new.admit,
-                                  admission_new.predicted_class )
-{% endhighlight %}
+    auc_score = metrics.roc_auc_score( admission_new.admit,
+                                      admission_new.predicted_class )
 
-**In [47]:**
 
-{% highlight python %}
-auc_score
-{% endhighlight %}
+    auc_score
 
 
 
@@ -829,39 +692,30 @@ auc_score
 
 
 
-**In [49]:**
 
-{% highlight python %}
-fpr, tpr, _ = metrics.roc_curve( admission_new.admit,
-                                admission_new.predicted_class )
-{% endhighlight %}
-
-**In [50]:**
-
-{% highlight python %}
-import matplotlib.pyplot as pyplt
-pyplt.figure()
-pyplt.plot( fpr, tpr, label='ROC curve (area = %0.2f)' % auc_score )
-pyplt.plot([0, 1], [0, 1], 'k--')
-pyplt.xlim([0.0, 1.0])
-pyplt.ylim([0.0, 1.05])
-pyplt.xlabel('False Positive Rate')
-pyplt.ylabel('True Positive Rate')
-pyplt.title('Receiver operating characteristic example')
-pyplt.legend(loc="lower right")
-pyplt.show()
-{% endhighlight %}
+    fpr, tpr, _ = metrics.roc_curve( admission_new.admit,
+                                    admission_new.predicted_class )
 
 
-![png](/assets/img/python/admit/admit_classification_1.0_52_0.png)
+    import matplotlib.pyplot as pyplt
+    pyplt.figure()
+    pyplt.plot( fpr, tpr, label='ROC curve (area = %0.2f)' % auc_score )
+    pyplt.plot([0, 1], [0, 1], 'k--')
+    pyplt.xlim([0.0, 1.0])
+    pyplt.ylim([0.0, 1.05])
+    pyplt.xlabel('False Positive Rate')
+    pyplt.ylabel('True Positive Rate')
+    pyplt.title('Receiver operating characteristic example')
+    pyplt.legend(loc="lower right")
+    pyplt.show()
 
 
-**In [52]:**
+![png](/assets/img/python/admit/output_52_0.png)
 
-{% highlight python %}
-print( metrics.classification_report( admission_new.admit,
-                                     admission_new.predicted_class ) )
-{% endhighlight %}
+
+
+    print( metrics.classification_report( admission_new.admit,
+                                         admission_new.predicted_class ) )
 
                  precision    recall  f1-score   support
 
@@ -874,26 +728,17 @@ print( metrics.classification_report( admission_new.admit,
 
 ## Cross validating the model
 
-**In [53]:**
 
-{% highlight python %}
-from sklearn.cross_validation import cross_val_score
-{% endhighlight %}
+    from sklearn.cross_validation import cross_val_score
 
-**In [54]:**
 
-{% highlight python %}
-logreg = LogisticRegression()
-X = admission_new[feature_cols]
-y = admission_new.admit
-scores = cross_val_score(logreg, X, y, cv=10, scoring='accuracy')
-{% endhighlight %}
+    logreg = LogisticRegression()
+    X = admission_new[feature_cols]
+    y = admission_new.admit
+    scores = cross_val_score(logreg, X, y, cv=10, scoring='accuracy')
 
-**In [55]:**
 
-{% highlight python %}
-scores
-{% endhighlight %}
+    scores
 
 
 
@@ -903,11 +748,8 @@ scores
 
 
 
-**In [56]:**
 
-{% highlight python %}
-scores.mean()
-{% endhighlight %}
+    scores.mean()
 
 
 
