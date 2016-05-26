@@ -8,12 +8,12 @@ published: true
 color: '#637a91'
 tags:
 - python
-- sklearn 
-- "data Science" 
+- sklearn
+- "data Science"
 - classification
-categories: 
+categories:
 - "Python"
-introduction: "Building a classificaiton model using python sklearn library to predict student admission".
+introduction: "Building a classification model using python sklearn library to predict student admission"
 ---
 
 # Predicting if a student will get admission or not
@@ -129,8 +129,8 @@ introduction: "Building a classificaiton model using python sklearn library to p
 
 
 
-    admit_by_rankings = pd.crosstab( 
-        admission.admit, 
+    admit_by_rankings = pd.crosstab(
+        admission.admit,
         admission.ranking ).apply( lambda x: x/x.sum(), axis = 0 )
 
 
@@ -179,7 +179,7 @@ introduction: "Building a classificaiton model using python sklearn library to p
 
 
 
-    admit_by_rankings = pd.DataFrame( 
+    admit_by_rankings = pd.DataFrame(
         admit_by_rankings.unstack() ).reset_index()
 
 
@@ -262,7 +262,7 @@ introduction: "Building a classificaiton model using python sklearn library to p
     %matplotlib inline
 
 
-    sn.barplot( admit_by_rankings.ranking, admit_by_rankings.total, 
+    sn.barplot( admit_by_rankings.ranking, admit_by_rankings.total,
                hue = admit_by_rankings.admit )
 
 
@@ -535,11 +535,11 @@ introduction: "Building a classificaiton model using python sklearn library to p
 
 
 
-    admission_new["predicted_class"] = logreg.predict( admission_new[feature_cols] ) 
+    admission_new["predicted_class"] = logreg.predict( admission_new[feature_cols] )
 
 
-    admission_new = pd.concat( [admission_new, 
-                                pd.DataFrame( 
+    admission_new = pd.concat( [admission_new,
+                                pd.DataFrame(
                 logreg.predict_proba( admission_new[feature_cols] ) )], axis = 1 )
 
 
@@ -637,7 +637,7 @@ introduction: "Building a classificaiton model using python sklearn library to p
     from sklearn import metrics
 
 
-    cm = metrics.confusion_matrix( admission_new.admit, 
+    cm = metrics.confusion_matrix( admission_new.admit,
                                   admission_new.predicted_class )
 
 
@@ -661,7 +661,7 @@ introduction: "Building a classificaiton model using python sklearn library to p
 ## Accuracy Score
 
 
-    score = metrics.accuracy_score( admission_new.admit, 
+    score = metrics.accuracy_score( admission_new.admit,
                                    admission_new.predicted_class )
 
 
@@ -679,7 +679,7 @@ introduction: "Building a classificaiton model using python sklearn library to p
 http://blog.yhathq.com/posts/roc-curves.html
 
 
-    auc_score = metrics.roc_auc_score( admission_new.admit, 
+    auc_score = metrics.roc_auc_score( admission_new.admit,
                                       admission_new.predicted_class )
 
 
@@ -693,7 +693,7 @@ http://blog.yhathq.com/posts/roc-curves.html
 
 
 
-    fpr, tpr, _ = metrics.roc_curve( admission_new.admit, 
+    fpr, tpr, _ = metrics.roc_curve( admission_new.admit,
                                     admission_new.predicted_class )
 
 
@@ -718,13 +718,13 @@ http://blog.yhathq.com/posts/roc-curves.html
                                          admission_new.predicted_class ) )
 
                  precision    recall  f1-score   support
-    
+
               0       0.72      0.95      0.82       273
               1       0.63      0.19      0.29       127
-    
+
     avg / total       0.69      0.71      0.65       400
-    
-    
+
+
 
 ## Cross validating the model
 
