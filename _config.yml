@@ -32,11 +32,11 @@ links:
   - title: Home
     url: /
   - title: Spark
-    url: /spark.html
+    url: /spark
   - title: Python
-    url: /python.html
+    url: /python
   - title: Amazing Stats
-    url: /amazing.html
+    url: /amazing
   - title: About Me
     url: /about
 

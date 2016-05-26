@@ -3,7 +3,7 @@ layout: post
 title: "Predicting if a student will get admission or not"
 date: 2016-05-01
 description: "Building a classificaiton model using python sklearn library to predict student admission"
-main-class: 'Python'
+main-class: 'python'
 published: true
 color: '#637a91'
 tags:
