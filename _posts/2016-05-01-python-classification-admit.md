@@ -12,7 +12,7 @@ tags:
 - "data Science"
 - classification
 categories:
-- "Python"
+- python
 introduction: "Building a classification model using python sklearn library to predict student admission"
 ---
 
