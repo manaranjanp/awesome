@@ -25,9 +25,11 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This notebook gives on overview of how to read data into Spark Framework and apply basic RDD operations like parsing, filtering, grouping, sorting and map reduce operations using keys and values.</p>
-<p>When spark starts, the sparkContext is created and available as variable <em>sc</em></p>
-<p>This dataset is taken from cricinfo.com. There are two datasets available: <a href="/assets/data/captains_ODI.csv">Captains ODIs</a> &amp; <a href="/assets/data/captains_Test.csv">Captains Tests</a></p>
+<h3 id="Overview">Overview<a class="anchor-link" href="#Overview">&#182;</a></h3><ul>
+<li>This notebook gives on overview of how to read data into Spark Framework and apply basic RDD operations like parsing, filtering, grouping, sorting and map reduce operations using keys and values.</li>
+<li>When spark starts, the sparkContext is created and available as variable <em>sc</em></li>
+<li>This dataset is taken from cricinfo.com. There are two datasets available: <a href="/assets/data/captains_ODI.csv">Captains ODIs</a> &amp; <a href="/assets/data/captains_Test.csv">Captains Tests</a> </li>
+</ul>
 
 </div>
 </div>
@@ -53,7 +55,7 @@ introduction: "Using Spark RDD APIs"
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;pyspark.context.SparkContext at 0x7ff3dc296400&gt;</pre>
+<pre>&lt;pyspark.context.SparkContext at 0x7f1fa479b400&gt;</pre>
 </div>
 
 </div>
@@ -261,7 +263,9 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Parsing-the-lines-and-creating-records">Parsing the lines and creating records<a class="anchor-link" href="#Parsing-the-lines-and-creating-records">&#182;</a></h4><p>The RDD does not have a header. Let's define a header and then assign it to the RDD</p>
+<h4 id="Parsing-the-lines-and-creating-records">Parsing the lines and creating records<a class="anchor-link" href="#Parsing-the-lines-and-creating-records">&#182;</a></h4><ul>
+<li>The RDD does not have a header. Let's define a header and then assign it to the RDD</li>
+</ul>
 
 </div>
 </div>
@@ -297,7 +301,9 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Lets define a tuple ( a record ) for each line. We need to iterate through each line and convert that into a record. The record can be defined as a namedTuple type and called Captain. Let's also link the names for the fields</p>
+<h4 id="Define-named-tuples-to-represent-records">Define named tuples to represent records<a class="anchor-link" href="#Define-named-tuples-to-represent-records">&#182;</a></h4><ul>
+<li>Lets define a tuple ( a record ) for each line. We need to iterate through each line and convert that into a record. The record can be defined as a namedTuple type and called Captain. Let's also link the names for the fields</li>
+</ul>
 
 </div>
 </div>
@@ -320,7 +326,9 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Create a function to parse the lines and create namedtuples</p>
+<h4 id="Parsing-lines-into-named-tuples">Parsing lines into named tuples<a class="anchor-link" href="#Parsing-lines-into-named-tuples">&#182;</a></h4><ul>
+<li>Create a function to parse the lines and create namedtuples. Then iterate throught the data and convert them into records i.e. named tuples.</li>
+</ul>
 
 </div>
 </div>
@@ -341,16 +349,6 @@ introduction: "Using Spark RDD APIs"
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Iterate throught the data and convert them into records i.e. named tuples.</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -439,7 +437,9 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Filtering-records">Filtering records<a class="anchor-link" href="#Filtering-records">&#182;</a></h4><p>Filter only those captains that have captained for at least 100 ODI matches. And then we can compare the statistics of these captains</p>
+<h4 id="Filtering-records">Filtering records<a class="anchor-link" href="#Filtering-records">&#182;</a></h4><ul>
+<li>Filter only those captains that have captained for at least 100 ODI matches. And then we can compare the statistics of these captains</li>
+</ul>
 
 </div>
 </div>
@@ -462,8 +462,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>How many captains have captained their country for more than 100 ODIs?</p>
-
+<h4 id="How-many-captains-have-captained-their-country-for-more-than-100-ODIs?">How many captains have captained their country for more than 100 ODIs?<a class="anchor-link" href="#How-many-captains-have-captained-their-country-for-more-than-100-ODIs?">&#182;</a></h4>
 </div>
 </div>
 </div>
@@ -1016,7 +1015,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Read the Captains_Test.csv file</span>
@@ -1030,7 +1029,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Parse the records</span>
@@ -1044,7 +1043,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Display the first 10 records</span>
@@ -1059,7 +1058,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[48]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[31]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -1083,7 +1082,7 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Filter the captains who have captained for more than 100 tests</span>
@@ -1125,6 +1124,16 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="There-is-only-one-captain-who-has-captained-more-then-100-tests">There is only one captain who has captained more then 100 tests<a class="anchor-link" href="#There-is-only-one-captain-who-has-captained-more-then-100-tests">&#182;</a></h4><p>So, we must lower the number of matches to look at more captains performance. We will filter out all captains who have played more than 50 matches.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -1240,7 +1249,10 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Joining-multiple-data-sets">Joining multiple data sets<a class="anchor-link" href="#Joining-multiple-data-sets">&#182;</a></h4>
+<h4 id="Joining-multiple-data-sets">Joining multiple data sets<a class="anchor-link" href="#Joining-multiple-data-sets">&#182;</a></h4><ul>
+<li>Now let's join both ODI and Test performances and verify their efficiency. </li>
+</ul>
+
 </div>
 </div>
 </div>
@@ -1423,7 +1435,7 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">best_captains</span><span class="o">.</span><span class="n">saveAsTextFile</span><span class="p">(</span> <span class="s">&quot;file:///home/hadoop/lab/results/captains&quot;</span><span class="p">)</span>
@@ -1439,9 +1451,16 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Check-results">Check results<a class="anchor-link" href="#Check-results">&#182;</a></h4><p>Go to you VM's putty terminal and go to the results directory</p>
-<p><strong>cd /home/hadoop/lab/results/captains/</strong></p>
-<p><strong>cat part-0000*</strong></p>
+<h4 id="Check-results">Check results<a class="anchor-link" href="#Check-results">&#182;</a></h4><ul>
+<li><p>Go to you VM's putty terminal and go to the results directory</p>
+<ul>
+<li><p><strong>cd /home/hadoop/lab/results/captains/</strong></p>
+</li>
+<li><p><strong>cat part-0000*</strong></p>
+</li>
+</ul>
+</li>
+</ul>
 
 </div>
 </div>
@@ -1457,7 +1476,7 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c">## Consolidate into one partition</span>
@@ -1475,9 +1494,16 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Check-results">Check results<a class="anchor-link" href="#Check-results">&#182;</a></h4><p>Go to you VM's putty terminal and go to the results directory</p>
-<p><strong>cd /home/hadoop/lab/results/bestcaptains/</strong></p>
-<p><strong>cat part-00000</strong></p>
+<h4 id="Check-results">Check results<a class="anchor-link" href="#Check-results">&#182;</a></h4><ul>
+<li><p>Go to you VM's putty terminal and go to the results directory</p>
+<ul>
+<li><p><strong>cd /home/hadoop/lab/results/bestcaptains/</strong></p>
+</li>
+<li><p><strong>cat part-00000</strong></p>
+</li>
+</ul>
+</li>
+</ul>
 
 </div>
 </div>
