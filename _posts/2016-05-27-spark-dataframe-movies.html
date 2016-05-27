@@ -1,0 +1,1364 @@
+---
+layout: post
+title: "Analysing Movielens Data using Spark DataFrame"
+date: 2016-05-25
+description: "Using Spark DataFrame APIs"
+main-class: 'spark'
+published: true
+color: '#637a91'
+tags:
+- spark
+- dataframe
+- "data Science"
+- pyspark
+- movielens
+categories:
+- spark
+introduction: "Using Spark DataFrame APIs"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Things-to-learn">Things to learn<a class="anchor-link" href="#Things-to-learn">&#182;</a></h3><ul>
+<li>Reading a file into spark dataframes </li>
+<li>Applying schema while reading records into a dataframe</li>
+<li>Displaying records </li>
+<li>Applying operations like grouping, sorting, aggregating, filtering etc.</li>
+<li>Joining multiple dataframes</li>
+<li><p>Utility functions like describing schema, showing records, rename columns, listing columns etc</p>
+</li>
+<li><p>Documentation for Spark DataFrame APIs are available <a href="http://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame">here</a></p>
+</li>
+<li>The dataset used in this exercise is available <a href="http://grouplens.org/datasets/movielens/">here</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[1]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;pyspark.context.SparkContext at 0x7f53fcec7400&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Use-SQLContext-to-load-and-read-structured-data">Use SQLContext to load and read structured data<a class="anchor-link" href="#Use-SQLContext-to-load-and-read-structured-data">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Create an sql context</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SQLContext</span>
+<span class="n">sqlContext</span> <span class="o">=</span> <span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Read-the-tab-separated-file.-Which-contains-userid,-movieid,-ratings-and-timestamp">Read the tab separated file. Which contains userid, movieid, ratings and timestamp<a class="anchor-link" href="#Read-the-tab-separated-file.-Which-contains-userid,-movieid,-ratings-and-timestamp">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ratings</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;com.databricks.spark.csv&quot;</span><span class="p">)</span>            \
+          <span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">)</span>                                    \
+          <span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;file:///home/hadoop/lab/data/movies/ratings.dat&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>The details of the the csv reader is given in the url <a href="https://github.com/databricks/spark-csv">https://github.com/databricks/spark-csv</a> </li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># What is the data type of the ratings variable. It should be a dataframe.</span>
+<span class="n">ratings</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[4]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[C0: string, C1: string, C2: string, C3: string]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Displaying-Records">Displaying Records<a class="anchor-link" href="#Displaying-Records">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Read the first few rows of the dataframe</span>
+<span class="n">ratings</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+---+----+---+---------+
+| C0|  C1| C2|       C3|
++---+----+---+---------+
+|  1|1193|  5|978300760|
+|  1| 661|  3|978302109|
+|  1| 914|  3|978301968|
+|  1|3408|  4|978300275|
+|  1|2355|  5|978824291|
+|  1|1197|  3|978302268|
+|  1|1287|  5|978302039|
+|  1|2804|  5|978300719|
+|  1| 594|  4|978302268|
+|  1| 919|  4|978301368|
+|  1| 595|  5|978824268|
+|  1| 938|  4|978301752|
+|  1|2398|  4|978302281|
+|  1|2918|  4|978302124|
+|  1|1035|  5|978301753|
+|  1|2791|  4|978302188|
+|  1|2687|  3|978824268|
+|  1|2018|  4|978301777|
+|  1|3105|  5|978301713|
+|  1|2797|  4|978302039|
++---+----+---+---------+
+only showing top 20 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Describe-the-schema-of-the-records">Describe the schema of the records<a class="anchor-link" href="#Describe-the-schema-of-the-records">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ratings</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- C0: string (nullable = true)
+|-- C1: string (nullable = true)
+|-- C2: string (nullable = true)
+|-- C3: string (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ratings</span><span class="o">.</span><span class="n">schema</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>StructType(List(StructField(C0,StringType,true),StructField(C1,StringType,true),StructField(C2,StringType,true),StructField(C3,StringType,true)))</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Apply-a-custom-defined-schema-to-the-dataframe">Apply a custom defined schema to the dataframe<a class="anchor-link" href="#Apply-a-custom-defined-schema-to-the-dataframe">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="o">*</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">StructField</span><span class="p">(</span><span class="s">&quot;userid&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+        <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;movieid&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+        <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;rating&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+        <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">LongType</span><span class="p">(),</span> <span class="k">True</span><span class="p">)</span> <span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Applying-the-schema,-while-reading-the-records">Applying the schema, while reading the records<a class="anchor-link" href="#Applying-the-schema,-while-reading-the-records">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Read the tab separated file. Which contains userid, movieid, ratings and timestamp</span>
+<span class="n">ratings_df</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;com.databricks.spark.csv&quot;</span><span class="p">)</span>                     \
+          <span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">)</span>                                                \
+          <span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;file:///home/hadoop/lab/data/movies/ratings.dat&#39;</span><span class="p">,</span>
+                <span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ratings_df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+------+-------+------+---------+
+|userid|movieid|rating|timestamp|
++------+-------+------+---------+
+|     1|   1193|     5|978300760|
+|     1|    661|     3|978302109|
+|     1|    914|     3|978301968|
+|     1|   3408|     4|978300275|
+|     1|   2355|     5|978824291|
+|     1|   1197|     3|978302268|
+|     1|   1287|     5|978302039|
+|     1|   2804|     5|978300719|
+|     1|    594|     4|978302268|
+|     1|    919|     4|978301368|
+|     1|    595|     5|978824268|
+|     1|    938|     4|978301752|
+|     1|   2398|     4|978302281|
+|     1|   2918|     4|978302124|
+|     1|   1035|     5|978301753|
+|     1|   2791|     4|978302188|
+|     1|   2687|     3|978824268|
+|     1|   2018|     4|978301777|
+|     1|   3105|     5|978301713|
+|     1|   2797|     4|978302039|
++------+-------+------+---------+
+only showing top 20 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="The-RDD-or-DataFrame-can-be-persisted-in-Memory">The RDD or DataFrame can be persisted in Memory<a class="anchor-link" href="#The-RDD-or-DataFrame-can-be-persisted-in-Memory">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ratings_df</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[userid: int, movieid: int, rating: int, timestamp: bigint]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ratings_df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- userid: integer (nullable = true)
+|-- movieid: integer (nullable = true)
+|-- rating: integer (nullable = true)
+|-- timestamp: long (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Show-the-list-of-columns-in-the-dataframe">Show the list of columns in the dataframe<a class="anchor-link" href="#Show-the-list-of-columns-in-the-dataframe">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Return a list of columns</span>
+<span class="n">ratings_df</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&apos;userid&apos;, &apos;movieid&apos;, &apos;rating&apos;, &apos;timestamp&apos;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## How many records in the dataframe?</span>
+<span class="n">ratings_df</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[14]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1000209</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ratings_df_mem_ser</span> <span class="o">=</span> <span class="n">ratings_df</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ratings_df_mem_ser</span><span class="o">.</span><span class="n">persist</span><span class="p">(</span><span class="n">StorageLevel</span><span class="o">.</span><span class="n">MEMORY_ONLY_SER</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[userid: int, movieid: int, rating: int, timestamp: bigint]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ratings_df_mem_ser</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1000209</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="How-to-drop-a-column?">How to drop a column?<a class="anchor-link" href="#How-to-drop-a-column?">&#182;</a></h3><ul>
+<li>We will drop timestamp from dataframe as we will not need it for further analysis.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## We donot need the timestamp column.. let&#39;s drop it</span>
+<span class="n">ratings_df</span> <span class="o">=</span> <span class="n">ratings_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="s">&#39;timestamp&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ratings_df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+------+-------+------+
+|userid|movieid|rating|
++------+-------+------+
+|     1|   1193|     5|
+|     1|    661|     3|
+|     1|    914|     3|
+|     1|   3408|     4|
+|     1|   2355|     5|
+|     1|   1197|     3|
+|     1|   1287|     5|
+|     1|   2804|     5|
+|     1|    594|     4|
+|     1|    919|     4|
+|     1|    595|     5|
+|     1|    938|     4|
+|     1|   2398|     4|
+|     1|   2918|     4|
+|     1|   1035|     5|
+|     1|   2791|     4|
+|     1|   2687|     3|
+|     1|   2018|     4|
+|     1|   3105|     5|
+|     1|   2797|     4|
++------+-------+------+
+only showing top 20 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Applying-operations-like-groupby()-and-sort()">Applying operations like groupby() and sort()<a class="anchor-link" href="#Applying-operations-like-groupby()-and-sort()">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">movie_counts</span> <span class="o">=</span> <span class="n">ratings_df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="s">&quot;movieid&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="o">*</span>
+<span class="n">movie_counts</span> <span class="o">=</span> <span class="n">movie_counts</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">movie_counts</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+-----+
+|movieid|count|
++-------+-----+
+|   2858| 3428|
+|    260| 2991|
+|   1196| 2990|
+|   1210| 2883|
+|    480| 2672|
+|   2028| 2653|
+|    589| 2649|
+|   2571| 2590|
+|   1270| 2583|
+|    593| 2578|
++-------+-----+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Applying-an-aggregation-function-to-the-group-by">Applying an aggregation function to the group by<a class="anchor-link" href="#Applying-an-aggregation-function-to-the-group-by">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings</span> <span class="o">=</span> <span class="n">ratings_df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="s">&quot;movieid&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span> <span class="p">{</span><span class="s">&quot;rating&quot;</span><span class="p">:</span><span class="s">&quot;avg&quot;</span><span class="p">}</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- movieid: integer (nullable = true)
+|-- avg(rating): double (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings</span> <span class="o">=</span> <span class="n">avg_ratings</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="n">desc</span><span class="p">(</span> <span class="s">&quot;avg(rating)&quot;</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+-----------+
+|movieid|avg(rating)|
++-------+-----------+
+|   3607|        5.0|
+|    989|        5.0|
+|   3382|        5.0|
+|   3172|        5.0|
+|   3656|        5.0|
+|    787|        5.0|
+|   3881|        5.0|
+|   3233|        5.0|
+|   3280|        5.0|
+|   1830|        5.0|
++-------+-----------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Joining-multiple-dataframes">Joining multiple dataframes<a class="anchor-link" href="#Joining-multiple-dataframes">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings_count</span> <span class="o">=</span> <span class="n">avg_ratings</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">movie_counts</span><span class="p">,</span>
+                                   <span class="n">avg_ratings</span><span class="o">.</span><span class="n">movieid</span> <span class="o">==</span> <span class="n">movie_counts</span><span class="o">.</span><span class="n">movieid</span> <span class="p">,</span>
+                                   <span class="s">&#39;inner&#39;</span> <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">movie_counts</span><span class="o">.</span><span class="n">movieid</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings_count</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- avg(rating): double (nullable = true)
+|-- movieid: integer (nullable = true)
+|-- count: long (nullable = false)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Renaming-a-column-in-a-dataframe">Renaming a column in a dataframe<a class="anchor-link" href="#Renaming-a-column-in-a-dataframe">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings_count</span> <span class="o">=</span> <span class="n">avg_ratings_count</span><span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span> <span class="s">&quot;avg(rating)&quot;</span><span class="p">,</span>
+                                                      <span class="s">&quot;mean_rating&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings_count</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- mean_rating: double (nullable = true)
+|-- movieid: integer (nullable = true)
+|-- count: long (nullable = false)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings_count</span> <span class="o">=</span> <span class="n">avg_ratings_count</span>                                      \
+                  <span class="o">.</span><span class="n">withColumn</span><span class="p">(</span> <span class="s">&quot;mean_rating&quot;</span><span class="p">,</span>
+                              <span class="nb">round</span><span class="p">(</span> <span class="n">avg_ratings_count</span><span class="p">[</span><span class="s">&quot;mean_rating&quot;</span><span class="p">]</span>
+                                    <span class="p">,</span> <span class="mi">2</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings_count</span> <span class="o">=</span> <span class="n">avg_ratings_count</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="n">desc</span><span class="p">(</span> <span class="s">&quot;mean_rating&quot;</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings_count</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----------+-------+-----+
+|mean_rating|movieid|count|
++-----------+-------+-----+
+|        5.0|   3607|    1|
+|        5.0|    989|    1|
+|        5.0|   3382|    1|
+|        5.0|   3172|    1|
+|        5.0|    787|    3|
+|        5.0|   3656|    1|
+|        5.0|   3233|    2|
+|        5.0|   3881|    1|
+|        5.0|   3280|    1|
+|        5.0|   1830|    1|
++-----------+-------+-----+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Filtering-records-in-a-dataframe-based-on-a-criteria">Filtering records in a dataframe based on a criteria<a class="anchor-link" href="#Filtering-records-in-a-dataframe-based-on-a-criteria">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings_count</span> <span class="o">=</span> <span class="n">avg_ratings_count</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="n">avg_ratings_count</span><span class="p">[</span><span class="s">&quot;count&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">20</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings_count</span> <span class="o">=</span> <span class="n">avg_ratings_count</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="n">desc</span><span class="p">(</span> <span class="s">&quot;mean_rating&quot;</span> <span class="p">)</span> <span class="p">,</span> <span class="n">desc</span><span class="p">(</span> <span class="s">&quot;count&quot;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_ratings_count</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----------+-------+-----+
+|mean_rating|movieid|count|
++-----------+-------+-----+
+|       4.61|   2905|   69|
+|       4.56|   2019|  628|
+|       4.55|    318| 2227|
+|       4.52|    858| 2223|
+|       4.52|     50| 1783|
+|       4.52|    745|  657|
+|       4.51|    527| 2304|
+|       4.51|   1148|  882|
+|       4.49|    922|  470|
+|       4.48|   1198| 2514|
++-----------+-------+-----+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Loading-movies-data">Loading movies data<a class="anchor-link" href="#Loading-movies-data">&#182;</a></h3><ul>
+<li>Movies file contains information like movieid, movie name and the genre it belongs to in terms of a set of tags</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">movies_df</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;com.databricks.spark.csv&quot;</span><span class="p">)</span>           \
+          <span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="k">True</span><span class="p">,</span> <span class="n">inferSchema</span> <span class="o">=</span> <span class="k">True</span><span class="p">)</span>  \
+          <span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;file:///home/hadoop/lab/data/movies/movies.dat&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">movies_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+--------------------+--------------------+
+|movieid|                name|                tags|
++-------+--------------------+--------------------+
+|      1|    Toy Story (1995)|Animation|Childre...|
+|      2|      Jumanji (1995)|Adventure|Childre...|
+|      3|Grumpier Old Men ...|      Comedy|Romance|
+|      4|Waiting to Exhale...|        Comedy|Drama|
+|      5|Father of the Bri...|              Comedy|
+|      6|         Heat (1995)|Action|Crime|Thri...|
+|      7|      Sabrina (1995)|      Comedy|Romance|
+|      8| Tom and Huck (1995)|Adventure|Children&apos;s|
+|      9| Sudden Death (1995)|              Action|
+|     10|    GoldenEye (1995)|Action|Adventure|...|
++-------+--------------------+--------------------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">movies_df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- movieid: integer (nullable = true)
+|-- name: string (nullable = true)
+|-- tags: string (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Joining-Ratings-and-Movies-data-to-find-top-20-best-rated-movies">Joining Ratings and Movies data to find top 20 best rated movies<a class="anchor-link" href="#Joining-Ratings-and-Movies-data-to-find-top-20-best-rated-movies">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top_movies</span> <span class="o">=</span> <span class="n">avg_ratings_count</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>                            \
+          <span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">movies_df</span><span class="p">,</span>
+                <span class="n">avg_ratings_count</span><span class="o">.</span><span class="n">movieid</span> <span class="o">==</span> <span class="n">movies_df</span><span class="o">.</span><span class="n">movieid</span><span class="p">,</span>
+                <span class="s">&quot;inner&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">movies_df</span><span class="o">.</span><span class="n">movieid</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top_movies_20</span> <span class="o">=</span> <span class="n">top_movies</span><span class="o">.</span><span class="n">select</span><span class="p">(</span> <span class="s">&quot;movieid&quot;</span><span class="p">,</span> <span class="s">&quot;mean_rating&quot;</span><span class="p">,</span> <span class="s">&quot;count&quot;</span><span class="p">,</span> <span class="s">&quot;name&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top_movies_20</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[42]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[Row(movieid=50, mean_rating=4.52, count=1783, name=&apos;Usual Suspects, The (1995)&apos;),
+Row(movieid=260, mean_rating=4.45, count=2991, name=&apos;Star Wars: Episode IV - A New Hope (1977)&apos;),
+Row(movieid=318, mean_rating=4.55, count=2227, name=&apos;Shawshank Redemption, The (1994)&apos;),
+Row(movieid=527, mean_rating=4.51, count=2304, name=&quot;Schindler&apos;s List (1993)&quot;),
+Row(movieid=720, mean_rating=4.43, count=438, name=&apos;Wallace &amp; Gromit: The Best of Aardman Animation (1996)&apos;),
+Row(movieid=745, mean_rating=4.52, count=657, name=&apos;Close Shave, A (1995)&apos;),
+Row(movieid=750, mean_rating=4.45, count=1367, name=&apos;Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1963)&apos;),
+Row(movieid=858, mean_rating=4.52, count=2223, name=&apos;Godfather, The (1972)&apos;),
+Row(movieid=904, mean_rating=4.48, count=1050, name=&apos;Rear Window (1954)&apos;),
+Row(movieid=922, mean_rating=4.49, count=470, name=&apos;Sunset Blvd. (a.k.a. Sunset Boulevard) (1950)&apos;),
+Row(movieid=1148, mean_rating=4.51, count=882, name=&apos;Wrong Trousers, The (1993)&apos;),
+Row(movieid=1178, mean_rating=4.47, count=230, name=&apos;Paths of Glory (1957)&apos;),
+Row(movieid=1198, mean_rating=4.48, count=2514, name=&apos;Raiders of the Lost Ark (1981)&apos;),
+Row(movieid=1207, mean_rating=4.43, count=928, name=&apos;To Kill a Mockingbird (1962)&apos;),
+Row(movieid=1212, mean_rating=4.45, count=480, name=&apos;Third Man, The (1949)&apos;),
+Row(movieid=2019, mean_rating=4.56, count=628, name=&apos;Seven Samurai (The Magnificent Seven) (Shichinin no samurai) (1954)&apos;),
+Row(movieid=2762, mean_rating=4.41, count=2459, name=&apos;Sixth Sense, The (1999)&apos;),
+Row(movieid=2905, mean_rating=4.61, count=69, name=&apos;Sanjuro (1962)&apos;),
+Row(movieid=3338, mean_rating=4.44, count=27, name=&apos;For All Mankind (1989)&apos;),
+Row(movieid=3435, mean_rating=4.42, count=551, name=&apos;Double Indemnity (1944)&apos;)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Saving-the-results-into-a-csv-file">Saving the results into a csv file<a class="anchor-link" href="#Saving-the-results-into-a-csv-file">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top_movies_20</span><span class="o">.</span><span class="n">write</span>                                          \
+  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;com.databricks.spark.csv&quot;</span><span class="p">)</span>                      \
+  <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s">&quot;header&quot;</span><span class="p">,</span> <span class="s">&quot;true&quot;</span><span class="p">)</span>                                \
+  <span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&quot;file:///home/hadoop/lab/results/topmovies&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Exercises">Exercises<a class="anchor-link" href="#Exercises">&#182;</a></h2><ul>
+<li>Find out 20 worst rated movies. But only consider those movies which are rated by at least 100 users.</li>
+<li>Find out best 10 and worst 10 movies in each category - Categories are tags given in the <em>movies.data</em> file</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="What-we-learnt">What we learnt<a class="anchor-link" href="#What-we-learnt">&#182;</a></h2><p>Please make a note of things that you learnt.</p>
+
+</div>
+</div>
+</div>
+  </div>
+</div>

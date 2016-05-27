@@ -78,7 +78,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Read-the-capatings_ODI.csv-file-from-local-file-system">Read the capatings_ODI.csv file from local file system<a class="anchor-link" href="#Read-the-capatings_ODI.csv-file-from-local-file-system">&#182;</a></h4>
+<h3 id="Read-the-capatings_ODI.csv-file-from-local-file-system">Read the capatings_ODI.csv file from local file system<a class="anchor-link" href="#Read-the-capatings_ODI.csv-file-from-local-file-system">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -100,7 +100,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Check-the-first-record">Check the first record<a class="anchor-link" href="#Check-the-first-record">&#182;</a></h4>
+<h3 id="Check-the-first-record">Check the first record<a class="anchor-link" href="#Check-the-first-record">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -138,7 +138,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Display-the-first-10-records">Display the first 10 records<a class="anchor-link" href="#Display-the-first-10-records">&#182;</a></h4>
+<h3 id="Display-the-first-10-records">Display the first 10 records<a class="anchor-link" href="#Display-the-first-10-records">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -185,7 +185,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Checking-the-RDD-type">Checking the RDD type<a class="anchor-link" href="#Checking-the-RDD-type">&#182;</a></h4>
+<h3 id="Checking-the-RDD-type">Checking the RDD type<a class="anchor-link" href="#Checking-the-RDD-type">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -224,7 +224,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Counting-the-number-of-records">Counting the number of records<a class="anchor-link" href="#Counting-the-number-of-records">&#182;</a></h4>
+<h3 id="Counting-the-number-of-records">Counting the number of records<a class="anchor-link" href="#Counting-the-number-of-records">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -263,7 +263,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Parsing-the-lines-and-creating-records">Parsing the lines and creating records<a class="anchor-link" href="#Parsing-the-lines-and-creating-records">&#182;</a></h4><ul>
+<h3 id="Parsing-the-lines-and-creating-records">Parsing the lines and creating records<a class="anchor-link" href="#Parsing-the-lines-and-creating-records">&#182;</a></h3><ul>
 <li>The RDD does not have a header. Let's define a header and then assign it to the RDD</li>
 </ul>
 
@@ -301,7 +301,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Define-named-tuples-to-represent-records">Define named tuples to represent records<a class="anchor-link" href="#Define-named-tuples-to-represent-records">&#182;</a></h4><ul>
+<h3 id="Define-named-tuples-to-represent-records">Define named tuples to represent records<a class="anchor-link" href="#Define-named-tuples-to-represent-records">&#182;</a></h3><ul>
 <li>Lets define a tuple ( a record ) for each line. We need to iterate through each line and convert that into a record. The record can be defined as a namedTuple type and called Captain. Let's also link the names for the fields</li>
 </ul>
 
@@ -326,7 +326,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Parsing-lines-into-named-tuples">Parsing lines into named tuples<a class="anchor-link" href="#Parsing-lines-into-named-tuples">&#182;</a></h4><ul>
+<h3 id="Parsing-lines-into-named-tuples">Parsing lines into named tuples<a class="anchor-link" href="#Parsing-lines-into-named-tuples">&#182;</a></h3><ul>
 <li>Create a function to parse the lines and create namedtuples. Then iterate throught the data and convert them into records i.e. named tuples.</li>
 </ul>
 
@@ -437,7 +437,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Filtering-records">Filtering records<a class="anchor-link" href="#Filtering-records">&#182;</a></h4><ul>
+<h3 id="Filtering-records">Filtering records<a class="anchor-link" href="#Filtering-records">&#182;</a></h3><ul>
 <li>Filter only those captains that have captained for at least 100 ODI matches. And then we can compare the statistics of these captains</li>
 </ul>
 
@@ -462,7 +462,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="How-many-captains-have-captained-their-country-for-more-than-100-ODIs?">How many captains have captained their country for more than 100 ODIs?<a class="anchor-link" href="#How-many-captains-have-captained-their-country-for-more-than-100-ODIs?">&#182;</a></h4>
+<h3 id="How-many-captains-have-captained-their-country-for-more-than-100-ODIs?">How many captains have captained their country for more than 100 ODIs?<a class="anchor-link" href="#How-many-captains-have-captained-their-country-for-more-than-100-ODIs?">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -553,7 +553,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Collecting-the-results-in-the-driver">Collecting the results in the driver<a class="anchor-link" href="#Collecting-the-results-in-the-driver">&#182;</a></h4>
+<h3 id="Collecting-the-results-in-the-driver">Collecting the results in the driver<a class="anchor-link" href="#Collecting-the-results-in-the-driver">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -635,7 +635,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Creating-a-subset-of-data-by-filtering-columns">Creating a subset of data by filtering columns<a class="anchor-link" href="#Creating-a-subset-of-data-by-filtering-columns">&#182;</a></h4>
+<h3 id="Creating-a-subset-of-data-by-filtering-columns">Creating a subset of data by filtering columns<a class="anchor-link" href="#Creating-a-subset-of-data-by-filtering-columns">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -696,7 +696,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Aggregating-values-by-keys">Aggregating values by keys<a class="anchor-link" href="#Aggregating-values-by-keys">&#182;</a></h4>
+<h3 id="Aggregating-values-by-keys">Aggregating values by keys<a class="anchor-link" href="#Aggregating-values-by-keys">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -809,7 +809,10 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Sorting-records">Sorting records<a class="anchor-link" href="#Sorting-records">&#182;</a></h4>
+<h3 id="Sorting-records">Sorting records<a class="anchor-link" href="#Sorting-records">&#182;</a></h3><ul>
+<li>Sort the countries by the number of matches they played by descending order by names (key)</li>
+</ul>
+
 </div>
 </div>
 </div>
@@ -818,9 +821,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="prompt input_prompt">In&nbsp;[25]:</div>
 <div class="inner_cell">
   <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="c"># Sort the countries by the number of matches they played by descending order.. </span>
-<span class="c"># by names (key)</span>
-<span class="n">matches_countries</span><span class="o">.</span><span class="n">sortByKey</span><span class="p">(</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span class="n">matches_countries</span><span class="o">.</span><span class="n">sortByKey</span><span class="p">(</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
 </pre></div>
 
 </div>
@@ -1130,7 +1131,7 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="There-is-only-one-captain-who-has-captained-more-then-100-tests">There is only one captain who has captained more then 100 tests<a class="anchor-link" href="#There-is-only-one-captain-who-has-captained-more-then-100-tests">&#182;</a></h4><p>So, we must lower the number of matches to look at more captains performance. We will filter out all captains who have played more than 50 matches.</p>
+<h3 id="There-is-only-one-captain-who-has-captained-more-then-100-tests">There is only one captain who has captained more then 100 tests<a class="anchor-link" href="#There-is-only-one-captain-who-has-captained-more-then-100-tests">&#182;</a></h3><p>So, we must lower the number of matches to look at more captains performance. We will filter out all captains who have played more than 50 matches.</p>
 
 </div>
 </div>
@@ -1249,7 +1250,7 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Joining-multiple-data-sets">Joining multiple data sets<a class="anchor-link" href="#Joining-multiple-data-sets">&#182;</a></h4><ul>
+<h3 id="Joining-multiple-data-sets">Joining multiple data sets<a class="anchor-link" href="#Joining-multiple-data-sets">&#182;</a></h3><ul>
 <li>Now let's join both ODI and Test performances and verify their efficiency. </li>
 </ul>
 
@@ -1429,7 +1430,7 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Saving-results-into-filesystem">Saving results into filesystem<a class="anchor-link" href="#Saving-results-into-filesystem">&#182;</a></h4>
+<h3 id="Saving-results-into-filesystem">Saving results into filesystem<a class="anchor-link" href="#Saving-results-into-filesystem">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -1451,13 +1452,10 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Check-results">Check results<a class="anchor-link" href="#Check-results">&#182;</a></h4><ul>
-<li><p>Go to you VM's putty terminal and go to the results directory</p>
-<ul>
-<li><p><strong>cd /home/hadoop/lab/results/captains/</strong></p>
-</li>
-<li><p><strong>cat part-0000*</strong></p>
-</li>
+<h3 id="Check-results">Check results<a class="anchor-link" href="#Check-results">&#182;</a></h3><ul>
+<li>Go to you VM's putty terminal and go to the results directory<ul>
+<li>cd /home/hadoop/lab/results/captains/</li>
+<li>cat part-0000</li>
 </ul>
 </li>
 </ul>
@@ -1470,7 +1468,7 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Saving-results-into-one-file.-Forcing-the-bring-all-results-into-one-partition">Saving results into one file. Forcing the bring all results into one partition<a class="anchor-link" href="#Saving-results-into-one-file.-Forcing-the-bring-all-results-into-one-partition">&#182;</a></h4>
+<h3 id="Saving-results-into-one-file.-Forcing-the-bring-all-results-into-one-partition">Saving results into one file. Forcing the bring all results into one partition<a class="anchor-link" href="#Saving-results-into-one-file.-Forcing-the-bring-all-results-into-one-partition">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -1494,13 +1492,10 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Check-results">Check results<a class="anchor-link" href="#Check-results">&#182;</a></h4><ul>
-<li><p>Go to you VM's putty terminal and go to the results directory</p>
-<ul>
-<li><p><strong>cd /home/hadoop/lab/results/bestcaptains/</strong></p>
-</li>
-<li><p><strong>cat part-00000</strong></p>
-</li>
+<h3 id="Check-results">Check results<a class="anchor-link" href="#Check-results">&#182;</a></h3><ul>
+<li>Go to you VM's putty terminal and go to the results directory<ul>
+<li>cd /home/hadoop/lab/results/bestcaptains/</li>
+<li>cat part-00000</li>
 </ul>
 </li>
 </ul>
