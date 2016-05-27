@@ -1,0 +1,1486 @@
+---
+layout: post
+title: "Analyze the captains performance in ODIs and Test matches in Cricket"
+date: 2016-05-25
+description: "Using Spark RDD APIs"
+main-class: 'spark'
+published: true
+color: '#637a91'
+tags:
+- spark
+- rdd
+- "data Science"
+- pyspark
+categories:
+- spark
+introduction: "Using Spark RDD APIs"
+---
+
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This notebook gives on overview of how to read data into Spark Framework and apply basic RDD operations like parsing, filtering, grouping, sorting and map reduce operations using keys and values.</p>
+<p>When spark starts, the sparkContext is created and available as variable <em>sc</em></p>
+<p>This dataset is taken from cricinfo.com. There are two datasets available: <a href="/assets/data/captains_ODI.csv">Captains ODIs</a> &amp; <a href="/assets/data/captains_Test.csv">Captains Tests</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Spark Context Created.. Let&#39;s verify it</span>
+<span class="n">sc</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[1]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;pyspark.context.SparkContext at 0x7ff3dc296400&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="ODI-Performance-Analysis">ODI Performance Analysis<a class="anchor-link" href="#ODI-Performance-Analysis">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Read-the-capatings_ODI.csv-file-from-local-file-system">Read the capatings_ODI.csv file from local file system<a class="anchor-link" href="#Read-the-capatings_ODI.csv-file-from-local-file-system">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="p">(</span> <span class="s">&quot;file:///home/hadoop/lab/data/captains_ODI.csv&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Check-the-first-record">Check the first record<a class="anchor-link" href="#Check-the-first-record">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[3]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;Ponting  R T,Australia,1995-2012,230,165,51,14,124&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Display-the-first-10-records">Display the first 10 records<a class="anchor-link" href="#Display-the-first-10-records">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[4]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&apos;Ponting  R T,Australia,1995-2012,230,165,51,14,124&apos;,
+&apos;Fleming  S P,New Zealand,1994-2007,218,98,106,14,105&apos;,
+&apos;Ranatunga  A,Sri Lanka,1982-1999,193,89,95,9,102&apos;,
+&apos;Dhoni  M S*,India,2004-,186,103,68,15,88&apos;,
+&apos;Border  A R,Australia,1979-1994,178,107,67,4,86&apos;,
+&apos;Azharuddin  M,India,1985-2000,174,89,77,8,96&apos;,
+&apos;Smith  G C,South Africa,2002-2013,149,91,51,7,74&apos;,
+&apos;Ganguly  S C,India,1992-2007,147,76,66,5,74&apos;,
+&apos;Cronje  W J,South Africa,1992-2000,140,99,37,4,74&apos;,
+&apos;Imran Khan,Pakistan,1974-1992,139,75,59,5,70&apos;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Checking-the-RDD-type">Checking the RDD type<a class="anchor-link" href="#Checking-the-RDD-type">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># captains_odis should be of RDD type</span>
+<span class="nb">type</span><span class="p">(</span> <span class="n">captains_odis</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[5]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>pyspark.rdd.RDD</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Counting-the-number-of-records">Counting the number of records<a class="anchor-link" href="#Counting-the-number-of-records">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Count the number of records</span>
+<span class="n">captains_odis</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>98</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Parsing-the-lines-and-creating-records">Parsing the lines and creating records<a class="anchor-link" href="#Parsing-the-lines-and-creating-records">&#182;</a></h4><p>The RDD does not have a header. Let's define a header and then assign it to the RDD</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;country&quot;</span><span class="p">,</span> <span class="s">&quot;career&quot;</span><span class="p">,</span> <span class="s">&quot;matches&quot;</span><span class="p">,</span> <span class="s">&quot;won&quot;</span><span class="p">,</span> <span class="s">&quot;lost&quot;</span><span class="p">,</span> <span class="s">&quot;ties&quot;</span><span class="p">,</span> <span class="s">&quot;toss&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Lets define a tuple ( a record ) for each line. We need to iterate through each line and convert that into a record. The record can be defined as a namedTuple type and called Captain. Let's also link the names for the fields</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">Captain</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span> <span class="s">&#39;Captain&#39;</span><span class="p">,</span> <span class="n">fields</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Create a function to parse the lines and create namedtuples</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Define a function to parse each line and convert them into records</span>
+<span class="k">def</span> <span class="nf">parseRecs</span><span class="p">(</span> <span class="n">line</span> <span class="p">):</span>
+  <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">Captain</span><span class="p">(</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span> <span class="n">fields</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="p">),</span>
+                 <span class="nb">int</span><span class="p">(</span> <span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Iterate throught the data and convert them into records i.e. named tuples.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains</span> <span class="o">=</span> <span class="n">captains_odis</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">parseRecs</span><span class="p">(</span> <span class="n">rec</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Now captains refer to all the records. Let&#39;s display the first 10 records.</span>
+<span class="n">captains</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[Captain(name=&apos;Ponting  R T&apos;, country=&apos;Australia&apos;, career=&apos;1995-2012&apos;, matches=230, won=165, lost=51, ties=14, toss=124),
+Captain(name=&apos;Fleming  S P&apos;, country=&apos;New Zealand&apos;, career=&apos;1994-2007&apos;, matches=218, won=98, lost=106, ties=14, toss=105),
+Captain(name=&apos;Ranatunga  A&apos;, country=&apos;Sri Lanka&apos;, career=&apos;1982-1999&apos;, matches=193, won=89, lost=95, ties=9, toss=102),
+Captain(name=&apos;Dhoni  M S*&apos;, country=&apos;India&apos;, career=&apos;2004-&apos;, matches=186, won=103, lost=68, ties=15, toss=88),
+Captain(name=&apos;Border  A R&apos;, country=&apos;Australia&apos;, career=&apos;1979-1994&apos;, matches=178, won=107, lost=67, ties=4, toss=86),
+Captain(name=&apos;Azharuddin  M&apos;, country=&apos;India&apos;, career=&apos;1985-2000&apos;, matches=174, won=89, lost=77, ties=8, toss=96),
+Captain(name=&apos;Smith  G C&apos;, country=&apos;South Africa&apos;, career=&apos;2002-2013&apos;, matches=149, won=91, lost=51, ties=7, toss=74),
+Captain(name=&apos;Ganguly  S C&apos;, country=&apos;India&apos;, career=&apos;1992-2007&apos;, matches=147, won=76, lost=66, ties=5, toss=74),
+Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&apos;1992-2000&apos;, matches=140, won=99, lost=37, ties=4, toss=74),
+Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;1974-1992&apos;, matches=139, won=75, lost=59, ties=5, toss=70)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># What is the type of the captains RDD</span>
+<span class="nb">type</span><span class="p">(</span> <span class="n">captains</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>pyspark.rdd.PipelinedRDD</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Filtering-records">Filtering records<a class="anchor-link" href="#Filtering-records">&#182;</a></h4><p>Filter only those captains that have captained for at least 100 ODI matches. And then we can compare the statistics of these captains</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_100</span> <span class="o">=</span> <span class="n">captains</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">matches</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>How many captains have captained their country for more than 100 ODIs?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_100</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>16</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Who are these captains</span>
+<span class="n">captains</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[Captain(name=&apos;Ponting  R T&apos;, country=&apos;Australia&apos;, career=&apos;1995-2012&apos;, matches=230, won=165, lost=51, ties=14, toss=124),
+Captain(name=&apos;Fleming  S P&apos;, country=&apos;New Zealand&apos;, career=&apos;1994-2007&apos;, matches=218, won=98, lost=106, ties=14, toss=105),
+Captain(name=&apos;Ranatunga  A&apos;, country=&apos;Sri Lanka&apos;, career=&apos;1982-1999&apos;, matches=193, won=89, lost=95, ties=9, toss=102),
+Captain(name=&apos;Dhoni  M S*&apos;, country=&apos;India&apos;, career=&apos;2004-&apos;, matches=186, won=103, lost=68, ties=15, toss=88),
+Captain(name=&apos;Border  A R&apos;, country=&apos;Australia&apos;, career=&apos;1979-1994&apos;, matches=178, won=107, lost=67, ties=4, toss=86),
+Captain(name=&apos;Azharuddin  M&apos;, country=&apos;India&apos;, career=&apos;1985-2000&apos;, matches=174, won=89, lost=77, ties=8, toss=96),
+Captain(name=&apos;Smith  G C&apos;, country=&apos;South Africa&apos;, career=&apos;2002-2013&apos;, matches=149, won=91, lost=51, ties=7, toss=74),
+Captain(name=&apos;Ganguly  S C&apos;, country=&apos;India&apos;, career=&apos;1992-2007&apos;, matches=147, won=76, lost=66, ties=5, toss=74),
+Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&apos;1992-2000&apos;, matches=140, won=99, lost=37, ties=4, toss=74),
+Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;1974-1992&apos;, matches=139, won=75, lost=59, ties=5, toss=70)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Filtering: Captains who have more wins then losses...</span>
+<span class="n">captains_more_wins</span> <span class="o">=</span> <span class="n">captains_100</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">won</span> <span class="o">&gt;</span> <span class="n">rec</span><span class="o">.</span><span class="n">lost</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Collecting-the-results-in-the-driver">Collecting the results in the driver<a class="anchor-link" href="#Collecting-the-results-in-the-driver">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Captains with more wins than losses</span>
+<span class="n">captains_more_wins</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">name</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&apos;Ponting  R T&apos;,
+&apos;Dhoni  M S*&apos;,
+&apos;Border  A R&apos;,
+&apos;Azharuddin  M&apos;,
+&apos;Smith  G C&apos;,
+&apos;Ganguly  S C&apos;,
+&apos;Cronje  W J&apos;,
+&apos;Imran Khan&apos;,
+&apos;Jayawardene  D P M&apos;,
+&apos;Jayasuriya  S T&apos;,
+&apos;Wasim Akram&apos;,
+&apos;Waugh  S R&apos;,
+&apos;Richards  I V A&apos;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Captains with less wins than losses</span>
+<span class="n">captains_more_losts</span> <span class="o">=</span> <span class="n">captains_100</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">won</span> <span class="o">&lt;=</span> <span class="n">rec</span><span class="o">.</span><span class="n">lost</span> <span class="p">)</span>
+<span class="n">captains_more_losts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">name</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&apos;Fleming  S P&apos;, &apos;Ranatunga  A&apos;, &apos;Lara  B C&apos;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Creating-a-subset-of-data-by-filtering-columns">Creating a subset of data by filtering columns<a class="anchor-link" href="#Creating-a-subset-of-data-by-filtering-columns">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Which country has played how many matches..</span>
+<span class="n">countries</span> <span class="o">=</span> <span class="n">captains</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">country</span> <span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">matches</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">countries</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[21]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Australia&apos;, 230),
+(&apos;New Zealand&apos;, 218),
+(&apos;Sri Lanka&apos;, 193),
+(&apos;India&apos;, 186),
+(&apos;Australia&apos;, 178),
+(&apos;India&apos;, 174),
+(&apos;South Africa&apos;, 149),
+(&apos;India&apos;, 147),
+(&apos;South Africa&apos;, 140),
+(&apos;Pakistan&apos;, 139)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Aggregating-values-by-keys">Aggregating values by keys<a class="anchor-link" href="#Aggregating-values-by-keys">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Aggregate by countries</span>
+<span class="n">matches_countries</span> <span class="o">=</span> <span class="n">countries</span><span class="o">.</span><span class="n">reduceByKey</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">matches_countries</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">20</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[23]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Pakistan&apos;, 781),
+(&apos;South Africa&apos;, 463),
+(&apos;Ireland&apos;, 93),
+(&apos;Australia&apos;, 832),
+(&apos;West Indies&apos;, 658),
+(&apos;Kenya&apos;, 114),
+(&apos;India&apos;, 770),
+(&apos;Bermuda&apos;, 31),
+(&apos;Netherlands&apos;, 31),
+(&apos;Afghanistan&apos;, 50),
+(&apos;England&apos;, 554),
+(&apos;Canada&apos;, 27),
+(&apos;Zimbabwe&apos;, 394),
+(&apos;Sri Lanka&apos;, 710),
+(&apos;Bangladesh&apos;, 251),
+(&apos;New Zealand&apos;, 608)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Sort the countries by the number of matches they played. </span>
+<span class="c"># Sort by names...(sort by key)</span>
+<span class="n">matches_countries</span><span class="o">.</span><span class="n">sortByKey</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[24]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Afghanistan&apos;, 50),
+(&apos;Australia&apos;, 832),
+(&apos;Bangladesh&apos;, 251),
+(&apos;Bermuda&apos;, 31),
+(&apos;Canada&apos;, 27),
+(&apos;England&apos;, 554),
+(&apos;India&apos;, 770),
+(&apos;Ireland&apos;, 93),
+(&apos;Kenya&apos;, 114),
+(&apos;Netherlands&apos;, 31),
+(&apos;New Zealand&apos;, 608),
+(&apos;Pakistan&apos;, 781),
+(&apos;South Africa&apos;, 463),
+(&apos;Sri Lanka&apos;, 710),
+(&apos;West Indies&apos;, 658),
+(&apos;Zimbabwe&apos;, 394)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Sorting-records">Sorting records<a class="anchor-link" href="#Sorting-records">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Sort the countries by the number of matches they played by descending order.. </span>
+<span class="c"># by names (key)</span>
+<span class="n">matches_countries</span><span class="o">.</span><span class="n">sortByKey</span><span class="p">(</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[25]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Zimbabwe&apos;, 394),
+(&apos;West Indies&apos;, 658),
+(&apos;Sri Lanka&apos;, 710),
+(&apos;South Africa&apos;, 463),
+(&apos;Pakistan&apos;, 781),
+(&apos;New Zealand&apos;, 608),
+(&apos;Netherlands&apos;, 31),
+(&apos;Kenya&apos;, 114),
+(&apos;Ireland&apos;, 93),
+(&apos;India&apos;, 770),
+(&apos;England&apos;, 554),
+(&apos;Canada&apos;, 27),
+(&apos;Bermuda&apos;, 31),
+(&apos;Bangladesh&apos;, 251),
+(&apos;Australia&apos;, 832),
+(&apos;Afghanistan&apos;, 50)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Sort by values.. default is ascending...</span>
+<span class="n">matches_countries</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[26]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Canada&apos;, 27),
+(&apos;Bermuda&apos;, 31),
+(&apos;Netherlands&apos;, 31),
+(&apos;Afghanistan&apos;, 50),
+(&apos;Ireland&apos;, 93),
+(&apos;Kenya&apos;, 114),
+(&apos;Bangladesh&apos;, 251),
+(&apos;Zimbabwe&apos;, 394),
+(&apos;South Africa&apos;, 463),
+(&apos;England&apos;, 554),
+(&apos;New Zealand&apos;, 608),
+(&apos;West Indies&apos;, 658),
+(&apos;Sri Lanka&apos;, 710),
+(&apos;India&apos;, 770),
+(&apos;Pakistan&apos;, 781),
+(&apos;Australia&apos;, 832)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Sort by value by descending</span>
+<span class="n">matches_countries</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[27]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Australia&apos;, 832),
+(&apos;Pakistan&apos;, 781),
+(&apos;India&apos;, 770),
+(&apos;Sri Lanka&apos;, 710),
+(&apos;West Indies&apos;, 658),
+(&apos;New Zealand&apos;, 608),
+(&apos;England&apos;, 554),
+(&apos;South Africa&apos;, 463),
+(&apos;Zimbabwe&apos;, 394),
+(&apos;Bangladesh&apos;, 251),
+(&apos;Kenya&apos;, 114),
+(&apos;Ireland&apos;, 93),
+(&apos;Afghanistan&apos;, 50),
+(&apos;Bermuda&apos;, 31),
+(&apos;Netherlands&apos;, 31),
+(&apos;Canada&apos;, 27)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Captains by percentage of wins</span>
+<span class="n">captains_100_percent_wins</span> <span class="o">=</span> <span class="n">captains_100</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+  <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">won</span><span class="o">/</span><span class="n">rec</span><span class="o">.</span><span class="n">matches</span><span class="p">,</span> <span class="mi">2</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+
+<span class="c"># Sort by percentage wins</span>
+<span class="n">captains_100_percent_wins</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span>
+  <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[28]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Ponting  R T&apos;, 0.72),
+(&apos;Cronje  W J&apos;, 0.71),
+(&apos;Richards  I V A&apos;, 0.64),
+(&apos;Waugh  S R&apos;, 0.63),
+(&apos;Smith  G C&apos;, 0.61),
+(&apos;Wasim Akram&apos;, 0.61),
+(&apos;Border  A R&apos;, 0.6),
+(&apos;Jayasuriya  S T&apos;, 0.56),
+(&apos;Dhoni  M S*&apos;, 0.55),
+(&apos;Jayawardene  D P M&apos;, 0.55),
+(&apos;Imran Khan&apos;, 0.54),
+(&apos;Ganguly  S C&apos;, 0.52),
+(&apos;Azharuddin  M&apos;, 0.51),
+(&apos;Lara  B C&apos;, 0.47),
+(&apos;Ranatunga  A&apos;, 0.46),
+(&apos;Fleming  S P&apos;, 0.45)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="For-further-explorations-for-the-readers-to-try-out">For further explorations for the readers to try out<a class="anchor-link" href="#For-further-explorations-for-the-readers-to-try-out">&#182;</a></h3><ul>
+<li>Filter countries which have played more than hundred matches</li>
+<li>Sort counties by the percentage of matches they have won</li>
+<li>Find the top10 lucky captains in terms of TOSS won compared to how many matches they captained</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Read the Captains_Test.csv file</span>
+<span class="n">captains_tests</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="p">(</span> <span class="s">&quot;file:///home/hadoop/lab/data/captains_Test.csv&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Parse the records</span>
+<span class="n">captains_tests_recs</span> <span class="o">=</span> <span class="n">captains_tests</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">parseRecs</span><span class="p">(</span> <span class="n">rec</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Display the first 10 records</span>
+<span class="n">captains_tests_recs</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[48]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[Captain(name=&apos;Smith  G C&apos;, country=&apos;South Africa&apos;, career=&apos;2002-2014&apos;, matches=109, won=53, lost=29, ties=27, toss=58),
+Captain(name=&apos;Border  A R&apos;, country=&apos;Australia&apos;, career=&apos;1978-1994&apos;, matches=93, won=32, lost=22, ties=38, toss=47),
+Captain(name=&apos;Fleming  S P&apos;, country=&apos;New Zealand&apos;, career=&apos;1994-2008&apos;, matches=80, won=28, lost=27, ties=25, toss=38),
+Captain(name=&apos;Ponting  R T&apos;, country=&apos;Australia&apos;, career=&apos;1995-2012&apos;, matches=77, won=48, lost=16, ties=13, toss=37),
+Captain(name=&apos;Lloyd  C H&apos;, country=&apos;West Indies&apos;, career=&apos;1966-1984&apos;, matches=74, won=36, lost=12, ties=26, toss=35),
+Captain(name=&apos;Dhoni  M S*&apos;, country=&apos;India&apos;, career=&apos;2005-&apos;, matches=60, won=27, lost=18, ties=15, toss=27),
+Captain(name=&apos;Waugh  S R&apos;, country=&apos;Australia&apos;, career=&apos;1985-2004&apos;, matches=57, won=41, lost=9, ties=7, toss=31),
+Captain(name=&apos;Ranatunga  A&apos;, country=&apos;Sri Lanka&apos;, career=&apos;1982-2000&apos;, matches=56, won=12, lost=19, ties=25, toss=29),
+Captain(name=&apos;Atherton  M A&apos;, country=&apos;England&apos;, career=&apos;1989-2001&apos;, matches=54, won=13, lost=21, ties=20, toss=23),
+Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&apos;1992-2000&apos;, matches=53, won=27, lost=11, ties=15, toss=22)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Filter the captains who have captained for more than 100 tests</span>
+<span class="n">captains_tests_100</span> <span class="o">=</span> <span class="n">captains_tests_recs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span>
+                                              <span class="n">rec</span><span class="o">.</span><span class="n">matches</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## How many captains?</span>
+<span class="n">captains_tests_100</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[33]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[Captain(name=&apos;Smith  G C&apos;, country=&apos;South Africa&apos;, career=&apos;2002-2014&apos;, matches=109, won=53, lost=29, ties=27, toss=58)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Filter the captains who have captained for more than 50 tests</span>
+<span class="n">captains_tests_50</span> <span class="o">=</span> <span class="n">captains_tests_recs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span>
+                                             <span class="n">rec</span><span class="o">.</span><span class="n">matches</span> <span class="o">&gt;</span> <span class="mi">50</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_tests_50</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[35]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[Captain(name=&apos;Smith  G C&apos;, country=&apos;South Africa&apos;, career=&apos;2002-2014&apos;, matches=109, won=53, lost=29, ties=27, toss=58),
+Captain(name=&apos;Border  A R&apos;, country=&apos;Australia&apos;, career=&apos;1978-1994&apos;, matches=93, won=32, lost=22, ties=38, toss=47),
+Captain(name=&apos;Fleming  S P&apos;, country=&apos;New Zealand&apos;, career=&apos;1994-2008&apos;, matches=80, won=28, lost=27, ties=25, toss=38),
+Captain(name=&apos;Ponting  R T&apos;, country=&apos;Australia&apos;, career=&apos;1995-2012&apos;, matches=77, won=48, lost=16, ties=13, toss=37),
+Captain(name=&apos;Lloyd  C H&apos;, country=&apos;West Indies&apos;, career=&apos;1966-1984&apos;, matches=74, won=36, lost=12, ties=26, toss=35),
+Captain(name=&apos;Dhoni  M S*&apos;, country=&apos;India&apos;, career=&apos;2005-&apos;, matches=60, won=27, lost=18, ties=15, toss=27),
+Captain(name=&apos;Waugh  S R&apos;, country=&apos;Australia&apos;, career=&apos;1985-2004&apos;, matches=57, won=41, lost=9, ties=7, toss=31),
+Captain(name=&apos;Ranatunga  A&apos;, country=&apos;Sri Lanka&apos;, career=&apos;1982-2000&apos;, matches=56, won=12, lost=19, ties=25, toss=29),
+Captain(name=&apos;Atherton  M A&apos;, country=&apos;England&apos;, career=&apos;1989-2001&apos;, matches=54, won=13, lost=21, ties=20, toss=23),
+Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&apos;1992-2000&apos;, matches=53, won=27, lost=11, ties=15, toss=22)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Sort the captains by percentage of wins</span>
+<span class="n">captain_top</span> <span class="o">=</span> <span class="n">captains_tests_50</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+  <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+               <span class="nb">round</span><span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">won</span><span class="o">/</span><span class="n">rec</span><span class="o">.</span><span class="n">matches</span><span class="p">,</span>
+                     <span class="mi">2</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captain_top</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[37]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Waugh  S R&apos;, 0.72),
+(&apos;Ponting  R T&apos;, 0.62),
+(&apos;Cronje  W J&apos;, 0.51),
+(&apos;Vaughan  M P&apos;, 0.51),
+(&apos;Smith  G C&apos;, 0.49),
+(&apos;Lloyd  C H&apos;, 0.49),
+(&apos;Dhoni  M S*&apos;, 0.45),
+(&apos;Fleming  S P&apos;, 0.35),
+(&apos;Border  A R&apos;, 0.34),
+(&apos;Atherton  M A&apos;, 0.24),
+(&apos;Ranatunga  A&apos;, 0.21)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Joining-multiple-data-sets">Joining multiple data sets<a class="anchor-link" href="#Joining-multiple-data-sets">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Lets join both ODI and Test captaincy details. </span>
+<span class="c"># Default is inner join...</span>
+<span class="n">all_time_best_captains</span> <span class="o">=</span> <span class="n">captains_100_percent_wins</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">captain_top</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_time_best_captains</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[39]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Smith  G C&apos;, (0.61, 0.49)),
+(&apos;Border  A R&apos;, (0.6, 0.34)),
+(&apos;Fleming  S P&apos;, (0.45, 0.35)),
+(&apos;Cronje  W J&apos;, (0.71, 0.51)),
+(&apos;Ponting  R T&apos;, (0.72, 0.62)),
+(&apos;Ranatunga  A&apos;, (0.46, 0.21)),
+(&apos;Dhoni  M S*&apos;, (0.55, 0.45)),
+(&apos;Waugh  S R&apos;, (0.63, 0.72))]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Best by test match wins</span>
+<span class="n">all_time_best_captains</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[40]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Waugh  S R&apos;, (0.63, 0.72)),
+(&apos;Ponting  R T&apos;, (0.72, 0.62)),
+(&apos;Cronje  W J&apos;, (0.71, 0.51)),
+(&apos;Smith  G C&apos;, (0.61, 0.49)),
+(&apos;Dhoni  M S*&apos;, (0.55, 0.45)),
+(&apos;Fleming  S P&apos;, (0.45, 0.35)),
+(&apos;Border  A R&apos;, (0.6, 0.34)),
+(&apos;Ranatunga  A&apos;, (0.46, 0.21))]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Best by ODI match wins</span>
+<span class="n">all_time_best_captains</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[41]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Ponting  R T&apos;, (0.72, 0.62)),
+(&apos;Cronje  W J&apos;, (0.71, 0.51)),
+(&apos;Waugh  S R&apos;, (0.63, 0.72)),
+(&apos;Smith  G C&apos;, (0.61, 0.49)),
+(&apos;Border  A R&apos;, (0.6, 0.34)),
+(&apos;Dhoni  M S*&apos;, (0.55, 0.45)),
+(&apos;Ranatunga  A&apos;, (0.46, 0.21)),
+(&apos;Fleming  S P&apos;, (0.45, 0.35))]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Now let&#39;s flatten the structure and store the results into a file...</span>
+<span class="n">best_captains</span> <span class="o">=</span> <span class="n">all_time_best_captains</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span>
+                                         <span class="p">(</span> <span class="n">rec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                          <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                          <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+<span class="n">best_captains</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[42]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Smith  G C&apos;, 0.61, 0.49),
+(&apos;Border  A R&apos;, 0.6, 0.34),
+(&apos;Fleming  S P&apos;, 0.45, 0.35),
+(&apos;Cronje  W J&apos;, 0.71, 0.51),
+(&apos;Ponting  R T&apos;, 0.72, 0.62),
+(&apos;Ranatunga  A&apos;, 0.46, 0.21),
+(&apos;Dhoni  M S*&apos;, 0.55, 0.45),
+(&apos;Waugh  S R&apos;, 0.63, 0.72)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Saving-results-into-filesystem">Saving results into filesystem<a class="anchor-link" href="#Saving-results-into-filesystem">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">best_captains</span><span class="o">.</span><span class="n">saveAsTextFile</span><span class="p">(</span> <span class="s">&quot;file:///home/hadoop/lab/results/captains&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Check-results">Check results<a class="anchor-link" href="#Check-results">&#182;</a></h4><p>Go to you VM's putty terminal and go to the results directory</p>
+<p><strong>cd /home/hadoop/lab/results/captains/</strong></p>
+<p><strong>cat part-0000*</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Saving-results-into-one-file.-Forcing-the-bring-all-results-into-one-partition">Saving results into one file. Forcing the bring all results into one partition<a class="anchor-link" href="#Saving-results-into-one-file.-Forcing-the-bring-all-results-into-one-partition">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Consolidate into one partition</span>
+<span class="n">best_captains</span><span class="o">.</span><span class="n">repartition</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span><span class="o">.</span>                                     \
+  <span class="n">saveAsTextFile</span><span class="p">(</span> <span class="s">&quot;file:///home/hadoop/lab/results/bestcaptains&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Check-results">Check results<a class="anchor-link" href="#Check-results">&#182;</a></h4><p>Go to you VM's putty terminal and go to the results directory</p>
+<p><strong>cd /home/hadoop/lab/results/bestcaptains/</strong></p>
+<p><strong>cat part-00000</strong></p>
+
+</div>
+</div>
+</div>
+  </div>
+</div>
