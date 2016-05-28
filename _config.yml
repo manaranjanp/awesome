@@ -18,6 +18,8 @@ markdown: kramdown
 highlighter: rouge
 permalink: /:title/
 
+# Google Analytics Tracking ID
+google_analytics: UA-78444977-1
 
 # html minify
 compress_html:
