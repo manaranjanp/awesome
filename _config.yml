@@ -1,7 +1,7 @@
 # Site settings
 description: A blog about discovering through data
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "http://awesomestats.in" # the base hostname & protocol for your site e.g. http://willianjusten.com.br
+url: "http://www.awesomestats.in" # the base hostname & protocol for your site
 
 # User settings
 username: Manaranjan Pradhan
