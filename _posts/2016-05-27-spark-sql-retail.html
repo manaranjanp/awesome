@@ -31,10 +31,8 @@ introduction: "Using Spark SQL and integrating with HDFS and MySql as Data Sourc
 <li>Reading from MySql ( from RDBMS using JDBC )</li>
 <li>Working with JSON Data - Reading and Parsing </li>
 <li>Working with Spark SQLs</li>
-<li><p>Applying data transformaton using Spark SQL Statements</p>
-</li>
-<li><p>Data used in this exercise is randomly generated</p>
-</li>
+<li>Applying data transformaton using Spark SQL Statements</li>
+<li>Data used in this exercise is randomly generated</li>
 </ul>
 
 </div>
@@ -42,7 +40,7 @@ introduction: "Using Spark SQL and integrating with HDFS and MySql as Data Sourc
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">sc</span>
@@ -56,11 +54,11 @@ introduction: "Using Spark SQL and integrating with HDFS and MySql as Data Sourc
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[1]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[2]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;pyspark.context.SparkContext at 0x7f52845bf400&gt;</pre>
+<pre>&lt;pyspark.context.SparkContext at 0x7f7e59ec9400&gt;</pre>
 </div>
 
 </div>
@@ -76,8 +74,8 @@ introduction: "Using Spark SQL and integrating with HDFS and MySql as Data Sourc
 <div class="text_cell_render border-box-sizing rendered_html">
 <h4 id="This-Spark-Application-is-running-on-YARN.-So,-open-the-YARN-Resource-manager-UI-and-verify-if-the-application-is-running">This Spark Application is running on YARN. So, open the YARN Resource manager UI and verify if the application is running<a class="anchor-link" href="#This-Spark-Application-is-running-on-YARN.-So,-open-the-YARN-Resource-manager-UI-and-verify-if-the-application-is-running">&#182;</a></h4><ul>
 <li>To open resource manager web UI, enter <a href="http://hadooplab.bigdataleap.com:8088/">http://hadooplab.bigdataleap.com:8088/</a></li>
+<li>Note: The above DNS name in the URL need to be changed as per the name of your hadoop cluster</li>
 </ul>
-<p><em>Note: The above DNS name in the URL need to be changed as per the name of your hadoop cluster</em></p>
 
 </div>
 </div>
@@ -93,7 +91,7 @@ introduction: "Using Spark SQL and integrating with HDFS and MySql as Data Sourc
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SQLContext</span>
@@ -119,7 +117,7 @@ introduction: "Using Spark SQL and integrating with HDFS and MySql as Data Sourc
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c">## Read the json file from HDFS </span>
@@ -143,7 +141,7 @@ introduction: "Using Spark SQL and integrating with HDFS and MySql as Data Sourc
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">txns</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
@@ -198,7 +196,7 @@ only showing top 10 rows
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">txns</span><span class="o">.</span><span class="n">select</span><span class="p">(</span> <span class="s">&quot;lineItems&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
@@ -212,7 +210,7 @@ only showing top 10 rows
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[5]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -243,7 +241,7 @@ Row(lineItems=[Row(amount=&apos;193.65&apos;, category=&apos;Outdoor Recreation&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="o">*</span>
@@ -256,7 +254,7 @@ Row(lineItems=[Row(amount=&apos;193.65&apos;, category=&apos;Outdoor Recreation&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c">## Explode and flatten the nested structure into a set of columns</span>
@@ -273,7 +271,7 @@ Row(lineItems=[Row(amount=&apos;193.65&apos;, category=&apos;Outdoor Recreation&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Show 10 records</span>
@@ -328,7 +326,7 @@ only showing top 10 rows
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">txns_new</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span><span class="s">&quot;txnrecords&quot;</span><span class="p">)</span>
@@ -350,7 +348,7 @@ only showing top 10 rows
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">revenue_by_state</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&#39;&#39;&#39;select state, product, sum( amount ) as </span>
@@ -364,7 +362,7 @@ only showing top 10 rows
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># show the first 10 records</span>
@@ -416,7 +414,7 @@ only showing top 10 rows
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">revenue_by_state</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span><span class="s">&#39;state_revenue&#39;</span><span class="p">)</span>
@@ -441,7 +439,7 @@ only showing top 10 rows
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">datetime</span>
@@ -465,7 +463,7 @@ only showing top 10 rows
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Register the function </span>
@@ -493,7 +491,7 @@ only showing top 10 rows
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">revenue_by_state</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&#39;&#39;&#39;select weekday as weekday, </span>
@@ -510,7 +508,7 @@ only showing top 10 rows
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">revenue_by_state</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
@@ -551,7 +549,9 @@ only showing top 10 rows
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Reading-data-from-MySql">Reading data from MySql<a class="anchor-link" href="#Reading-data-from-MySql">&#182;</a></h3><p>Before we could demonstrate how to read data from mysql table, the data need to be loaded into mysql table. The data is actually available in a file in csv format. The following steps show how to load data into a mysql table.</p>
+<h3 id="Reading-data-from-MySql">Reading data from MySql<a class="anchor-link" href="#Reading-data-from-MySql">&#182;</a></h3><ul>
+<li>Before we could demonstrate how to read data from mysql table, the data need to be loaded into mysql table. The data is actually available in a file in csv format. The following steps show how to load data into a mysql table.</li>
+</ul>
 <h4 id="Check-MySql-Table">Check MySql Table<a class="anchor-link" href="#Check-MySql-Table">&#182;</a></h4><ul>
 <li>Go to linux prompt of your VM</li>
 <li>Enter "mysql -u root -p"</li>
@@ -565,11 +565,11 @@ only showing top 10 rows
 <li>describe customers;</li>
 </ul>
 </li>
-<li><p>Load data into customers table <br/>
-LOAD DATA LOCAL INFILE '/home/hadoop/lab/data/custs' INTO TABLE customers FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\n';</p>
+<li>Load data into customers table<ul>
+<li>LOAD DATA LOCAL INFILE '/home/hadoop/lab/data/custs' INTO TABLE customers FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\n';</li>
+</ul>
 </li>
-<li><p>List some of the records</p>
-<ul>
+<li>List some of the records<ul>
 <li>select * from customers limit 100;</li>
 </ul>
 </li>
@@ -589,7 +589,7 @@ LOAD DATA LOCAL INFILE '/home/hadoop/lab/data/custs' INTO TABLE customers FIELDS
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c">## Read customer information from mysql table....</span>
@@ -605,7 +605,7 @@ LOAD DATA LOCAL INFILE '/home/hadoop/lab/data/custs' INTO TABLE customers FIELDS
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">cust_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
@@ -656,7 +656,7 @@ only showing top 10 rows
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">top_10_custs</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&#39;&#39;&#39;select customerNo, round( sum( amount ), 2 ) </span>
@@ -674,7 +674,7 @@ only showing top 10 rows
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[20]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -698,7 +698,7 @@ Row(customerNo=&apos;4009672&apos;, total=1485.23)]</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">top_10_custs</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span> <span class="s">&quot;top_10_custs&quot;</span> <span class="p">)</span>
@@ -721,7 +721,7 @@ Row(customerNo=&apos;4009672&apos;, total=1485.23)]</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">top_10_cust_names</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&#39;&#39;&#39;select a.CustID, a.FirstName, a.LastName, </span>
@@ -736,7 +736,7 @@ Row(customerNo=&apos;4009672&apos;, total=1485.23)]</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">top_10_cust_names</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
