@@ -1,0 +1,792 @@
+---
+layout: post
+title: "Analyzing Retails data with Spark"
+date: 2016-05-25
+description: "Using Spark SQL and integrating with HDFS and MySql as Data Sources"
+main-class: 'spark'
+postbook: 'inotebook'
+published: true
+color: '#637a91'
+tags:
+- spark
+- sql
+- hdfs
+- pyspark
+categories:
+- spark
+introduction: "Using Spark SQL and integrating with HDFS and MySql as Data Sources"
+---
+
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Things-to-learn">Things to learn<a class="anchor-link" href="#Things-to-learn">&#182;</a></h3><ul>
+<li>Reading from HDFS</li>
+<li>Reading from MySql ( from RDBMS using JDBC )</li>
+<li>Working with JSON Data - Reading and Parsing </li>
+<li>Working with Spark SQLs</li>
+<li><p>Applying data transformaton using Spark SQL Statements</p>
+</li>
+<li><p>Data used in this exercise is randomly generated</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[1]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;pyspark.context.SparkContext at 0x7f52845bf400&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="This-Spark-Application-is-running-on-YARN.-So,-open-the-YARN-Resource-manager-UI-and-verify-if-the-application-is-running">This Spark Application is running on YARN. So, open the YARN Resource manager UI and verify if the application is running<a class="anchor-link" href="#This-Spark-Application-is-running-on-YARN.-So,-open-the-YARN-Resource-manager-UI-and-verify-if-the-application-is-running">&#182;</a></h4><ul>
+<li>To open resource manager web UI, enter <a href="http://hadooplab.bigdataleap.com:8088/">http://hadooplab.bigdataleap.com:8088/</a></li>
+</ul>
+<p><em>Note: The above DNS name in the URL need to be changed as per the name of your hadoop cluster</em></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Initialize-SQLContext-from-SparkContext">Initialize SQLContext from SparkContext<a class="anchor-link" href="#Initialize-SQLContext-from-SparkContext">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SQLContext</span>
+<span class="n">sqlContext</span> <span class="o">=</span> <span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Reading-JSON-file-from-HDFS">Reading JSON file from HDFS<a class="anchor-link" href="#Reading-JSON-file-from-HDFS">&#182;</a></h3><ul>
+<li>Give hdfs uri location as input data source for the read() function</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Read the json file from HDFS </span>
+<span class="n">txns</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">json</span><span class="p">(</span>
+  <span class="s">&quot;hdfs://hadooplab.bigdataleap.com/sparklab/txnjsonsmall&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Display-the-first-10-records">Display the first 10 records<a class="anchor-link" href="#Display-the-first-10-records">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">txns</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+------------+-------------------+----------+--------------------+-------------+----------+----------+--------+
+|CashOrCredit|       creditCardNo|customerNo|           lineItems| merchantCity|     state|     tDate|   txnNo|
++------------+-------------------+----------+--------------------+-------------+----------+----------+--------+
+|      credit|4971-xxxx-xxxx-5769|   4004819|[[015.82,Team Spo...|  Brownsville|     Texas|06-27-2011|00000000|
+|      credit|3787-xxxx-xxxx-6017|   4003459|[[089.28,Water Sp...|      Houston|     Texas|02-07-2011|00000001|
+|      credit|5951-xxxx-xxxx-4036|   4009112|[[067.51,Exercise...|       Eugene|    Oregon|03-02-2011|00000002|
+|      credit|3793-xxxx-xxxx-3180|   4009376|[[043.38,Water Sp...|     Paterson|New Jersey|01-23-2011|00000003|
+|      credit|3913-xxxx-xxxx-4556|   4006758|[[193.65,Outdoor ...|      Gresham|    Oregon|05-07-2011|00000004|
+|      credit|4629-xxxx-xxxx-3692|   4000951|[[104.47,Exercise...|   Des Moines|      Iowa|12-07-2011|00000005|
+|      credit|4032-xxxx-xxxx-1996|   4002494|[[093.97,Jumping,...|  St. Louis  |  Missouri|05-02-2011|00000006|
+|      credit|3551-xxxx-xxxx-0696|   4000599|[[197.33,Exercise...|      Phoenix|   Arizona|06-02-2011|00000007|
+|      credit|3282-xxxx-xxxx-5190|   4007057|[[128.98,Winter S...|Overland Park|    Kansas|03-06-2011|00000008|
+|      credit|4621-xxxx-xxxx-9258|   4005366|[[074.57,Water Sp...|      Fremont|California|06-22-2011|00000009|
++------------+-------------------+----------+--------------------+-------------+----------+----------+--------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Flatten-the-nested-structure">Flatten the nested structure<a class="anchor-link" href="#Flatten-the-nested-structure">&#182;</a></h3><ul>
+<li>The line items are nested structure in each transaction. </li>
+<li>Display the lineitems of first 5 transactions</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">txns</span><span class="o">.</span><span class="n">select</span><span class="p">(</span> <span class="s">&quot;lineItems&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[5]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[Row(lineItems=[Row(amount=&apos;015.82&apos;, category=&apos;Team Sports&apos;, product=&apos;Cheerleading&apos;), Row(amount=&apos;086.47&apos;, category=&apos;Water Sports&apos;, product=&apos;Whitewater Rafting&apos;), Row(amount=&apos;063.08&apos;, category=&apos;Exercise &amp; Fitness&apos;, product=&apos;Gym Mats&apos;), Row(amount=&apos;068.80&apos;, category=&apos;Exercise &amp; Fitness&apos;, product=&apos;Weightlifting Machine Accessories&apos;), Row(amount=&apos;092.49&apos;, category=&apos;Team Sports&apos;, product=&apos;Lacrosse&apos;), Row(amount=&apos;083.92&apos;, category=&apos;Outdoor Recreation&apos;, product=&apos;Lawn Games&apos;)]),
+Row(lineItems=[Row(amount=&apos;089.28&apos;, category=&apos;Water Sports&apos;, product=&apos;Water Tubing&apos;), Row(amount=&apos;042.38&apos;, category=&apos;Water Sports&apos;, product=&apos;Surfing&apos;), Row(amount=&apos;062.80&apos;, category=&apos;Team Sports&apos;, product=&apos;Cheerleading&apos;)]),
+Row(lineItems=[Row(amount=&apos;067.51&apos;, category=&apos;Exercise &amp; Fitness&apos;, product=&apos;Exercise Bands&apos;), Row(amount=&apos;154.57&apos;, category=&apos;Team Sports&apos;, product=&apos;Rugby&apos;), Row(amount=&apos;100.18&apos;, category=&apos;Outdoor Recreation&apos;, product=&apos;Skateboarding&apos;), Row(amount=&apos;190.52&apos;, category=&apos;Exercise &amp; Fitness&apos;, product=&apos;Foam Rollers&apos;), Row(amount=&apos;054.35&apos;, category=&apos;Water Sports&apos;, product=&apos;Kitesurfing&apos;)]),
+Row(lineItems=[Row(amount=&apos;043.38&apos;, category=&apos;Water Sports&apos;, product=&apos;Boating&apos;), Row(amount=&apos;106.27&apos;, category=&apos;Team Sports&apos;, product=&apos;Rugby&apos;), Row(amount=&apos;164.86&apos;, category=&apos;Combat Sports&apos;, product=&apos;Fencing&apos;), Row(amount=&apos;164.94&apos;, category=&apos;Racquet Sports&apos;, product=&apos;Tennis&apos;), Row(amount=&apos;007.36&apos;, category=&apos;Exercise &amp; Fitness&apos;, product=&apos;Gym Mats&apos;), Row(amount=&apos;110.56&apos;, category=&apos;Outdoor Recreation&apos;, product=&apos;Skateboarding&apos;)]),
+Row(lineItems=[Row(amount=&apos;193.65&apos;, category=&apos;Outdoor Recreation&apos;, product=&apos;Deck Shuffleboard&apos;), Row(amount=&apos;135.98&apos;, category=&apos;Winter Sports&apos;, product=&apos;Snowshoeing&apos;), Row(amount=&apos;063.27&apos;, category=&apos;Racquet Sports&apos;, product=&apos;Racquetball&apos;), Row(amount=&apos;151.53&apos;, category=&apos;Dancing&apos;, product=&apos;Ballet Bars&apos;), Row(amount=&apos;088.69&apos;, category=&apos;Gymnastics&apos;, product=&apos;Balance Beams&apos;), Row(amount=&apos;070.75&apos;, category=&apos;Outdoor Play Equipment&apos;, product=&apos;Swing Sets&apos;)])]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Explode function in spark sql can be used to flatten the records </li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="o">*</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Explode and flatten the nested structure into a set of columns</span>
+<span class="n">txns_new</span> <span class="o">=</span> <span class="n">txns</span><span class="o">.</span><span class="n">select</span><span class="p">(</span> <span class="s">&#39;txnNo&#39;</span><span class="p">,</span> <span class="s">&#39;tDate&#39;</span><span class="p">,</span> <span class="s">&#39;customerNo&#39;</span><span class="p">,</span> <span class="s">&#39;merchantCity&#39;</span><span class="p">,</span>
+                     <span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;item.category&#39;</span><span class="p">,</span>
+                     <span class="s">&#39;item.product&#39;</span><span class="p">,</span> <span class="s">&#39;item.amount&#39;</span><span class="p">,</span>
+                     <span class="n">explode</span><span class="p">(</span> <span class="n">txns</span><span class="o">.</span><span class="n">lineItems</span> <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span> <span class="s">&#39;item&#39;</span> <span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="s">&#39;item&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Show 10 records</span>
+<span class="n">txns_new</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+--------+----------+----------+------------+------+------------------+--------------------+------+
+|   txnNo|     tDate|customerNo|merchantCity| state|          category|             product|amount|
++--------+----------+----------+------------+------+------------------+--------------------+------+
+|00000000|06-27-2011|   4004819| Brownsville| Texas|       Team Sports|        Cheerleading|015.82|
+|00000000|06-27-2011|   4004819| Brownsville| Texas|      Water Sports|  Whitewater Rafting|086.47|
+|00000000|06-27-2011|   4004819| Brownsville| Texas|Exercise &amp; Fitness|            Gym Mats|063.08|
+|00000000|06-27-2011|   4004819| Brownsville| Texas|Exercise &amp; Fitness|Weightlifting Mac...|068.80|
+|00000000|06-27-2011|   4004819| Brownsville| Texas|       Team Sports|            Lacrosse|092.49|
+|00000000|06-27-2011|   4004819| Brownsville| Texas|Outdoor Recreation|          Lawn Games|083.92|
+|00000001|02-07-2011|   4003459|     Houston| Texas|      Water Sports|        Water Tubing|089.28|
+|00000001|02-07-2011|   4003459|     Houston| Texas|      Water Sports|             Surfing|042.38|
+|00000001|02-07-2011|   4003459|     Houston| Texas|       Team Sports|        Cheerleading|062.80|
+|00000002|03-02-2011|   4009112|      Eugene|Oregon|Exercise &amp; Fitness|      Exercise Bands|067.51|
++--------+----------+----------+------------+------+------------------+--------------------+------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Register-the-new-table-as-temporary-(-in-memory-)-table,-so-that-we-can-run-SQL-Queries-on-it">Register the new table as temporary ( in memory ) table, so that we can run SQL Queries on it<a class="anchor-link" href="#Register-the-new-table-as-temporary-(-in-memory-)-table,-so-that-we-can-run-SQL-Queries-on-it">&#182;</a></h3><ul>
+<li>Register the dataframe as an temporary sql table into memory, so that we can go and run some sql query</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">txns_new</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span><span class="s">&quot;txnrecords&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Find-revenue-generated-by-state-and-product">Find revenue generated by state and product<a class="anchor-link" href="#Find-revenue-generated-by-state-and-product">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">revenue_by_state</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&#39;&#39;&#39;select state, product, sum( amount ) as </span>
+<span class="s">                                total from txnrecords group by state, product&#39;&#39;&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># show the first 10 records</span>
+<span class="n">revenue_by_state</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------------+--------------------+------------------+
+|        state|             product|             total|
++-------------+--------------------+------------------+
+|       Oregon|               Rugby|             261.4|
+|        Texas|          Parachutes|            706.58|
+|       Oregon|Scuba Diving &amp; Sn...|            264.55|
+|         Utah|           Wrestling|207.79000000000002|
+|     Kentucky|         Bobsledding|232.84999999999997|
+|      Florida|        Foam Rollers|            387.27|
+|Massachusetts|          Air Hockey|            120.66|
+|      Alabama|         Windsurfing|296.17999999999995|
+|      Arizona|      Jumping Stilts| 96.00999999999999|
+| Pennsylvania|           Disc Golf|             28.08|
++-------------+--------------------+------------------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Register-the-result-sets-as-temporary-tables">Register the result sets as temporary tables<a class="anchor-link" href="#Register-the-result-sets-as-temporary-tables">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">revenue_by_state</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span><span class="s">&#39;state_revenue&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Write-an-UDF-(-User-defined-function-)-to-extract-week-day-name-from-the-date-field">Write an UDF ( User defined function ) to extract week day name from the date field<a class="anchor-link" href="#Write-an-UDF-(-User-defined-function-)-to-extract-week-day-name-from-the-date-field">&#182;</a></h3><ul>
+<li>Define a user defined function to be invoked from sql query. For example, deriving weekday name from the date field</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="k">def</span> <span class="nf">getDayOfWeek</span><span class="p">(</span> <span class="n">date</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s">&quot;%m-%d-%Y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;%A&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Register-the-function-to-SQL-Context-as-new-UDF">Register the function to SQL Context as new UDF<a class="anchor-link" href="#Register-the-function-to-SQL-Context-as-new-UDF">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Register the function </span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="n">StringType</span>
+<span class="n">sqlContext</span><span class="o">.</span><span class="n">udf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s">&quot;getDayOfWeek&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">date</span><span class="p">:</span> <span class="n">getDayOfWeek</span><span class="p">(</span> <span class="n">date</span> <span class="p">),</span>
+                      <span class="n">StringType</span><span class="p">()</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Invoke-the-UDF-from-the-SQL">Invoke the UDF from the SQL<a class="anchor-link" href="#Invoke-the-UDF-from-the-SQL">&#182;</a></h3><ul>
+<li>Write a query to invoke the user defined function. Calculate the total revenue by different weekdays...</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">revenue_by_state</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&#39;&#39;&#39;select weekday as weekday, </span>
+<span class="s">                                  round( sum( amount ), 2 ) as total </span>
+<span class="s">                                  from ( select getDayOfWeek( tDate ) as weekday, </span>
+<span class="s">                                  amount from txnrecords ) txns </span>
+<span class="s">                                  group by weekday order by total desc&#39;&#39;&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">revenue_by_state</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+---------+--------+
+|  weekday|   total|
++---------+--------+
+| Thursday| 94549.2|
+|Wednesday|85091.56|
+|   Monday|81712.77|
+|   Sunday|79634.08|
+|  Tuesday|79594.51|
+| Saturday|78114.84|
+|   Friday| 71809.1|
++---------+--------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Reading-data-from-MySql">Reading data from MySql<a class="anchor-link" href="#Reading-data-from-MySql">&#182;</a></h3><p>Before we could demonstrate how to read data from mysql table, the data need to be loaded into mysql table. The data is actually available in a file in csv format. The following steps show how to load data into a mysql table.</p>
+<h4 id="Check-MySql-Table">Check MySql Table<a class="anchor-link" href="#Check-MySql-Table">&#182;</a></h4><ul>
+<li>Go to linux prompt of your VM</li>
+<li>Enter "mysql -u root -p"</li>
+<li>Enter password</li>
+<li>Select Database retail<ul>
+<li>use retail;</li>
+</ul>
+</li>
+<li>Show tables<ul>
+<li>show tables;</li>
+<li>describe customers;</li>
+</ul>
+</li>
+<li><p>Load data into customers table <br/>
+LOAD DATA LOCAL INFILE '/home/hadoop/lab/data/custs' INTO TABLE customers FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\n';</p>
+</li>
+<li><p>List some of the records</p>
+<ul>
+<li>select * from customers limit 100;</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Using-jdbc-to-read-from-mysql-table">Using jdbc to read from mysql table<a class="anchor-link" href="#Using-jdbc-to-read-from-mysql-table">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Read customer information from mysql table....</span>
+<span class="n">cust_df</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;jdbc&#39;</span><span class="p">)</span>                                      \
+  <span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">&#39;jdbc:mysql://localhost/retail?user=root&amp;password=hadoop123&#39;</span><span class="p">,</span>
+  <span class="n">dbtable</span><span class="o">=</span><span class="s">&#39;customers&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">cust_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+---------+----------+---+--------------------+
+| CustID|FirstName|  LastName|Age|          Profession|
++-------+---------+----------+---+--------------------+
+|4000001| Kristina|     Chung| 55|               Pilot|
+|4000002|    Paige|      Chen| 74|             Teacher|
+|4000003|   Sherri|    Melton| 34|         Firefighter|
+|4000004| Gretchen|      Hill| 66|Computer hardware...|
+|4000005|    Karen|   Puckett| 74|              Lawyer|
+|4000006|  Patrick|      Song| 42|        Veterinarian|
+|4000007|    Elsie|  Hamilton| 43|               Pilot|
+|4000008|    Hazel|    Bender| 63|           Carpenter|
+|4000009|  Malcolm|    Wagner| 39|              Artist|
+|4000010|  Dolores|McLaughlin| 60|              Writer|
++-------+---------+----------+---+--------------------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Finding-total-money-spent-by-each-customers">Finding total money spent by each customers<a class="anchor-link" href="#Finding-total-money-spent-by-each-customers">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top_10_custs</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&#39;&#39;&#39;select customerNo, round( sum( amount ), 2 ) </span>
+<span class="s">                              as total from txnrecords group by customerNo </span>
+<span class="s">                              order by total desc limit 10&#39;&#39;&#39;</span><span class="p">)</span>
+
+<span class="n">top_10_custs</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[Row(customerNo=&apos;4007510&apos;, total=2204.79),
+Row(customerNo=&apos;4003293&apos;, total=2024.67),
+Row(customerNo=&apos;4003971&apos;, total=1869.43),
+Row(customerNo=&apos;4004260&apos;, total=1869.12),
+Row(customerNo=&apos;4001058&apos;, total=1791.99),
+Row(customerNo=&apos;4008914&apos;, total=1652.06),
+Row(customerNo=&apos;4004491&apos;, total=1649.74),
+Row(customerNo=&apos;4007168&apos;, total=1610.76),
+Row(customerNo=&apos;4001253&apos;, total=1516.77),
+Row(customerNo=&apos;4009672&apos;, total=1485.23)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top_10_custs</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span> <span class="s">&quot;top_10_custs&quot;</span> <span class="p">)</span>
+<span class="n">cust_df</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span> <span class="s">&quot;custs_rec&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Joining-with-customer-table-to-find-top-10-customers-based-on-total-money-spent">Joining with customer table to find top 10 customers based on total money spent<a class="anchor-link" href="#Joining-with-customer-table-to-find-top-10-customers-based-on-total-money-spent">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top_10_cust_names</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&#39;&#39;&#39;select a.CustID, a.FirstName, a.LastName, </span>
+<span class="s">                            a.Age, b.total from custs_rec a join top_10_custs  b </span>
+<span class="s">                            on a.CustID = b.customerNo order by b.total desc&#39;&#39;&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top_10_cust_names</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+---------+---------+---+-------+
+| CustID|FirstName| LastName|Age|  total|
++-------+---------+---------+---+-------+
+|4007510|  Kristin|    Levin| 73|2204.79|
+|4003293|   Martha|   Warner| 45|2024.67|
+|4003971|   Donald|     Lamm| 34|1869.43|
+|4004260| Courtney|    Rubin| 54|1869.12|
+|4001058|   Gloria| Matthews| 53|1791.99|
+|4008914| Samantha|Batchelor| 41|1652.06|
+|4004491|     Rita|    Parks| 44|1649.74|
+|4007168|  Carolyn|      Han| 52|1610.76|
+|4001253|    Peter| McNamara| 74|1516.77|
+|4009672|   Samuel|     Kidd| 61|1485.23|
++-------+---------+---------+---+-------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Exercises">Exercises<a class="anchor-link" href="#Exercises">&#182;</a></h3><ul>
+<li>Find out top 5 selling products in each category</li>
+<li>Find top 10 customers for every month</li>
+</ul>
+
+</div>
+</div>
+</div>
+  </div>
+</div>
