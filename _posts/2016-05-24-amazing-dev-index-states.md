@@ -21,11 +21,11 @@ We will use Govt. provided data and check if there are any changes. If yes, we t
 
 The data is collected from various sources below.
 
-<a href="http://planningcommission.nic.in/data/datatable/0814/comp_databook.pdf">http://planningcommission.nic.in/data/datatable/0814/comp_databook.pdf</a>
-<a href="http://planningcommission.nic.in/news/pre_pov2307.pdf">http://planningcommission.nic.in/news/pre_pov2307.pdf</a>
-<a href="http://indiabudget.nic.in/es2013-14/estat1.pdf">http://indiabudget.nic.in/es2013-14/estat1.pdf</a>
-<a href="http://pib.nic.in/archieve/others/2012/aug/d2012081703.pdf">http://pib.nic.in/archieve/others/2012/aug/d2012081703.pdf</a>
-<a href="http://planningcommission.nic.in/data/datatable/0814/table_195.pdf">http://planningcommission.nic.in/data/datatable/0814/table_195.pdf</a>
+* <a href="http://planningcommission.nic.in/data/datatable/0814/comp_databook.pdf">http://planningcommission.nic.in/data/datatable/0814/comp_databook.pdf</a>
+* <a href="http://planningcommission.nic.in/news/pre_pov2307.pdf">http://planningcommission.nic.in/news/pre_pov2307.pdf</a>
+* <a href="http://indiabudget.nic.in/es2013-14/estat1.pdf">http://indiabudget.nic.in/es2013-14/estat1.pdf</a>
+* <a href="http://pib.nic.in/archieve/others/2012/aug/d2012081703.pdf">http://pib.nic.in/archieve/others/2012/aug/d2012081703.pdf</a>
+* <a href="http://planningcommission.nic.in/data/datatable/0814/table_195.pdf">http://planningcommission.nic.in/data/datatable/0814/table_195.pdf</a>
 
 ## Literacy Rates?
 

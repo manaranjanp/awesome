@@ -26,7 +26,7 @@ I will be using the data made public by Indian planning commission and is availa
 
 Looking at single years data will not provide enough details, so I will plot IMR for over 15 years for each state.
 
-![IMR]((/assets/img/IMRbyStates.png)
+![IMR]((/assets/img/amazing/IMRbyStates.png)
 
 Looking at the plot, it is very evident that states like Kerala, Goa and Manipur have very low IMR compared to other states, while states like Odisha, MP, Rajasthan and UP had very high IMR rates. The median IMR for Kerala being the lowest and MP being the highest.
 
@@ -40,7 +40,7 @@ Trends show that is it coming down in all the state that had witnessed very hi
 
 Do we see any interesting trends? Well, yes. There is an increase in IMR rate in most of these states from 2004 to 2005. We should see consistent decline in rates every year and an increase in IMR rates is something very peculiar. Is this because more cases were being reported and documented or any other factor? I am not an expert to provide any conclusive reasoning. But we definitely try to see if this trend exists in other states as well.
 
-<a href="http://www.awesomestats.in/wp-content/uploads/2014/09/IMR0405.png"><img class="alignnone wp-image-192 size-full" src="http://www.awesomestats.in/wp-content/uploads/2014/09/IMR0405.png" alt="IMR0405" width="3600" height="3000" /></a>
+![2004-2005]((/assets/img/amazing/IMR0405.png)
 
 From the above plot, we see an increase in IMR from 2004 to 2005  in at least 12 states. What is most bizzare is that even states like Kerala, which have dealt with it well also had witnesses a rise in IMR in 2005 from 2004. What could be the reason? Increase in cases being reported or documentation error or is there a proper reason? I leave this to the readers to find out.
 
