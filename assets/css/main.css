@@ -70,4 +70,28 @@ html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:1
 .post-amazing .ribbon span{background-color:#eb7728;}
 .post-amazing .ribbon span:before{border-left:3px solid #b05110;border-top:3px solid #b05110}
 .post-amazing .ribbon span:after{border-right:3px solid #b05110;border-top:3px solid #b05110}
-.post-amazing footer{background-color:#eb7728} 
+.post-amazing footer{background-color:#eb7728}
+
+.post-workshops .title-category{color:#637a91}
+.post-workshops .post-content h1,.post-workshops .post-content h2,.post-workshops .post-content h3,.post-workshops .post-content h4{color:#637a91}
+.post-workshops .post-content a{color:#637a91;border-bottom:2px dashed #637a91;}
+.post-workshops .post-content a:hover{background-color:#637a91;color:#fff}
+.post-workshops .post-content strong{color:#637a91}
+.post-workshops .post-content p code,.post-workshops .post-content li code{color:#637a91}
+.post-workshops .post-content blockquote{border-left:.313rem solid #637a91}
+.post-workshops .header-post,.post-workshops .header-site{background-color:#637a91;}
+.post-workshops .header-post h1,.post-workshops .header-site h1{text-shadow:3px 3px #4f6274}
+.post-workshops .bar-header .logo a{color:#637a91}
+.post-workshops .author .email{color:#637a91}
+.post-workshops .share a:hover svg{fill:#637a91}
+@media only screen and (max-width:37.5rem){.post-workshops body.search-overlay:after{background-color:#637a91}
+}
+.post-workshops .icon-menu{fill:#637a91}
+.post-workshops .box-body h2{color:#637a91}
+.post-workshops .box-body .tags a{color:#637a91;border:1px solid #637a91}
+.post-workshops aside{background-color:#637a91;}
+.post-workshops aside nav li a:hover{color:#637a91}
+.post-workshops .ribbon span{background-color:#637a91;}
+.post-workshops .ribbon span:before{border-left:3px solid #455565;border-top:3px solid #455565}
+.post-workshops .ribbon span:after{border-right:3px solid #455565;border-top:3px solid #455565}
+.post-workshops footer{background-color:#637a91} 
