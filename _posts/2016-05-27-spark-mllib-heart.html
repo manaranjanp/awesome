@@ -113,8 +113,9 @@ introduction: "Using Spark MLlib to predict"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Dataset-Description">Dataset Description<a class="anchor-link" href="#Dataset-Description">&#182;</a></h3>
-<li><p>A retrospective sample of males in a heart-disease high-risk region of the Western Cape, South Africa. There are roughly two controls per case of CHD. Many of the CHD positive men have undergone blood pressure reduction treatment and other programs to reduce their risk factors after their CHD event. In some cases the measurements were made after these treatments. These data are taken from a larger dataset, described in  Rousseauw et al, 1983, South African Medical Journal.</p>
+<h3 id="Dataset-Description">Dataset Description<a class="anchor-link" href="#Dataset-Description">&#182;</a></h3><ul>
+<li>A retrospective sample of males in a heart-disease high-risk region of the Western Cape, South Africa. There are roughly two controls per case of CHD. Many of the CHD positive men have undergone blood pressure reduction treatment and other programs to reduce their risk factors after their CHD event. In some cases the measurements were made after these treatments. These data are taken from a larger dataset, described in  Rousseauw et al, 1983, South African Medical Journal.
+<ul>
 <li>sbp        - systolic blood pressure</li>
 <li>tobacco    -    cumulative tobacco (kg)</li>
 <li>ldl    -    low densiity lipoprotein cholesterol</li>
@@ -4804,12 +4805,12 @@ LabeledPoint(1.0, [0.0,0.0,53.0,30.11,5.8])]</pre>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Encoding-the-categorical-variable">Encoding the categorical variable<a class="anchor-link" href="#Encoding-the-categorical-variable">&#182;</a></h3><ul>
-<li>Categorical variables can not be represented as continuous variables. Categorical variables need to converted into binary representation, which is called hot encoding.</li>
-<li>For example, famhist takes two values: present and absent. So, we need two variable to represet these values.</li>
-<li>Present can be represented as [0 1] and Absent can be represented as [1 0]. Based on the value each variable can be set.</li>
+<li>Categorical variables can not be represented as continuous variables. Categorical variables need to converted into binary representation, which is called one hot encoding.</li>
+<li>For example, famhist takes two values: present and absent. So, we need two variables to represent these values.</li>
+<li>Present can be represented as [0 1] and Absent can be represented as [1 0]. </li>
 <li>Spark provides APIs to hot encode the categorical variables.<ul>
-<li>StringIndexer creats a dictionary like Present : 1 and Absent: 0 </li>
-<li>One Hot Encoding creates variables to represent them as [0 1] or [1 0]</li>
+<li>StringIndexer creates a dictionary for each value of the feature: Present : 1 and Absent: 0 </li>
+<li>One Hot Encoding creates variables to binary represent them e.g. [0 1] or [1 0]</li>
 </ul>
 </li>
 </ul>
