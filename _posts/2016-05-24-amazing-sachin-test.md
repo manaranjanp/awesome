@@ -30,20 +30,19 @@ The best way to get a clear insight is to visually plot and interpret the result
 
 First, we will look at Test Cricket Career of Sachin.
 
-<strong>How has he performed against test playing opponents vs. non test playing nations?</strong>
-<div class="entry-content">
+## How has he performed against test playing opponents vs. non test playing nations?
 
-<a href="https://dataleap.files.wordpress.com/2014/09/testplaying2.jpg"><img class="alignnone wp-image-35 size-large" src="https://dataleap.files.wordpress.com/2014/09/testplaying2.jpg?w=625&amp;h=411" alt="testPlaying" /></a>
+[Test Playing Nations Vs. Non Test Playing Nations](https://dataleap.files.wordpress.com/2014/09/testplaying2.jpg)
 
 The plots shows he has equally played well against both test and not test playing countries, with slightly better performance against test non playing counties. This is expected.
 
-<strong>How has he played against Various opponents?</strong>
+## How has he played against Various opponents?
 
-<img class="aligncenter wp-image-33 size-large" src="https://dataleap.files.wordpress.com/2014/09/scorebycountries2.jpg?w=625&amp;h=411" alt="ScoreByCountries" />
+[Against Various Opponents](https://dataleap.files.wordpress.com/2014/09/scorebycountries2.jpg?w=625&amp;h=411)>
 
 Any significant insight? Most of his performances against top opponents like Australia, England, Pakistan, Sri Lanka and West Indies are above the median. This can be understood as the stretch of 3rd quartiles for the boxplots for those countries are longer than first and second quartiles. And the outliers ( exceptional innings )  are shown by the dots. And those 4 big innings (more than 200) have come against Australia, New Zealand and Others(Bangladesh).
 
-<strong>How has he performed in home grounds vs. overseas grounds?</strong>
+## How has he performed in home grounds vs. overseas grounds?
 
 <a href="https://dataleap.files.wordpress.com/2014/09/scoreindisoverseas2.jpg"><img class="aligncenter wp-image-34 size-large" src="https://dataleap.files.wordpress.com/2014/09/scoreindisoverseas2.jpg?w=625&amp;h=411" alt="scoreIndisOverseas" /></a>
 
@@ -51,7 +50,7 @@ Any significant insight? Most of his performances against top opponents like Au
 
 From the plot, there is no significant differences between his performances at home and overseas. Both the distributions look almost similar. One insight is that his best innings has come from overseas.
 
-<strong>Sachin’s performance vis-a-vis Lara and Ponting</strong>
+## Sachin’s performance vis-a-vis Lara and Ponting
 
 How overall performance of Sachin is in comparison withBrian Lara and Ricky Ponting? Only thought of comparing with these two players as they are contemporaries of Sachin and highly regarded as great batsmen of that era. And it makes sense to compare with these players as the external factors can be safely assumed to be almost same for all three.
 
@@ -61,7 +60,7 @@ From the plots, it can be seen that Lara and Sachin’s performances are almost 
 
 But what is significant from this plot is Lara’s exceptional innings (outliers). They stand out against Sachin’s and Ponting’s. His innings of 375 and 400 are exceptionally exceptional (far outliers). No doubt, he is the best test batsman of our times and definitely slightly ahead of Sachin.
 
-<strong>How all of them have played against different countries?</strong>
+## How all of them have played against different countries?
 
 <a href="https://dataleap.files.wordpress.com/2014/09/sbptestscorescountries4.jpg"><img class="aligncenter wp-image-38" src="https://dataleap.files.wordpress.com/2014/09/sbptestscorescountries4.jpg?w=2162&amp;h=1425" alt="SBPTestScoresCountries" width="2162" height="1425" /></a>
 
