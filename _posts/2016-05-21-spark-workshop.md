@@ -14,9 +14,8 @@ tags:
 - pyspark
 categories:
 - workshops
-introduction: "A 3 days deep dive course on Spark for Deveopers using Python"
+introduction: "A 3 days deep dive course on Spark for Developers using Python"
 ---
-
 
 ## overview
 
@@ -28,6 +27,7 @@ This course will provide you an excellent kick start in building your fundamenta
 ## What participants will learn?
 
 The attendees will learn below topics through lectures and hands-on exercises
+
 * Deep Dive into Apache Spark 1.5 Architecture
 * Understand Spark APIs, RDDs, Data frames, Spark SQL
 * How to do parallel programming and develop Spark applications
@@ -94,3 +94,6 @@ All the programming will be done using Python, hence the participants should hav
 	* Memory Management & Networking
 * End to End Use Case Implementation
 	* Applying the learnings to end to end use case
+
+
+#### Write to mailto:manaranjan@enablecloud.com or mailto:manaranjan@gmail.com, if you are interested to conduct a workshop for your organization or a group of people.
