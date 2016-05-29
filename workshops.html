@@ -11,7 +11,7 @@ description: "List of workshops currently being offered."
     {% assign pages_list = tag[1] %}
     {% for post in pages_list reversed %}
       {% if post.title != null %}
-        {% if post.main-class == 'spark' %}
+        {% if post.main-class == 'workshops' %}
           {% if group == null or group == post.group %}
           <li><a href="{{ site.url }}{{ post.url }}">{{ post.title }}<span class="entry-date"><time datetime="{{ post.date | date_to_xmlschema }}" itemprop="datePublished">{{ post.date | date: "%B %d, %Y" }}</time></span></a></li>
           {% endif %}
