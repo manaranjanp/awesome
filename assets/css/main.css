@@ -23,3 +23,51 @@ html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:1
 .post-spark .ribbon span:before{border-left:3px solid #55780d;border-top:3px solid #55780d}
 .post-spark .ribbon span:after{border-right:3px solid #55780d;border-top:3px solid #55780d}
 .post-spark footer{background-color:#7aab13}
+
+.post-python .title-category{color:#7d669e}
+.post-python .post-content h1,.post-python .post-content h2,.post-python .post-content h3,.post-python .post-content h4{color:#7d669e}
+.post-python .post-content a{color:#7d669e;border-bottom:2px dashed #7d669e;}
+.post-python .post-content a:hover{background-color:#7d669e;color:#fff}
+.post-python .post-content strong{color:#7d669e}
+.post-python .post-content p code,.post-python .post-content li code{color:#7d669e}
+.post-python .post-content blockquote{border-left:.313rem solid #7d669e}
+.post-python .header-post,.post-python .header-site{background-color:#7d669e;}
+.post-python .header-post h1,.post-python .header-site h1{text-shadow:3px 3px #64517f}
+.post-python .bar-header .logo a{color:#7d669e}
+.post-python .author .email{color:#7d669e}
+.post-python .share a:hover svg{fill:#7d669e}
+@media only screen and (max-width:37.5rem){.post-python body.search-overlay:after{background-color:#7d669e}
+}
+.post-python .icon-menu{fill:#7d669e}
+.post-python .box-body h2{color:#7d669e}
+.post-python .box-body .tags a{color:#7d669e;border:1px solid #7d669e}
+.post-python aside{background-color:#7d669e;}
+.post-python aside nav li a:hover{color:#7d669e}
+.post-python .ribbon span{background-color:#7d669e;}
+.post-python .ribbon span:before{border-left:3px solid #57476f;border-top:3px solid #57476f}
+.post-python .ribbon span:after{border-right:3px solid #57476f;border-top:3px solid #57476f}
+.post-python footer{background-color:#7d669e}
+
+.post-amazing .title-category{color:#eb7728}
+.post-amazing .post-content h1,.post-amazing .post-content h2,.post-amazing .post-content h3,.post-amazing .post-content h4{color:#eb7728}
+.post-amazing .post-content a{color:#eb7728;border-bottom:2px dashed #eb7728;}
+.post-amazing .post-content a:hover{background-color:#eb7728;color:#fff}
+.post-amazing .post-content strong{color:#eb7728}
+.post-amazing .post-content p code,.post-amazing .post-content li code{color:#eb7728}
+.post-amazing .post-content blockquote{border-left:.313rem solid #eb7728}
+.post-amazing .header-post,.post-amazing .header-site{background-color:#eb7728;}
+.post-amazing .header-post h1,.post-amazing .header-site h1{text-shadow:3px 3px #c95d13}
+.post-amazing .bar-header .logo a{color:#eb7728}
+.post-amazing .author .email{color:#eb7728}
+.post-amazing .share a:hover svg{fill:#eb7728}
+@media only screen and (max-width:37.5rem){.post-amazing body.search-overlay:after{background-color:#eb7728}
+}
+.post-amazing .icon-menu{fill:#eb7728}
+.post-amazing .box-body h2{color:#eb7728}
+.post-amazing .box-body .tags a{color:#eb7728;border:1px solid #eb7728}
+.post-amazing aside{background-color:#eb7728;}
+.post-amazing aside nav li a:hover{color:#eb7728}
+.post-amazing .ribbon span{background-color:#eb7728;}
+.post-amazing .ribbon span:before{border-left:3px solid #b05110;border-top:3px solid #b05110}
+.post-amazing .ribbon span:after{border-right:3px solid #b05110;border-top:3px solid #b05110}
+.post-amazing footer{background-color:#eb7728} 
