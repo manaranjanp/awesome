@@ -53,10 +53,13 @@ All the programming will be done using Python, hence the participants should hav
 ## Detailed Course Outline
 
 ### Big Data & Spark Overview
+
 	* Overview of Big data and its challenges
 	* Spark Architecture Overview
 	* Installing and Configuring Spark
+
 ### Spark Architecture – Deep Dive
+
 	* Using Spark Shell
 	* Understanding Resilient Distributed Datasets (RDDs), Types of RDDs
 	* Working with RDD Actions & Transformations
@@ -64,7 +67,9 @@ All the programming will be done using Python, hence the participants should hav
 	* Deploying to Spark Standalone & Hadoop Cluster
 	* Using Web UI for monitoring & managing Spark Applications
 	* Hands On
+
 ### Spark APIs & Usages
+
 	* Working with Key-value pairs using Spark APIs
 	* Overview of RDD lineage, Caching and Persistence
 	* Share Variables: Accumulators and Broadcast Variables
@@ -72,27 +77,37 @@ All the programming will be done using Python, hence the participants should hav
 	* Logging & Unit Testing
 	* Track Spark jobs stages for Investigation and Troubleshooting
 	* Hands On
+
 ### Working with Advanced Spark Features
+
 	* Working with Spark SQL
 	* Working with DataFrames
 	* Hive & RDD Integrations
 	* Working with different data formats: Structured and Unstructured
 	* Hands On
+
 ### Writing Spark Streaming Applications
+
 	* Spark Streaming Overview
 	* Understanding Streaming Operations
 	* Sliding Window Operations
 	* Developing Spark Streaming Applications
 	* Hands On
+
 ### Using Spark Machine Learning Algorithms
+
 	* Understanding ML APIs
 	* Applying Regression, Classification and Clustering APIs to real world use cases
 	* Hands On
+	
 ### Optimizing and Tuning Spark Applications
+
 	* Hardware provisioning & Resource Allocation
 	* Shuffling, Compression
 	* Memory Management & Networking
+
 ### End to End Use Case Implementation
+
 	* Applying the learnings to end to end use case
 
 

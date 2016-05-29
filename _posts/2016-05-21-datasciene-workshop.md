@@ -50,12 +50,14 @@ Data Science is emerging as a hot new profession and academic discipline.  Harva
 
 
 ### Working with Numbers
+
 * Introduction to Numpy array
 * Overview of Array and operations
 * N-Dimensional array and manipulations
 
 
 ### Accessing and preparing data with Pandas
+
 * Loading data from varieties of sources: CSV, Databases
 * Data manipulation - Filtering, Grouping, Ordering of data
 * Dealing with missing Data
@@ -81,11 +83,13 @@ Data Science is emerging as a hot new profession and academic discipline.  Harva
 
 
 ### Clustering
+
 * Understanding k-means clustering and creating Segments
 * Creating clustering plots and Dendograms
 
 
 ### Text Analytics
+
 * Handling Text and unstructured Data
 * Accessing Social Data - Integrating with Twitter
 * Trend Analysis
@@ -93,6 +97,7 @@ Data Science is emerging as a hot new profession and academic discipline.  Harva
 
 
 ### Steps to build and validate models
+
 * Creating Training, validation and Test Data Sets
 * Cross validations
 * Understanding Accuracy measures
