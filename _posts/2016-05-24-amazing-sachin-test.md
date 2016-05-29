@@ -20,11 +20,11 @@ When you learn statistics and looking to apply the concepts on some real world d
 
 I started looking at Sachin’s batting performance in ODI and Tests. There are few questions that came to my mind are
 
-1. How Sachin has performed against different countries?
+* How Sachin has performed against different countries?
 
-2. How different has he played on domestics grounds versus overseas grounds?
+* How different has he played on domestics grounds versus overseas grounds?
 
-3. Compare it with the performance of other great batsmen like Brian Lara and Ricky Pointing, who were his contemporaries.
+* Compare it with the performance of other great batsmen like Brian Lara and Ricky Pointing, who were his contemporaries.
 
 The best way to get a clear insight is to visually plot and interpret the results. For this analysis, I have taken the data from <a href="http://www.cricinfo.com/">cricinfo</a> site, which provides complete data about all cricketers.
 
