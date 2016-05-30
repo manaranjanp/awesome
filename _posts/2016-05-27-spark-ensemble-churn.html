@@ -20,6 +20,7 @@ categories:
 introduction: "Using Spark MLlib to predict customer churn"
 ---
 
+
 <div tabindex="-1" id="notebook" class="border-box-sizing">
   <div class="container" id="notebook-container">
 
@@ -28,11 +29,9 @@ introduction: "Using Spark MLlib to predict customer churn"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ul>
-<li><p>Companies invest significantly to acquire new customers. So, after acquisition, companies would like these customers to stay long and be loyal. Companies also make investments to keep engaging with these customers continuously and ensure they are happpy and satisfied with their offferings. Loosing customers mean loss of investment and loss of possible future revenue.</p>
-</li>
-<li><p>So, it is important for companies to infer early signs of a customer about to churn and engage or offer incentives to retain them. But as targetting each customer is not possibe, comapnies can take advantage of analytics to predict if a customer high probability of churing. A possible intervention can be made to retain the customer.</p>
-</li>
+<h3 id="Customer-Churn-Overview">Customer Churn Overview<a class="anchor-link" href="#Customer-Churn-Overview">&#182;</a></h3><ul>
+<li>Companies invest significantly to acquire new customers. So, after acquisition, companies would like these customers to stay long and be loyal. Companies also make investments to keep engaging with these customers continuously and ensure they are happpy and satisfied with their offferings. Loosing customers mean loss of investment and loss of possible future revenue.</li>
+<li>So, it is important for companies to infer early signs of a customer about to churn and engage or offer incentives to retain them. But as targetting each customer is not possibe, comapnies can take advantage of analytics to predict if a customer high probability of churing. A possible intervention can be made to retain the customer.</li>
 </ul>
 
 </div>
@@ -249,7 +248,7 @@ only showing top 2 rows
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Select-only-a-subset-of-columns">Select only a subset of columns<a class="anchor-link" href="#Select-only-a-subset-of-columns">&#182;</a></h2><ul>
+<h3 id="Select-only-a-subset-of-columns">Select only a subset of columns<a class="anchor-link" href="#Select-only-a-subset-of-columns">&#182;</a></h3><ul>
 <li>Some columns are highly corelated e.g. Call minutes, calls and charges. So, only one of the variable can be used. This is applicable across day, eve, night and international calls.</li>
 </ul>
 
@@ -370,7 +369,7 @@ only showing top 2 rows
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Transform-Target-Variable">Transform Target Variable<a class="anchor-link" href="#Transform-Target-Variable">&#182;</a></h2><ul>
+<h3 id="Transform-Target-Variable">Transform Target Variable<a class="anchor-link" href="#Transform-Target-Variable">&#182;</a></h3><ul>
 <li>'Churn?' variable is converted into integer</li>
 <li>True. will be 1 and False. will be 1</li>
 </ul>
@@ -465,7 +464,7 @@ only showing top 3 rows
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Create-categorical-Variables">Create categorical Variables<a class="anchor-link" href="#Create-categorical-Variables">&#182;</a></h2>
+<h3 id="Create-categorical-Variables">Create categorical Variables<a class="anchor-link" href="#Create-categorical-Variables">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -667,13 +666,13 @@ LabeledPoint(0.0, [75.0,0.0,166.7,148.3,186.9,10.1,3.0,0.0,1.0,1.0,0.0])]</pre>
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Split-dataset-into-train-and-test">Split dataset into train and test<a class="anchor-link" href="#Split-dataset-into-train-and-test">&#182;</a></h2>
+<h3 id="Split-dataset-into-train-and-test">Split dataset into train and test<a class="anchor-link" href="#Split-dataset-into-train-and-test">&#182;</a></h3>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="prompt input_prompt">In&nbsp;[71]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">trainingData</span><span class="p">,</span> <span class="n">testData</span> <span class="o">=</span> <span class="n">churn_vec_new</span><span class="o">.</span><span class="n">randomSplit</span><span class="p">([</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
@@ -1811,7 +1810,7 @@ DF5JStj/A7eh84E/W/2jAAAAAElFTkSuQmCC
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Note:-Of-all-models-ensemble-models-random-forest-has-worked-best-and-can-be-recommended.">Note: Of all models ensemble models random forest has worked best and can be recommended.<a class="anchor-link" href="#Note:-Of-all-models-ensemble-models-random-forest-has-worked-best-and-can-be-recommended.">&#182;</a></h4>
+<h5 id="Of-all-models,-random-forest,-which-is-an--ensemble-technique,-has-worked-best-and-can-be-recommended-to-predict-customer-churn-in-this-case.">Of all models, random forest, which is an  ensemble technique, has worked best and can be recommended to predict customer churn in this case.<a class="anchor-link" href="#Of-all-models,-random-forest,-which-is-an--ensemble-technique,-has-worked-best-and-can-be-recommended-to-predict-customer-churn-in-this-case.">&#182;</a></h5>
 </div>
 </div>
 </div>
