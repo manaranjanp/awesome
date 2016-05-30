@@ -2,7 +2,7 @@
 layout: post
 title: "Spark For Developers Workshop"
 date: 2016-05-29
-description: "A 3 days deep dive course on Spark for Deveopers using Python"
+description: "A 3 days deep dive course on Spark for Developers using Python"
 main-class: 'workshops'
 published: true
 color: '#637a91'
