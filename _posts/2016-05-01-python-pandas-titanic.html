@@ -1,0 +1,3331 @@
+---
+layout: post
+title: "Exploring Titanic Dataset using pandas"
+date: 2016-05-25
+description: "Analyzing datasets using pandas dataframe APIs"
+main-class: 'python'
+postbook: 'inotebook'
+published: true
+color: '#b31917'
+tags:
+- python
+- pandas
+- "data Science"
+- classification
+categories:
+- python
+introduction: "Analyzing datasets using pandas dataframe APIs"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="This-tutorial-gives-a-quick-hands-on-overview-of-how-to-use-pandas-APIs-to-load-and-apply-data-munging-operations-on-a--dataset.">This tutorial gives a quick hands on overview of how to use pandas APIs to load and apply data munging operations on a  dataset.<a class="anchor-link" href="#This-tutorial-gives-a-quick-hands-on-overview-of-how-to-use-pandas-APIs-to-load-and-apply-data-munging-operations-on-a--dataset.">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Importing-pandas-and-numpy-library">Importing pandas and numpy library<a class="anchor-link" href="#Importing-pandas-and-numpy-library">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Read-the-dataset,-which-is-in-csv-format">Read the dataset, which is in csv format<a class="anchor-link" href="#Read-the-dataset,-which-is-in-csv-format">&#182;</a></h2><ul>
+<li>Pandas as many read_* functions to read data from multiples data sources or formats like json, jdbc, excel, pickel (python serialized objects) etc.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&quot;titanic.csv&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Print-the-first-few-rows">Print the first few rows<a class="anchor-link" href="#Print-the-first-few-rows">&#182;</a></h2><ul>
+<li><em>head()</em> also takes an argument n, which specifies how many records will be printed.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">3</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[3]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>row.names</th>
+    <th>pclass</th>
+    <th>survived</th>
+    <th>name</th>
+    <th>age</th>
+    <th>embarked</th>
+    <th>home.dest</th>
+    <th>room</th>
+    <th>ticket</th>
+    <th>boat</th>
+    <th>sex</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>1st</td>
+    <td>1</td>
+    <td>Allen, Miss Elisabeth Walton</td>
+    <td>29</td>
+    <td>Southampton</td>
+    <td>St Louis, MO</td>
+    <td>B-5</td>
+    <td>24160 L221</td>
+    <td>2</td>
+    <td>female</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2</td>
+    <td>1st</td>
+    <td>0</td>
+    <td>Allison, Miss Helen Loraine</td>
+    <td>2</td>
+    <td>Southampton</td>
+    <td>Montreal, PQ / Chesterville, ON</td>
+    <td>C26</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>female</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>3</td>
+    <td>1st</td>
+    <td>0</td>
+    <td>Allison, Mr Hudson Joshua Creighton</td>
+    <td>30</td>
+    <td>Southampton</td>
+    <td>Montreal, PQ / Chesterville, ON</td>
+    <td>C26</td>
+    <td>NaN</td>
+    <td>(135)</td>
+    <td>male</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Check-dataset-dimensions..-how-many-row-and-columns?">Check dataset dimensions.. how many row and columns?<a class="anchor-link" href="#Check-dataset-dimensions..-how-many-row-and-columns?">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[4]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(1313, 11)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="List-column-names">List column names<a class="anchor-link" href="#List-column-names">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[5]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Index([&apos;row.names&apos;, &apos;pclass&apos;, &apos;survived&apos;, &apos;name&apos;, &apos;age&apos;, &apos;embarked&apos;,
+     &apos;home.dest&apos;, &apos;room&apos;, &apos;ticket&apos;, &apos;boat&apos;, &apos;sex&apos;],
+    dtype=&apos;object&apos;)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Print-column-names-and-types">Print column names and types<a class="anchor-link" href="#Print-column-names-and-types">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">dtypes</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>row.names      int64
+pclass        object
+survived       int64
+name          object
+age          float64
+embarked      object
+home.dest     object
+room          object
+ticket        object
+boat          object
+sex           object
+dtype: object</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="More-information-with-info()-command">More information with info() command<a class="anchor-link" href="#More-information-with-info()-command">&#182;</a></h2><h4 id="How-many-total-entries?-What-are-the-columns-and-their-types.-Each-column-has-how-many-not-null-values?">How many total entries? What are the columns and their types. Each column has how many not-null values?<a class="anchor-link" href="#How-many-total-entries?-What-are-the-columns-and-their-types.-Each-column-has-how-many-not-null-values?">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;class &apos;pandas.core.frame.DataFrame&apos;&gt;
+Int64Index: 1313 entries, 0 to 1312
+Data columns (total 11 columns):
+row.names    1313 non-null int64
+pclass       1313 non-null object
+survived     1313 non-null int64
+name         1313 non-null object
+age          633 non-null float64
+embarked     821 non-null object
+home.dest    754 non-null object
+room         77 non-null object
+ticket       69 non-null object
+boat         347 non-null object
+sex          1313 non-null object
+dtypes: float64(1), int64(2), object(8)
+memory usage: 123.1+ KB
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Select-Specific-columns-and-rows">Select Specific columns and rows<a class="anchor-link" href="#Select-Specific-columns-and-rows">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[</span><span class="s">&#39;survived&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+<span class="c">## or titanic_data.survived</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[8]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0    1
+1    0
+2    0
+3    0
+4    1
+5    1
+6    1
+7    0
+8    1
+9    0
+Name: survived, dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">survived</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0    1
+1    0
+2    0
+3    0
+4    1
+5    1
+6    1
+7    0
+8    1
+9    0
+Name: survived, dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Selecting-multiple-columns.-Multiple-column-names-should-be-provided-as-a-list">Selecting multiple columns. Multiple column names should be provided as a list<a class="anchor-link" href="#Selecting-multiple-columns.-Multiple-column-names-should-be-provided-as-a-list">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[[</span><span class="s">&#39;survived&#39;</span><span class="p">,</span><span class="s">&#39;age&#39;</span><span class="p">]][</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[10]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>survived</th>
+    <th>age</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>29.0000</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>0</td>
+    <td>2.0000</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>0</td>
+    <td>30.0000</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>0</td>
+    <td>25.0000</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>1</td>
+    <td>0.9167</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>1</td>
+    <td>47.0000</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>1</td>
+    <td>63.0000</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>0</td>
+    <td>39.0000</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>1</td>
+    <td>58.0000</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>0</td>
+    <td>71.0000</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="How-many-people-survived-and-what-is-the-percentage?">How many people survived and what is the percentage?<a class="anchor-link" href="#How-many-people-survived-and-what-is-the-percentage?">&#182;</a></h2><ul>
+<li><em>value_counts()</em> provides occurance of each unique values in the column.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[</span><span class="s">&#39;survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0    864
+1    449
+dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[</span><span class="s">&#39;survived&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="k">True</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0    65.803503
+1    34.196497
+dtype: float64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Get-summary-statistics-of-variables">Get summary statistics of variables<a class="anchor-link" href="#Get-summary-statistics-of-variables">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>row.names</th>
+    <th>survived</th>
+    <th>age</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>count</th>
+    <td>1313.000000</td>
+    <td>1313.000000</td>
+    <td>633.000000</td>
+  </tr>
+  <tr>
+    <th>mean</th>
+    <td>657.000000</td>
+    <td>0.341965</td>
+    <td>31.194181</td>
+  </tr>
+  <tr>
+    <th>std</th>
+    <td>379.174762</td>
+    <td>0.474549</td>
+    <td>14.747525</td>
+  </tr>
+  <tr>
+    <th>min</th>
+    <td>1.000000</td>
+    <td>0.000000</td>
+    <td>0.166700</td>
+  </tr>
+  <tr>
+    <th>25%</th>
+    <td>329.000000</td>
+    <td>0.000000</td>
+    <td>21.000000</td>
+  </tr>
+  <tr>
+    <th>50%</th>
+    <td>657.000000</td>
+    <td>0.000000</td>
+    <td>30.000000</td>
+  </tr>
+  <tr>
+    <th>75%</th>
+    <td>985.000000</td>
+    <td>1.000000</td>
+    <td>41.000000</td>
+  </tr>
+  <tr>
+    <th>max</th>
+    <td>1313.000000</td>
+    <td>1.000000</td>
+    <td>71.000000</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Cross-tabulation-between-gender-and-survived?">Cross tabulation between gender and survived?<a class="anchor-link" href="#Cross-tabulation-between-gender-and-survived?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">sex</span><span class="p">,</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">survived</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[14]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th>survived</th>
+    <th>0</th>
+    <th>1</th>
+  </tr>
+  <tr>
+    <th>sex</th>
+    <th></th>
+    <th></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>female</th>
+    <td>156</td>
+    <td>307</td>
+  </tr>
+  <tr>
+    <th>male</th>
+    <td>708</td>
+    <td>142</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Cross-tabulation-between-passenger-class-and-survived?">Cross tabulation between passenger class and survived?<a class="anchor-link" href="#Cross-tabulation-between-passenger-class-and-survived?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">pclass</span><span class="p">,</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">survived</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th>survived</th>
+    <th>0</th>
+    <th>1</th>
+  </tr>
+  <tr>
+    <th>pclass</th>
+    <th></th>
+    <th></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>1st</th>
+    <td>129</td>
+    <td>193</td>
+  </tr>
+  <tr>
+    <th>2nd</th>
+    <td>161</td>
+    <td>119</td>
+  </tr>
+  <tr>
+    <th>3rd</th>
+    <td>574</td>
+    <td>137</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Cross-tabulation-between-passenger-class-and-from-where-they-embarked-the-ship?">Cross tabulation between passenger class and from where they embarked the ship?<a class="anchor-link" href="#Cross-tabulation-between-passenger-class-and-from-where-they-embarked-the-ship?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">pclass</span><span class="p">,</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">embarked</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th>embarked</th>
+    <th>Cherbourg</th>
+    <th>Queenstown</th>
+    <th>Southampton</th>
+  </tr>
+  <tr>
+    <th>pclass</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>1st</th>
+    <td>142</td>
+    <td>3</td>
+    <td>167</td>
+  </tr>
+  <tr>
+    <th>2nd</th>
+    <td>28</td>
+    <td>7</td>
+    <td>237</td>
+  </tr>
+  <tr>
+    <th>3rd</th>
+    <td>33</td>
+    <td>35</td>
+    <td>169</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">survived</span><span class="p">,</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">embarked</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th>embarked</th>
+    <th>Cherbourg</th>
+    <th>Queenstown</th>
+    <th>Southampton</th>
+  </tr>
+  <tr>
+    <th>survived</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>84</td>
+    <td>31</td>
+    <td>344</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>119</td>
+    <td>14</td>
+    <td>229</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Filtering-records-based-on-a-condition">Filtering records based on a condition<a class="anchor-link" href="#Filtering-records-based-on-a-condition">&#182;</a></h2><h3 id="How-many-children-survived-who-are-less-than-5-years-old?">How many children survived who are less than 5 years old?<a class="anchor-link" href="#How-many-children-survived-who-are-less-than-5-years-old?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">below_5_years</span> <span class="o">=</span> <span class="n">titanic_data</span><span class="p">[</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">below_5_years</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>row.names</th>
+    <th>pclass</th>
+    <th>survived</th>
+    <th>name</th>
+    <th>age</th>
+    <th>embarked</th>
+    <th>home.dest</th>
+    <th>room</th>
+    <th>ticket</th>
+    <th>boat</th>
+    <th>sex</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>1</th>
+    <td>2</td>
+    <td>1st</td>
+    <td>0</td>
+    <td>Allison, Miss Helen Loraine</td>
+    <td>2.0000</td>
+    <td>Southampton</td>
+    <td>Montreal, PQ / Chesterville, ON</td>
+    <td>C26</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>female</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>5</td>
+    <td>1st</td>
+    <td>1</td>
+    <td>Allison, Master Hudson Trevor</td>
+    <td>0.9167</td>
+    <td>Southampton</td>
+    <td>Montreal, PQ / Chesterville, ON</td>
+    <td>C22</td>
+    <td>NaN</td>
+    <td>11</td>
+    <td>male</td>
+  </tr>
+  <tr>
+    <th>86</th>
+    <td>87</td>
+    <td>1st</td>
+    <td>1</td>
+    <td>Dodge, Master Washington</td>
+    <td>4.0000</td>
+    <td>Southampton</td>
+    <td>San Francisco, CA</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>5/7</td>
+    <td>male</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="How-many-children-below-5-years-age-were-on-board-the-ship?">How many children below 5 years age were on board the ship?<a class="anchor-link" href="#How-many-children-below-5-years-age-were-on-board-the-ship?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="nb">len</span><span class="p">(</span> <span class="n">titanic_data</span><span class="p">[</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="p">]</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[20]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>29</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="p">][</span><span class="s">&quot;survived&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[21]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1    24
+0     5
+dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="How-many-of-those-children-survive?">How many of those children survive?<a class="anchor-link" href="#How-many-of-those-children-survive?">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="p">][</span><span class="s">&quot;survived&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span> <span class="n">normalize</span> <span class="o">=</span> <span class="k">True</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[22]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1    0.827586
+0    0.172414
+dtype: float64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[23]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Index([&apos;row.names&apos;, &apos;pclass&apos;, &apos;survived&apos;, &apos;name&apos;, &apos;age&apos;, &apos;embarked&apos;,
+     &apos;home.dest&apos;, &apos;room&apos;, &apos;ticket&apos;, &apos;boat&apos;, &apos;sex&apos;],
+    dtype=&apos;object&apos;)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Get-unique-values-for-a-column">Get unique values for a column<a class="anchor-link" href="#Get-unique-values-for-a-column">&#182;</a></h2><h3 id="How-many-embark-points-were-there?-dataframe.unique()-lists-unique-values-of-the-column">How many embark points were there? dataframe.unique() lists unique values of the column<a class="anchor-link" href="#How-many-embark-points-were-there?-dataframe.unique()-lists-unique-values-of-the-column">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">embarked</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[24]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([&apos;Southampton&apos;, &apos;Cherbourg&apos;, nan, &apos;Queenstown&apos;], dtype=object)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Working-with-NA-values">Working with NA values<a class="anchor-link" href="#Working-with-NA-values">&#182;</a></h2><h3 id="Count-and-drop-NA-Values">Count and drop NA Values<a class="anchor-link" href="#Count-and-drop-NA-Values">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">embarked</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[25]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([&apos;Southampton&apos;, &apos;Cherbourg&apos;, nan, &apos;Queenstown&apos;], dtype=object)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="nb">len</span><span class="p">(</span> <span class="n">titanic_data</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[26]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1313</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>But lot of entries contain NA as embarked port. Can we drop the NA values? <em>dropna()</em> drops all the null values.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">embarked</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[27]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([&apos;Southampton&apos;, &apos;Cherbourg&apos;, &apos;Queenstown&apos;], dtype=object)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="nb">len</span><span class="p">(</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">embarked</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[28]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>3</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="nb">len</span><span class="p">(</span> <span class="n">titanic_data</span><span class="p">[</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">embarked</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span> <span class="p">]</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[29]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>821</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="nb">len</span><span class="p">(</span> <span class="n">titanic_data</span><span class="p">[</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">embarked</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span> <span class="o">==</span> <span class="k">False</span> <span class="p">]</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[30]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>492</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Remove-rows-where-there-are-NA-values-in-any-of-the-columns">Remove rows where there are NA values in any of the columns<a class="anchor-link" href="#Remove-rows-where-there-are-NA-values-in-any-of-the-columns">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">clean_titanic_data</span> <span class="o">=</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="nb">len</span><span class="p">(</span> <span class="n">clean_titanic_data</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[32]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>20</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Remove-rows-where-there-are-NA-values-in-all-columns">Remove rows where there are NA values in all columns<a class="anchor-link" href="#Remove-rows-where-there-are-NA-values-in-all-columns">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">clean_titanic_data</span> <span class="o">=</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span> <span class="n">how</span> <span class="o">=</span> <span class="s">&quot;all&quot;</span> <span class="p">)</span>
+<span class="nb">len</span><span class="p">(</span> <span class="n">clean_titanic_data</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[33]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1313</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Remove-columns-where-all-the-values-are-NAs">Remove columns where all the values are NAs<a class="anchor-link" href="#Remove-columns-where-all-the-values-are-NAs">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">clean_titanic_data</span> <span class="o">=</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s">&quot;all&quot;</span> <span class="p">)</span>
+<span class="n">clean_titanic_data</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[34]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(1313, 11)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Rename-a-column">Rename a column<a class="anchor-link" href="#Rename-a-column">&#182;</a></h2><p>The first column name is row.names. We can change it to rownum. As it is mostly a unique number.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[35]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>row.names</th>
+    <th>pclass</th>
+    <th>survived</th>
+    <th>name</th>
+    <th>age</th>
+    <th>embarked</th>
+    <th>home.dest</th>
+    <th>room</th>
+    <th>ticket</th>
+    <th>boat</th>
+    <th>sex</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>1st</td>
+    <td>1</td>
+    <td>Allen, Miss Elisabeth Walton</td>
+    <td>29</td>
+    <td>Southampton</td>
+    <td>St Louis, MO</td>
+    <td>B-5</td>
+    <td>24160 L221</td>
+    <td>2</td>
+    <td>female</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2</td>
+    <td>1st</td>
+    <td>0</td>
+    <td>Allison, Miss Helen Loraine</td>
+    <td>2</td>
+    <td>Southampton</td>
+    <td>Montreal, PQ / Chesterville, ON</td>
+    <td>C26</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>female</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span> <span class="s">&#39;row.names&#39;</span><span class="p">:</span> <span class="s">&#39;rownum&#39;</span> <span class="p">},</span>
+                  <span class="n">inplace</span> <span class="o">=</span> <span class="k">True</span>  <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[37]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>rownum</th>
+    <th>pclass</th>
+    <th>survived</th>
+    <th>name</th>
+    <th>age</th>
+    <th>embarked</th>
+    <th>home.dest</th>
+    <th>room</th>
+    <th>ticket</th>
+    <th>boat</th>
+    <th>sex</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>1st</td>
+    <td>1</td>
+    <td>Allen, Miss Elisabeth Walton</td>
+    <td>29</td>
+    <td>Southampton</td>
+    <td>St Louis, MO</td>
+    <td>B-5</td>
+    <td>24160 L221</td>
+    <td>2</td>
+    <td>female</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2</td>
+    <td>1st</td>
+    <td>0</td>
+    <td>Allison, Miss Helen Loraine</td>
+    <td>2</td>
+    <td>Southampton</td>
+    <td>Montreal, PQ / Chesterville, ON</td>
+    <td>C26</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>female</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Indexing-and-Selecting">Indexing and Selecting<a class="anchor-link" href="#Indexing-and-Selecting">&#182;</a></h2><p>Select first n rows and all the columns</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">first_10</span> <span class="o">=</span> <span class="n">titanic_data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">first_10</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[39]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>rownum</th>
+    <th>pclass</th>
+    <th>survived</th>
+    <th>name</th>
+    <th>age</th>
+    <th>embarked</th>
+    <th>home.dest</th>
+    <th>room</th>
+    <th>ticket</th>
+    <th>boat</th>
+    <th>sex</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>1st</td>
+    <td>1</td>
+    <td>Allen, Miss Elisabeth Walton</td>
+    <td>29</td>
+    <td>Southampton</td>
+    <td>St Louis, MO</td>
+    <td>B-5</td>
+    <td>24160 L221</td>
+    <td>2</td>
+    <td>female</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2</td>
+    <td>1st</td>
+    <td>0</td>
+    <td>Allison, Miss Helen Loraine</td>
+    <td>2</td>
+    <td>Southampton</td>
+    <td>Montreal, PQ / Chesterville, ON</td>
+    <td>C26</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>female</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>3</td>
+    <td>1st</td>
+    <td>0</td>
+    <td>Allison, Mr Hudson Joshua Creighton</td>
+    <td>30</td>
+    <td>Southampton</td>
+    <td>Montreal, PQ / Chesterville, ON</td>
+    <td>C26</td>
+    <td>NaN</td>
+    <td>(135)</td>
+    <td>male</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong> titanic_data[0:10] is same as titanic_data[:10] </strong></p>
+<h2 id="Slicing-a-dataframe">Slicing a dataframe<a class="anchor-link" href="#Slicing-a-dataframe">&#182;</a></h2><p>Select only first 3 columns of first 4 rows</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">first_10_3</span> <span class="o">=</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">first_10_3</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[41]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>rownum</th>
+    <th>pclass</th>
+    <th>survived</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>1st</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2</td>
+    <td>1st</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>3</td>
+    <td>1st</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>4</td>
+    <td>1st</td>
+    <td>0</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="How-to-access-last-rows">How to access last rows<a class="anchor-link" href="#How-to-access-last-rows">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Accesising last row</span>
+<span class="n">titanic_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[42]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>rownum</th>
+    <th>pclass</th>
+    <th>survived</th>
+    <th>name</th>
+    <th>age</th>
+    <th>embarked</th>
+    <th>home.dest</th>
+    <th>room</th>
+    <th>ticket</th>
+    <th>boat</th>
+    <th>sex</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>1312</th>
+    <td>1313</td>
+    <td>3rd</td>
+    <td>0</td>
+    <td>Zimmerman, Leo</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>male</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">last_10</span> <span class="o">=</span> <span class="n">titanic_data</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">last_10</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[44]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>rownum</th>
+    <th>pclass</th>
+    <th>survived</th>
+    <th>name</th>
+    <th>age</th>
+    <th>embarked</th>
+    <th>home.dest</th>
+    <th>room</th>
+    <th>ticket</th>
+    <th>boat</th>
+    <th>sex</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>1309</th>
+    <td>1310</td>
+    <td>3rd</td>
+    <td>0</td>
+    <td>Zakarian, Mr Maprieder</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>male</td>
+  </tr>
+  <tr>
+    <th>1310</th>
+    <td>1311</td>
+    <td>3rd</td>
+    <td>0</td>
+    <td>Zenn, Mr Philip</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>male</td>
+  </tr>
+  <tr>
+    <th>1311</th>
+    <td>1312</td>
+    <td>3rd</td>
+    <td>0</td>
+    <td>Zievens, Rene</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>female</td>
+  </tr>
+  <tr>
+    <th>1312</th>
+    <td>1313</td>
+    <td>3rd</td>
+    <td>0</td>
+    <td>Zimmerman, Leo</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>male</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Selecting-rows-and-columns-and-applying-a-filtering-criteria">Selecting rows and columns and applying a filtering criteria<a class="anchor-link" href="#Selecting-rows-and-columns-and-applying-a-filtering-criteria">&#182;</a></h2><h3 id="Applying-multiple-filtering-criteria">Applying multiple filtering criteria<a class="anchor-link" href="#Applying-multiple-filtering-criteria">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Only-age,-sex-and-pclass-of-passengers-who-have-survived">Only age, sex and pclass of passengers who have survived<a class="anchor-link" href="#Only-age,-sex-and-pclass-of-passengers-who-have-survived">&#182;</a></h3><ul>
+<li>Combining multiple filtering and slicing to dataframes simulteneously</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[</span> <span class="p">(</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">survived</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">&amp;</span>
+           <span class="p">(</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="p">)</span> <span class="p">][[</span><span class="s">&#39;age&#39;</span><span class="p">,</span>
+                                        <span class="s">&#39;sex&#39;</span><span class="p">,</span>
+                                        <span class="s">&#39;pclass&#39;</span><span class="p">]][</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[45]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>age</th>
+    <th>sex</th>
+    <th>pclass</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>4</th>
+    <td>0.9167</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>86</th>
+    <td>4.0000</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>338</th>
+    <td>4.0000</td>
+    <td>female</td>
+    <td>2nd</td>
+  </tr>
+  <tr>
+    <th>339</th>
+    <td>1.0000</td>
+    <td>male</td>
+    <td>2nd</td>
+  </tr>
+  <tr>
+    <th>358</th>
+    <td>0.8333</td>
+    <td>male</td>
+    <td>2nd</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Only-age,-sex,-survived-and-pclass-of-passengers-whose-age-are-not-known">Only age, sex, survived and pclass of passengers whose age are not known<a class="anchor-link" href="#Only-age,-sex,-survived-and-pclass-of-passengers-whose-age-are-not-known">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span> <span class="p">][[</span><span class="s">&#39;age&#39;</span><span class="p">,</span>
+                                         <span class="s">&#39;survived&#39;</span><span class="p">,</span>
+                                         <span class="s">&#39;sex&#39;</span><span class="p">,</span>
+                                         <span class="s">&#39;pclass&#39;</span><span class="p">]][</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[46]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>age</th>
+    <th>survived</th>
+    <th>sex</th>
+    <th>pclass</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>12</th>
+    <td>NaN</td>
+    <td>1</td>
+    <td>female</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>13</th>
+    <td>NaN</td>
+    <td>1</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>14</th>
+    <td>NaN</td>
+    <td>0</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>29</th>
+    <td>NaN</td>
+    <td>0</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>32</th>
+    <td>NaN</td>
+    <td>1</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Only-age,-sex,-survived-and-pclass-of-passengers-whose-age-are-known">Only age, sex, survived and pclass of passengers whose age are known<a class="anchor-link" href="#Only-age,-sex,-survived-and-pclass-of-passengers-whose-age-are-known">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[</span> <span class="o">-</span><span class="n">titanic_data</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span> <span class="p">][[</span><span class="s">&#39;age&#39;</span><span class="p">,</span>
+                                          <span class="s">&#39;survived&#39;</span><span class="p">,</span>
+                                          <span class="s">&#39;sex&#39;</span><span class="p">,</span>
+                                          <span class="s">&#39;pclass&#39;</span><span class="p">]][</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[47]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>age</th>
+    <th>survived</th>
+    <th>sex</th>
+    <th>pclass</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>29.0000</td>
+    <td>1</td>
+    <td>female</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2.0000</td>
+    <td>0</td>
+    <td>female</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>30.0000</td>
+    <td>0</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>25.0000</td>
+    <td>0</td>
+    <td>female</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>0.9167</td>
+    <td>1</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Only-age,-sex,-survived-and-pclass-of-passengers-whose-age-are-known-and-have-survived">Only age, sex, survived and pclass of passengers whose age are known and have survived<a class="anchor-link" href="#Only-age,-sex,-survived-and-pclass-of-passengers-whose-age-are-known-and-have-survived">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[</span> <span class="o">-</span><span class="n">titanic_data</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span> <span class="o">&amp;</span>
+           <span class="n">titanic_data</span><span class="o">.</span><span class="n">survived</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">][[</span><span class="s">&#39;age&#39;</span><span class="p">,</span>
+                                         <span class="s">&#39;sex&#39;</span><span class="p">,</span>
+                                         <span class="s">&#39;pclass&#39;</span><span class="p">]][</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[48]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>age</th>
+    <th>sex</th>
+    <th>pclass</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>1</th>
+    <td>2</td>
+    <td>female</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>30</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>25</td>
+    <td>female</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>39</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>71</td>
+    <td>male</td>
+    <td>1st</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Removing-rows-with-null-values...">Removing rows with null values...<a class="anchor-link" href="#Removing-rows-with-null-values...">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">#titanic_data[&#39;age&#39;].fillna( 2 )</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Add-a-new-column-and-map-values-of-an-existing-column">Add a new column and map values of an existing column<a class="anchor-link" href="#Add-a-new-column-and-map-values-of-an-existing-column">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[50]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="p">[</span><span class="s">&quot;gender&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">sex</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span>
+                                            <span class="nb">int</span><span class="p">(</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&#39;male&#39;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[51]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">3</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[51]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>rownum</th>
+    <th>pclass</th>
+    <th>survived</th>
+    <th>name</th>
+    <th>age</th>
+    <th>embarked</th>
+    <th>home.dest</th>
+    <th>room</th>
+    <th>ticket</th>
+    <th>boat</th>
+    <th>sex</th>
+    <th>gender</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>1st</td>
+    <td>1</td>
+    <td>Allen, Miss Elisabeth Walton</td>
+    <td>29</td>
+    <td>Southampton</td>
+    <td>St Louis, MO</td>
+    <td>B-5</td>
+    <td>24160 L221</td>
+    <td>2</td>
+    <td>female</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2</td>
+    <td>1st</td>
+    <td>0</td>
+    <td>Allison, Miss Helen Loraine</td>
+    <td>2</td>
+    <td>Southampton</td>
+    <td>Montreal, PQ / Chesterville, ON</td>
+    <td>C26</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>female</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>3</td>
+    <td>1st</td>
+    <td>0</td>
+    <td>Allison, Mr Hudson Joshua Creighton</td>
+    <td>30</td>
+    <td>Southampton</td>
+    <td>Montreal, PQ / Chesterville, ON</td>
+    <td>C26</td>
+    <td>NaN</td>
+    <td>(135)</td>
+    <td>male</td>
+    <td>1</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[52]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_no_null</span> <span class="o">=</span> <span class="n">titanic_data</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Remove-a-column-from-dataframe">Remove a column from dataframe<a class="anchor-link" href="#Remove-a-column-from-dataframe">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="s">&quot;sex&quot;</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="k">True</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Finding-basic-statistics-and-dawing-a-basic-distribution-plot">Finding basic statistics and dawing a basic distribution plot<a class="anchor-link" href="#Finding-basic-statistics-and-dawing-a-basic-distribution-plot">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_no_null</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[54]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>rownum</th>
+    <th>survived</th>
+    <th>age</th>
+    <th>gender</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>count</th>
+    <td>20.000000</td>
+    <td>20</td>
+    <td>20.000000</td>
+    <td>20.000000</td>
+  </tr>
+  <tr>
+    <th>mean</th>
+    <td>171.250000</td>
+    <td>1</td>
+    <td>38.100000</td>
+    <td>0.200000</td>
+  </tr>
+  <tr>
+    <th>std</th>
+    <td>131.174001</td>
+    <td>0</td>
+    <td>14.425489</td>
+    <td>0.410391</td>
+  </tr>
+  <tr>
+    <th>min</th>
+    <td>1.000000</td>
+    <td>1</td>
+    <td>15.000000</td>
+    <td>0.000000</td>
+  </tr>
+  <tr>
+    <th>25%</th>
+    <td>122.500000</td>
+    <td>1</td>
+    <td>28.500000</td>
+    <td>0.000000</td>
+  </tr>
+  <tr>
+    <th>50%</th>
+    <td>142.500000</td>
+    <td>1</td>
+    <td>36.000000</td>
+    <td>0.000000</td>
+  </tr>
+  <tr>
+    <th>75%</th>
+    <td>210.000000</td>
+    <td>1</td>
+    <td>49.500000</td>
+    <td>0.000000</td>
+  </tr>
+  <tr>
+    <th>max</th>
+    <td>569.000000</td>
+    <td>1</td>
+    <td>63.000000</td>
+    <td>1.000000</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[55]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">mean_age</span> <span class="o">=</span> <span class="n">titanic_no_null</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">mean_age</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[55]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>38.1</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[56]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">std_age</span> <span class="o">=</span> <span class="n">titanic_no_null</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+<span class="n">std_age</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[56]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>14.425489137013871</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[57]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_no_null</span><span class="p">[</span><span class="n">titanic_no_null</span><span class="o">.</span><span class="n">survived</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][</span><span class="s">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[57]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>38.1</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[58]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_no_null</span><span class="p">[</span><span class="n">titanic_no_null</span><span class="o">.</span><span class="n">survived</span> <span class="o">==</span> <span class="mi">1</span>
+              <span class="o">&amp;</span> <span class="n">titanic_no_null</span><span class="o">.</span><span class="n">sex</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span> <span class="s">&#39;female&#39;</span> <span class="p">)][</span><span class="s">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[58]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>36.8125</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[59]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_no_null</span><span class="p">[</span><span class="n">titanic_no_null</span><span class="o">.</span><span class="n">survived</span> <span class="o">==</span> <span class="mi">1</span>
+              <span class="o">&amp;</span> <span class="n">titanic_no_null</span><span class="o">.</span><span class="n">sex</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span> <span class="s">&#39;male&#39;</span> <span class="p">)][</span><span class="s">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[59]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>43.25</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">titanic_no_null</span><span class="p">[</span><span class="n">titanic_no_null</span><span class="o">.</span><span class="n">survived</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="s">&#39;age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[60]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>nan</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[61]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[62]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span> <span class="n">titanic_no_null</span><span class="o">.</span><span class="n">age</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+RK5CYII=
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[63]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span> <span class="n">titanic_no_null</span><span class="o">.</span><span class="n">age</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">80</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[63]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(array([ 0.,  0.,  0.,  3.,  1.,  2.,  2.,  3.,  3.,  1.,  2.,  2.,  1.,
+       0.,  0.,  0.]),
+array([  0.,   5.,  10.,  15.,  20.,  25.,  30.,  35.,  40.,  45.,  50.,
+       55.,  60.,  65.,  70.,  75.,  80.]),
+&lt;a list of 16 Patch objects&gt;)</pre>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[64]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">plt</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span> <span class="n">titanic_no_null</span><span class="o">.</span><span class="n">age</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[64]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{&apos;boxes&apos;: [&lt;matplotlib.lines.Line2D at 0x89a8208&gt;],
+&apos;caps&apos;: [&lt;matplotlib.lines.Line2D at 0x89ad4a8&gt;,
+&lt;matplotlib.lines.Line2D at 0x89adc50&gt;],
+&apos;fliers&apos;: [&lt;matplotlib.lines.Line2D at 0x89b3be0&gt;],
+&apos;means&apos;: [],
+&apos;medians&apos;: [&lt;matplotlib.lines.Line2D at 0x89b3438&gt;],
+&apos;whiskers&apos;: [&lt;matplotlib.lines.Line2D at 0x89a84a8&gt;,
+&lt;matplotlib.lines.Line2D at 0x89a8cc0&gt;]}</pre>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+AAAAAElFTkSuQmCC
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+  </div>
+</div>
