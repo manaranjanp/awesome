@@ -1,0 +1,1662 @@
+---
+layout: post
+title: "Twitter Sentiment Analysis"
+date: 2016-05-25
+description: "Build a naive-bayes model to classify tweets as positive or negative sentiments"
+main-class: 'python'
+postbook: 'inotebook'
+published: true
+color: '#b31917'
+tags:
+- python
+- tweets
+- 'naive bayes'
+- 'sentiment analysis'
+categories:
+- python
+introduction: "Build a naive-bayes model to classify tweets as positive or negative sentiments"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Text-Analytics---Sentiment-Analysis">Text Analytics - Sentiment Analysis<a class="anchor-link" href="#Text-Analytics---Sentiment-Analysis">&#182;</a></h3><ul>
+<li><p>This tutorial explains how to infer sentiments expressed in tweets. To train the model, a <a href="https://inclass.kaggle.com/c/si650winter11">training dataset</a> available on kaggle site is taken.</p>
+</li>
+<li><p>Then the tweets for the movie <em>Azhar</em> is classifies using the model</p>
+</li>
+<li><p>The steps for build the model are</p>
+<ul>
+<li>Load the training data set</li>
+<li>Tokenize the sentences in the training data set</li>
+<li>Remove the stop words</li>
+<li>Create a Document Matrix with TF-IDF Values, which takes each word as features and the TF-IDF score as values for those features.</li>
+<li>Split the dataset into train and test </li>
+<li>Build the model</li>
+<li>Evaluate the accuracy of the model</li>
+<li>Apply the model to Azhar dataset</li>
+<li>Store the results into a csv file</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">train_ds</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span> <span class="s">&quot;sentiment_train&quot;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">train_ds</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[3]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>sentiment</th>
+    <th>text</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>The Da Vinci Code book is just awesome.</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>1</td>
+    <td>this was the first clive cussler i've ever rea...</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>1</td>
+    <td>i liked the Da Vinci Code a lot.</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>1</td>
+    <td>i liked the Da Vinci Code a lot.</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>1</td>
+    <td>I liked the Da Vinci Code but it ultimatly did...</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>1</td>
+    <td>that's not even an exaggeration ) and at midni...</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>1</td>
+    <td>I loved the Da Vinci Code, but now I want some...</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>1</td>
+    <td>i thought da vinci code was great, same with k...</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>1</td>
+    <td>The Da Vinci Code is actually a good movie...</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>1</td>
+    <td>I thought the Da Vinci Code was a pretty good ...</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Some of the texts have been cut and not shown properly by the display. To change that set max_colwidth parameter as per your screen size in pixels</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s">&#39;max_colwidth&#39;</span><span class="p">,</span> <span class="mi">800</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Let's look at some negative sentiment tweets</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">train_ds</span><span class="p">[</span><span class="n">train_ds</span><span class="o">.</span><span class="n">sentiment</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>sentiment</th>
+    <th>text</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>3943</th>
+    <td>0</td>
+    <td>da vinci code was a terrible movie.</td>
+  </tr>
+  <tr>
+    <th>3944</th>
+    <td>0</td>
+    <td>Then again, the Da Vinci code is super shitty movie, and it made like 700 million.</td>
+  </tr>
+  <tr>
+    <th>3945</th>
+    <td>0</td>
+    <td>The Da Vinci Code comes out tomorrow, which sucks.</td>
+  </tr>
+  <tr>
+    <th>3946</th>
+    <td>0</td>
+    <td>i thought the da vinci code movie was really boring.</td>
+  </tr>
+  <tr>
+    <th>3947</th>
+    <td>0</td>
+    <td>God, Yahoo Games has this truly-awful looking Da Vinci Code-themed skin on it's chessboard right now.</td>
+  </tr>
+  <tr>
+    <th>3948</th>
+    <td>0</td>
+    <td>Da Vinci Code does suck.</td>
+  </tr>
+  <tr>
+    <th>3949</th>
+    <td>0</td>
+    <td>And better...-We all know Da Vinci code is bogus and inaccurate.</td>
+  </tr>
+  <tr>
+    <th>3950</th>
+    <td>0</td>
+    <td>Last time, Da Vinci code is also a bit disappointing to me, because many things written in the book is never mentioned in movie.</td>
+  </tr>
+  <tr>
+    <th>3951</th>
+    <td>0</td>
+    <td>And better...-We all know Da Vinci code is bogus and inaccurate.</td>
+  </tr>
+  <tr>
+    <th>3952</th>
+    <td>0</td>
+    <td>And better..-We all know Da Vinci code is bogus and inaccurate.</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">train_ds</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(6918, 2)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Create-a-dictionary-of-features">Create a dictionary of features<a class="anchor-link" href="#Create-a-dictionary-of-features">&#182;</a></h4><ul>
+<li>Create a dictionary of features and then count the feature values for each sentence</li>
+<li>All words available in all sentences become part of the dictionary</li>
+<li>We will limit number of features to be used in this tutorial to 5000</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="k">import</span> <span class="n">CountVectorizer</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">count_vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span> <span class="n">max_features</span> <span class="o">=</span> <span class="mi">5000</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">feature_vector</span> <span class="o">=</span> <span class="n">count_vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">text</span> <span class="p">)</span>
+<span class="n">train_ds_features</span> <span class="o">=</span> <span class="n">count_vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">text</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">features</span> <span class="o">=</span> <span class="n">feature_vector</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="What-are-the-features-extracted?">What are the features extracted?<a class="anchor-link" href="#What-are-the-features-extracted?">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[14]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&apos;00&apos;, &apos;007&apos;, &apos;10&apos;, &apos;10pm&apos;, &apos;12&apos;, &apos;16&apos;, &apos;17&apos;, &apos;1984&apos;, &apos;1st&apos;, &apos;200&apos;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Count-occurance-of-these-features-across-all-sentences">Count occurance of these features across all sentences<a class="anchor-link" href="#Count-occurance-of-these-features-across-all-sentences">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">features_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">train_ds_features</span><span class="o">.</span><span class="n">toarray</span><span class="p">(),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">feature_counts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="nb">dict</span><span class="p">(</span> <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="p">,</span>
+                                  <span class="n">counts</span> <span class="o">=</span> <span class="n">features_counts</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">feature_counts</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>counts</th>
+    <th>features</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>00</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>1</td>
+    <td>007</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>4</td>
+    <td>10</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>1</td>
+    <td>10pm</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>1</td>
+    <td>12</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">feature_counts</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="s">&quot;counts&quot;</span><span class="p">,</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>counts</th>
+    <th>features</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>93</th>
+    <td>2154</td>
+    <td>and</td>
+  </tr>
+  <tr>
+    <th>864</th>
+    <td>2093</td>
+    <td>harry</td>
+  </tr>
+  <tr>
+    <th>1466</th>
+    <td>2093</td>
+    <td>potter</td>
+  </tr>
+  <tr>
+    <th>355</th>
+    <td>2002</td>
+    <td>code</td>
+  </tr>
+  <tr>
+    <th>2009</th>
+    <td>2001</td>
+    <td>vinci</td>
+  </tr>
+  <tr>
+    <th>442</th>
+    <td>2001</td>
+    <td>da</td>
+  </tr>
+  <tr>
+    <th>1272</th>
+    <td>2000</td>
+    <td>mountain</td>
+  </tr>
+  <tr>
+    <th>259</th>
+    <td>2000</td>
+    <td>brokeback</td>
+  </tr>
+  <tr>
+    <th>1171</th>
+    <td>1624</td>
+    <td>love</td>
+  </tr>
+  <tr>
+    <th>1018</th>
+    <td>1520</td>
+    <td>is</td>
+  </tr>
+  <tr>
+    <th>2029</th>
+    <td>1176</td>
+    <td>was</td>
+  </tr>
+  <tr>
+    <th>151</th>
+    <td>1127</td>
+    <td>awesome</td>
+  </tr>
+  <tr>
+    <th>1252</th>
+    <td>1094</td>
+    <td>mission</td>
+  </tr>
+  <tr>
+    <th>977</th>
+    <td>1093</td>
+    <td>impossible</td>
+  </tr>
+  <tr>
+    <th>1132</th>
+    <td>974</td>
+    <td>like</td>
+  </tr>
+  <tr>
+    <th>1022</th>
+    <td>901</td>
+    <td>it</td>
+  </tr>
+  <tr>
+    <th>1916</th>
+    <td>808</td>
+    <td>to</td>
+  </tr>
+  <tr>
+    <th>1275</th>
+    <td>783</td>
+    <td>movie</td>
+  </tr>
+  <tr>
+    <th>1862</th>
+    <td>719</td>
+    <td>that</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>The features list contains quite a few stop words, which may have no meaning. Let's remove the words and create a new dictionary</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">count_vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span> <span class="n">stop_words</span> <span class="o">=</span> <span class="s">&quot;english&quot;</span><span class="p">,</span>
+                                 <span class="n">max_features</span> <span class="o">=</span> <span class="mi">5000</span> <span class="p">)</span>
+<span class="n">feature_vector</span> <span class="o">=</span> <span class="n">count_vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">text</span> <span class="p">)</span>
+<span class="n">train_ds_features</span> <span class="o">=</span> <span class="n">count_vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">text</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">features</span> <span class="o">=</span> <span class="n">feature_vector</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">()</span>
+<span class="n">features_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">train_ds_features</span><span class="o">.</span><span class="n">toarray</span><span class="p">(),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">)</span>
+<span class="n">feature_counts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="nb">dict</span><span class="p">(</span> <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="p">,</span>
+                                  <span class="n">counts</span> <span class="o">=</span> <span class="n">features_counts</span> <span class="p">)</span> <span class="p">)</span>
+<span class="n">feature_counts</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="s">&quot;counts&quot;</span><span class="p">,</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[25]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>counts</th>
+    <th>features</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>1328</th>
+    <td>2093</td>
+    <td>potter</td>
+  </tr>
+  <tr>
+    <th>790</th>
+    <td>2093</td>
+    <td>harry</td>
+  </tr>
+  <tr>
+    <th>314</th>
+    <td>2002</td>
+    <td>code</td>
+  </tr>
+  <tr>
+    <th>1823</th>
+    <td>2001</td>
+    <td>vinci</td>
+  </tr>
+  <tr>
+    <th>399</th>
+    <td>2001</td>
+    <td>da</td>
+  </tr>
+  <tr>
+    <th>1167</th>
+    <td>2000</td>
+    <td>mountain</td>
+  </tr>
+  <tr>
+    <th>223</th>
+    <td>2000</td>
+    <td>brokeback</td>
+  </tr>
+  <tr>
+    <th>1074</th>
+    <td>1624</td>
+    <td>love</td>
+  </tr>
+  <tr>
+    <th>126</th>
+    <td>1127</td>
+    <td>awesome</td>
+  </tr>
+  <tr>
+    <th>1150</th>
+    <td>1094</td>
+    <td>mission</td>
+  </tr>
+  <tr>
+    <th>892</th>
+    <td>1093</td>
+    <td>impossible</td>
+  </tr>
+  <tr>
+    <th>1035</th>
+    <td>974</td>
+    <td>like</td>
+  </tr>
+  <tr>
+    <th>1169</th>
+    <td>783</td>
+    <td>movie</td>
+  </tr>
+  <tr>
+    <th>1646</th>
+    <td>602</td>
+    <td>sucks</td>
+  </tr>
+  <tr>
+    <th>1644</th>
+    <td>600</td>
+    <td>sucked</td>
+  </tr>
+  <tr>
+    <th>792</th>
+    <td>578</td>
+    <td>hate</td>
+  </tr>
+  <tr>
+    <th>1393</th>
+    <td>374</td>
+    <td>really</td>
+  </tr>
+  <tr>
+    <th>1170</th>
+    <td>366</td>
+    <td>movies</td>
+  </tr>
+  <tr>
+    <th>1637</th>
+    <td>365</td>
+    <td>stupid</td>
+  </tr>
+  <tr>
+    <th>967</th>
+    <td>287</td>
+    <td>just</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Build-a-naive-bayes-classifier">Build a naive-bayes classifier<a class="anchor-link" href="#Build-a-naive-bayes-classifier">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="k">import</span> <span class="n">GaussianNB</span>
+<span class="kn">from</span> <span class="nn">sklearn.cross_validation</span> <span class="k">import</span> <span class="n">train_test_split</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">clf</span> <span class="o">=</span> <span class="n">GaussianNB</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">train_X</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">test_y</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span> <span class="n">train_ds_features</span><span class="p">,</span>
+                                                  <span class="n">train_ds</span><span class="o">.</span><span class="n">sentiment</span><span class="p">,</span>
+                                                  <span class="n">test_size</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>
+                                                  <span class="n">random_state</span> <span class="o">=</span> <span class="mi">42</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span> <span class="n">train_X</span><span class="o">.</span><span class="n">toarray</span><span class="p">(),</span> <span class="n">train_y</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[29]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>GaussianNB()</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Test-the-model">Test the model<a class="anchor-link" href="#Test-the-model">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">test_ds_predicted</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span> <span class="n">test_X</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Evaluate-the-model">Evaluate the model<a class="anchor-link" href="#Evaluate-the-model">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">metrics</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">cm</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">confusion_matrix</span><span class="p">(</span> <span class="n">test_y</span><span class="p">,</span> <span class="n">test_ds_predicted</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">cm</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[33]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([[ 809,   64],
+     [  19, 1184]])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sn</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sn</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>  <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;.2f&#39;</span> <span class="p">);</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWEAAAD9CAYAAABtLMZbAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAALEgAACxIB0t1+/AAAFkpJREFUeJzt3XuUVOWZ7/Fv9VUbGsx4jSCKqG9QQVAJigpoHC85kzFx
+cuKZOImXBBABL4khCvESRWFiNEocSYRRcMjEmTjqWXO8rMxoIohRRFGC6Ks4KsKogMod7FudP6po
+G2mYbunu3Xv7/bhq2bWrau+3dPWvn/W87947l8/nkSQloyTpAUjS55khLEkJMoQlKUGGsCQlyBCW
+pAQZwpKUoLL23PktZ1/v+jdtZ/S085Megjqhqn175XZ1H/0PHNbizFn09pO7fLy20K4hLEkdKZfr
+FLnaKoawpMzI5dLXYU3fiCUpQ6yEJWVGaQorYUNYUmaUGMKSlJw0Tsyl78+GJGWIlbCkzMiRvkrY
+EJaUGfaEJSlBaewJG8KSMqPEEJak5ORSuNbAEJaUGbYjJClBtiMkKUFpXKKWvgaKJGWIlbCkzHCd
+sCQlqLTEEJakxNgTliS1ipWwpMywJyxJCfJkDUlKkCdrSFKC0jgxZwhLygzbEZKUINsRkpQg2xGS
+lKA0LlFL34glKUOshCVlhhNzkpSg0jZsR4QQBgNTYownhxAOAWYCDcBiYEyMMR9CGAGMBOqASTHG
+h0MIuwOzgb2B9cB5McbVOzqO7QhJmVGSy7X4sTMhhPHAdKCyuOlWYEKMcSiQA84KIewHjAOGAKcD
+k0MIFcBo4KXie+8FfrLTMe/C95WkrFoKnA2Nyy2OjjHOKf78KHAqMAiYF2OsjTGuK36mP3AC8Fjx
+vY8V37tDhrCkzMjlci1+7EyM8QEKLYbGXTf5eT3QHegGrN3B9nWf2rZD9oQlZUY7nqzR0OTnbsAa
+CkFb3WR7dTPbt27bISthSZmRa8U/rbQwhDCs+POZwBxgPnBSCKEyhNAd6Eth0m4e8NVPvXeHrIQl
+ZUY7VML54r9/CEwvTrwtAe4vro6YCsylUNBOiDF+HEKYBswKIcwFPga+vbMDGMKSMqMt1wnHGN+i
+sPKBGOPrwPBm3jMDmPGpbZuBb7X0OIawpMzwAj6SlCAv4CNJCUpjJezqCElKkJWwpMzwAj6SlKA0
+tiMMYUmZ4UXdJUmtYiUsKTNK0teNMIQlZYcTc5KUICfmJClBaayEnZiTpARZCbdGDk6/+Gt8Yf89
+yTfk+f20/0e+oYEzxp1FviHP6ndW8vhdjwJwzNeOo++wftTX1LHwkfm8+tTL2+xqj/2+0Ozn+p06
+kP6nHU1DfZ5n7p/Lm8+/3uFfU7vmH2f/ljnznqGuvo5zvnEWf33maQA8+h9PcN8D/5dZ027f5v0N
+DQ3cdOtUXn/jTSoqyrlm/A84oMf+LFu+gmsn30wuV8IhBx/EVZePS2Wl15Ha8kafHaVFIw4hpO+b
+tYODBvShfLcK7ps4kz/9bg4nnnsKw84/jbm/eYJ/uXoWkOOQLwf27LU3hw/vzz9f+Y/86zX3Mvib
+J1HVvcs2+xp+wfafq9qjCwO/+mV+e9U9/Nv1sznp3FMoKfM/fZosWPgSixYvYda025lx+89Z8e67
+ALz62lIeeuSxZj/zh7nzqKurY9a027lk1Pe49R9+DcAtd/yKsSMu5O47biWfz/PHp57usO+RVm11
+o8+OtMPf8BBCnxDCQyGE5cCbIYR3QggPhxAO68DxdSp1H9dRUVW4+WplVSUNdfXs2+eLrFiyDIC3
+Fi6lV//e7NljL955+S0a6hqor6tn9bKVfPGwHtvsa5+Dt//cfof0YMWr79BQ30DN5hrWvPchex+4
+b8d+Se2SPz23gEP79ObyCddy6ZXXMOyE41mzdh13TL+bH40bTb7xGuGfePHPLzPky4MA6Hd4X5bE
+1wB49fWlHDOgPwAnDB7Eswte6LgvklK5XMsfncXO2hEzgCtjjM9u3RBCOA64h8LdRD93Vry6jLLy
+YVzwy4vZvbqKB2+6jx6H92p8vWZzDZVVu7F62Uq+/DcnUr5bOaVlZewfDuCN+XGH+936uYqqCmo2
+fbzddqXHR2vW8v7KVdw+ZRIr3n2XceMn0qf3Qfxw7EVUVlQ0+5mNmzbRpUtV4/OSkhLq6+vJ5z8J
+7Krdd2fDxo3tPXwlYGchXNk0gAFijM+EENp5SJ3XoG+cwIpX32HeP/+BrntW862ffpfSstLG1yt2
+r+DjTVv4cMUHvPjIc/zN1eeybtVa3n19BZvXb952Z01+wbZ+rmZTDRW7V2yzfcvGT31Ondoe3bvT
++8BelJWVcuABPVm5ajXl5eXcdOtUPq6p4c233ubnd/yKK8Ze1PiZLlVVbNq0qfF5viFPaWnpNqfg
+bty0ma5du3bod0mjztRmaKmdNRwXhRDuDiF8K4RwRgjhf4cQ7gEWddTgOpvyynJqNhcq1S0btlBS
+WsLK/3qPnocfCEDvow9h+ctvs3v17lRUVXLfxJn8512PsGfPvfjvuHybfa18c/vPvff6Cnr07UVp
+WSkVVZX8Rc+9WL1sZcd+Se2Sgf2P5OlnnwNg5erV7LP3Xtw/azrTb/85U66dSO+DDtwmgAEG9DuC
+p56ZD8Cil5dwaJ/eAIRD+7DgxZcAmPfsfI45ql8HfpN0ascbfbabnVXCFwNfp9B66EbhNs7/DjzY
+AePqlBY89DSnjzuLcyadT0lZCXNnP8H7//Uup43+K0rLSvlg+Spe+9MrAHxh/z359t9/j3w+z5x/
+epzaLTX8Rc+9GHjmIB6f/ih/nPkfzX5u4SPzOefG88nlcjz1mydoqGvY2ZDUyZx0/GBeeHERfzdy
+LA35Bib84JJPVjTk89v88l99488YO+ICThl6Is8seIHzL74UgJ9e9SMAfjBmFDfc/Atqa+s4+KBe
+nDp8aId/n7RJ4+qRXNO+U1u75ezr22/nSq3R085PegjqhKr27bXLCXr1mRNanDk3PHpTp0hs1z9J
+UoI8WUNSZqRxYs4QlpQZnWnCraUMYUmZYSUsSQlKYQYbwpKyI41L1AxhSZlhO0KSEpTCDDaEJWWH
+lbAkZUDxGuozgMOABmAEUA/MLD5fDIyJMeZDCCOAkUAdMCnG+HBrjuUZc5Iyow0v4HMa0CXGeCJw
+PXATcAswIcY4FMgBZ4UQ9gPGAUOA04HJIYTmr1m6A1bCkjKjDVdHbAa6hxByQHegBhgcY5xTfP1R
+CkFdD8yLMdYCtSGEpUB/YEFLD2QIS8qM0pI2C+F5wG7Aq8CewNeAppexW08hnLsBa5vZ3mK2IyRp
+e+MpVLgBGADcC5Q3eb0bsIbCJX6rm2yvBj5qzYEMYUmZkcvlWvz4H3ShELBQCNUyYGEIYVhx25nA
+HGA+cFIIoTKE0B3oS2HSrsVsR0jKjLbrRnAzcE8IYS6FCvgq4HlgenHibQlwf3F1xFRgLoWidkKM
+saY1BzKEJWVGW03MxRjXAN9o5qXhzbx3BoXlbJ+JISwpM1J4roY9YUlKkpWwpMwozaWvrjSEJWVG
+GtsRhrCkzEjjBXzSV7tLUoZYCUvKDO+sIUkJSmEGG8KSssNKWJIS1IanLXcYQ1hSZlgJS1KCUpjB
+hrCk7EjjOmFDWFJmpLEd4ckakpQgK2FJmZHCQtgQlpQdJSlco2YIS8qMNE7M2ROWpARZCUvKjBQW
+woawpOxI4xI1Q1hSZqQwgw1hSdlhJSxJCUphBhvCkrIjjUvUDGFJmZHCDDaEJWVHGnvCnqwhSQmy
+EpaUGSkshA1hSdnhBXwkKUFp7AkbwpLUjBDCVcDXgHLgDmAeMBNoABYDY2KM+RDCCGAkUAdMijE+
+3JrjODEnKTNyuZY/diaEMBw4PsY4BBgOHAzcAkyIMQ4FcsBZIYT9gHHAEOB0YHIIoaI1Y7YSlpQZ
+bdiOOA34cwjhIaAb8CPgezHGOcXXHy2+px6YF2OsBWpDCEuB/sCClh7IEJaUGW3YEt4bOAD4KwpV
+8L9TqH63Wg90pxDQa5vZ3mLtGsLjZo5pz90rpY7td3bSQ1AntOjtJ3d5H2142vJq4JUYYx3wWghh
+C9CjyevdgDXAOqC6yfZq4KPWHMiesKTMaKueMPAUcAZACGF/oAp4PIQwrPj6mcAcYD5wUgihMoTQ
+HehLYdKuxWxHSMqMtuoJxxgfDiEMDSHMp1CsXgy8BUwvTrwtAe4vro6YCswtvm9CjLGmNccyhCVl
+RlsuE44x/riZzcObed8MYMZnPY4hLCkzcp4xJ0nJSeEJc07MSVKSrIQlZYbXjpCkBHkVNUlKUAoL
+YXvCkpQkK2FJ2ZHCUtgQlpQZTsxJUoJSmMGGsKTs8Iw5SUqQlbAkJciesCQlKIUZbAhLyo40VsKe
+rCFJCbISlpQZKSyEDWFJ2ZErTV8KG8KSMsOesCSpVayEJWVGCgthQ1hSdqSxHWEIS8qMFGawISwp
+Q1KYwoawpMzwKmqSlKAUFsKGsKTscGJOkhKUwgz2ZA1JSpKVsKTsSGEpbAhLyoy2Xh0RQtgHeB74
+CtAAzCz+ezEwJsaYDyGMAEYCdcCkGOPDrTmG7QhJmZErybX48T8JIZQDvwY2AjngVmBCjHFo8flZ
+IYT9gHHAEOB0YHIIoaI1YzaEJal5NwPTgHeLz4+OMc4p/vwocCowCJgXY6yNMa4DlgL9W3MQQ1hS
+ZuRyLX/sTAjhfGBVjPH3W3ddfGy1HugOdAPWNrO9xewJS8qMNuwJXwDkQwinAgOAWcDeTV7vBqwB
+1gHVTbZXAx+15kCGsKTMaKuTNWKMw7b+HEL4A3ARcHMIYViM8UngTOBxYD5wYwihEtgN6Eth0q7F
+DGFJ2dF+K9TywA+B6cWJtyXA/cXVEVOBuRTauxNijDWt2bEhLEk7EWM8ucnT4c28PgOY8Vn3bwhL
+yoySkvStNTCEJWVH+jLYEJaUHWm8iloK/25IUnZYCUvKjDRWwoawpOxIXwYbwpKyw3vMSVKSbEdI
+UnJSmMGujtgVixa/zIUXjQUgvvY65144gvNGjObq62+ktrZ2m/c2NDRw/eSf8XcXjuTCi8byzvLl
+ACx7Zznf/f5FnDdyNJOm3Ew+n+/w76HPrt+Avsy477bG56ecfhKTb/9J4/MBxx7J7Afv5J8evJMx
+P7xwm8/utlsl//rIDIYMHbTdfvsPPJzZD97JzPt/yahLzmvcftGl5/Gbh6Yx69/u4Ij+X2qHb5Ru
+uVyuxY/OwhD+jO6+dzbX3TiFmprCaeLXTprM+MsvZdb0aeyz997c97sHtnn/E3+cQ21tLbPvvovL
+xo7m5tt+CcDNv5jKJRePYtZd08gDTzw559OHUid1wai/5dopP6KiohyAH187jkvGj9jmF/yKiRfz
+kyum8J1vXMyg4wZyyGG9G1+bcMPl5PP5Zv/wTrzxB/z4kus5/5vj6DewL+HwQ+h75KEcM/gozv36
+aMaP/SkTbris/b9k2pTkWv7oJAzhz6hXz57c9rPJ5Cn8Ar2/chVH9TsSgAH9+7Fg4cJt3r/wpUWc
+cPxxAPQ/8ghefuVVAJbEyLFHDwTgxOOP45n5CzrqK2gXLXt7OZePuroxdBcuWMykibeSazJFv+Xj
+Gvb4QjfKysuoqKygrr4egPNGnsPCBYuIS97Ybr9dulZRUVHOinfeA+DpJ5/juBOPYcCx/Xh6znMA
+vP/uKsrKSum+R7f2/pqpYiX8OXLqKcMpLS1tfN6zx/4seKEQvE/OfYrNmzdv8/6NGzfStUuXxuel
+JSXU19dDkyqoqmp3NmzY0L4DV5t5/LG5hf+HRb9/+A/bvWfWXfdxx91TeOg/Z/Hef7/PW28sY/AJ
+R3PAgT148F8eKV5gfNtA6Nq1CxvXb2x8vnHjJrpWd6Fr1yo2NN2+obBd6bbDibniNTQr2X7lXT7G
+OKRdR5VCN1wzkSm33MavZtzDMQOPYt2nwrRLly5s3LSp8XlDQ57S0lJyuU/+Dm7ctInq6mqUDZWV
+FVx53SWc9ZXv8sGqD7nsylGcN/IcvnTEoXyxx77MuO82evfpxZeOOJTVqz7ktVcKVfGGDRup6lrV
+uJ+uXatYv24DtbV1dGmyvUtxuz6RxiVqO6uErwS6At8B/rbJ49sdMK7UefKpefz9Ddcx486prFm7
+lhOOG7zN6wOP6s/ceU8D8NKfF3PYoX0A6BsO47nnCxX0U08/wzEDB3TswNVuSkpKKCsrY8vmLQCs
+XvUh1d26ctWlkzj/m+P4/v+5jHl/nM+tN01rDGAoVLi1tXX0OOCLABw/dBDPP7uIFxf8uXESb7/9
+9yGXy7Fu7fqO/2KdWFve6LOj7LASjjE+G0KYDfSPMT6wo/d93m3t/x3UqxcjxlxCeUU5/Q4/nL/+
+X2cCMPG6Gxg3ehRfOXkYf5r/HN/53iigUDkDXHHZOK67cQq1tbX0Obg3p33l5OYPpE6r6cRaPp9v
+nCfYvHkLt035NXf95la2bN7CurUbuPqKyTvcz6DjBzJwUD/umnovkybcwpSpV1NSUsLTc+bz8qLC
+HMIL8xcx+8E7yZWUcOPVv2jfL5ZGnajX21K59lwSVbPuA9dbaTvH9js76SGoE1r09pO7nKDLH3ms
+xZnT86tndIrEdmJOkhLkGXOSsqNT1LatYwhLyozONOHWUoawpMzIpfAec+kbsSRliJWwpOywHSFJ
+yelM14RoKUNYUnakL4MNYUnZkcZK2Ik5SUqQlbCkzMiVpq+uNIQlZUcK2xGGsKTMSGNP2BCWpE8J
+IZQDdwMHUri5xSTgFWAm0AAsBsbEGPMhhBHASKAOmBRjfLg1x0pfA0WSdqTtbvR5LrAqxjgUOAP4
+B+AWYEJxWw44K4SwHzAOGAKcDkwOIVS0ZshWwpIyow3bEb8D7i/+XALUAkfHGLfeDv1R4DSgHpgX
+Y6wFakMIS4H+QIvv2GsIS8qONgrhGONGgBBCNYVA/gnw8yZvWQ90B7oBa5vZ3mK2IyRlRlveYy6E
+cADwBHBvjPG3FHrBW3UD1gDrgKZ3560GPmrNmA1hSdmRy7X8sRMhhH2B3wPjY4wzi5sXhhCGFX8+
+E5gDzAdOCiFUhhC6A30pTNq1mO0ISZnRhj3hCRTaCteEEK4pbrsUmFqceFsC3F9cHTEVmEuhqJ0Q
+Y6xp1Zi90ac6mjf6VHPa4kafH7zwbIszZ8+jB3eKRcVWwpIyI423N7InLEkJshKWlB2etixJyUnj
+jT4NYUnZYU9YktQaVsKSMiOXS19daQhLyg4n5iQpOV7UXZKSlMKJOUNYUmZYCUtSkgxhSUqQqyMk
+KTlewEeS1CpWwpKyw56wJCUnV1Ka9BBazRCWlBn2hCVJrWIlLCk77AlLUnI8Y06SkuTJGpKUoBRO
+zBnCkjLDdoQkJcl2hCQlx0pYkpKUwko4fSOWpAyxEpaUGWk8bdkQlpQd9oQlKTlpvIpaLp/PJz0G
+SfrccmJOkhJkCEtSggxhSUqQISxJCTKEJSlBhrAkJch1wu0shFAC3An0Bz4Gvh9jfCPZUamzCCEM
+BqbEGE9OeixKhpVw+/s6UBFjHAJcCdyS8HjUSYQQxgPTgcqkx6LkGMLt7wTgMYAY47PAsckOR53I
+UuBsIH3n2qrNGMLtrxuwrsnz+mKLQp9zMcYHgLqkx6FkGQbtbx1Q3eR5SYyxIanBSOpcDOH2Nw/4
+KkAI4ThgUbLDkdSZuDqi/T0I/GUIYV7x+QVJDkadklfR+hzzKmqSlCDbEZKUIENYkhJkCEtSggxh
+SUqQISxJCTKEJSlBhrAkJcgQlqQE/X+mQJFVJjsQGAAAAABJRU5ErkJggg==
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">score</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span> <span class="n">test_y</span><span class="p">,</span> <span class="n">test_ds_predicted</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">score</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[41]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.96001926782273606</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Seems-to-be-a-good-model.-Accuracy-is-quite-good.">Seems to be a good model. Accuracy is quite good.<a class="anchor-link" href="#Seems-to-be-a-good-model.-Accuracy-is-quite-good.">&#182;</a></h4><h3 id="Let's-load-the-azhar-movie-data-and-classify">Let's load the azhar movie data and classify<a class="anchor-link" href="#Let's-load-the-azhar-movie-data-and-classify">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># read the entire file into a python array</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;azhar.json&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+  <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+<span class="c"># remove the trailing &quot;\n&quot; from each line</span>
+<span class="n">data</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(),</span> <span class="n">data</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[61]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">data_json_str</span> <span class="o">=</span> <span class="s">&quot;[&quot;</span> <span class="o">+</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;]&quot;</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[62]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">data_json_str</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[64]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[64]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>contributors</th>
+    <th>coordinates</th>
+    <th>created_at</th>
+    <th>entities</th>
+    <th>extended_entities</th>
+    <th>favorite_count</th>
+    <th>favorited</th>
+    <th>filter_level</th>
+    <th>geo</th>
+    <th>id</th>
+    <th>...</th>
+    <th>quoted_status_id</th>
+    <th>quoted_status_id_str</th>
+    <th>retweet_count</th>
+    <th>retweeted</th>
+    <th>retweeted_status</th>
+    <th>source</th>
+    <th>text</th>
+    <th>timestamp_ms</th>
+    <th>truncated</th>
+    <th>user</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>2016-05-13 08:26:27</td>
+    <td>{'symbols': [], 'urls': [], 'user_mentions': [{'name': 'BookMyShow', 'id': 10650592, 'id_str': '10650592', 'screen_name': 'bookmyshow', 'indices': [3, 14]}, {'name': 'Azhar', 'id': 3192221821, 'id_str': '3192221821', 'screen_name': 'AzharTheFilm', 'indices': [61, 74]}], 'hashtags': [{'text': 'Azhar', 'indices': [33, 39]}, {'text': 'AzharToday', 'indices': [49, 60]}]}</td>
+    <td>NaN</td>
+    <td>0</td>
+    <td>False</td>
+    <td>low</td>
+    <td>NaN</td>
+    <td>731037880219504640</td>
+    <td>...</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>0</td>
+    <td>False</td>
+    <td>{'id': 731037553357283328, 'is_quote_status': False, 'in_reply_to_status_id_str': None, 'favorite_count': 37, 'lang': 'en', 'retweet_count': 41, 'coordinates': None, 'created_at': 'Fri May 13 08:25:09 +0000 2016', 'in_reply_to_screen_name': None, 'in_reply_to_status_id': None, 'retweeted': False, 'geo': None, 'truncated': False, 'text': '8. Name the city #Azhar is from? #AzharToday @AzharTheFilm', 'id_str': '731037553357283328', 'contributors': None, 'in_reply_to_user_id': None, 'in_reply_to_user_id_str': None, 'filter_level': 'low', 'source': '&lt;a href="https://about.twitter.com/products/tweetdeck" rel="nofollow"&gt;TweetDeck&lt;/a&gt;', 'place': None, 'user': {'id': 10650592, 'profile_link_color': '0099CC', 'time_zone': 'Mumbai', 'protected': False, 'statuses_count': 26221, 'profile_background...</td>
+    <td>&lt;a href="http://twitter.com/download/android" rel="nofollow"&gt;Twitter for Android&lt;/a&gt;</td>
+    <td>RT @bookmyshow: 8. Name the city #Azhar is from? #AzharToday @AzharTheFilm</td>
+    <td>1463127987328</td>
+    <td>False</td>
+    <td>{'id': 130861912, 'profile_link_color': '0084B4', 'time_zone': 'New Delhi', 'protected': False, 'statuses_count': 1237, 'profile_background_color': 'C0DEED', 'utc_offset': 19800, 'following': None, 'screen_name': 'Emmii69', 'lang': 'en', 'default_profile_image': False, 'profile_image_url_https': 'https://pbs.twimg.com/profile_images/723584748564676609/OyUYX9-7_normal.jpg', 'created_at': 'Thu Apr 08 15:08:31 +0000 2010', 'is_translator': False, 'favourites_count': 506, 'profile_image_url': 'http://pbs.twimg.com/profile_images/723584748564676609/OyUYX9-7_normal.jpg', 'listed_count': 1, 'default_profile': True, 'profile_use_background_image': True, 'id_str': '130861912', 'url': None, 'profile_background_image_url_https': 'https://abs.twimg.com/images/themes/theme1/bg.png', 'name': 'pratik...</td>
+  </tr>
+</tbody>
+</table>
+<p>1 rows × 31 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[65]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_df</span> <span class="o">=</span> <span class="n">azhar_df</span><span class="p">[[</span><span class="s">&#39;text&#39;</span><span class="p">]]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[66]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[66]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>text</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>RT @bookmyshow: 8. Name the city #Azhar is from? #AzharToday @AzharTheFilm</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>RT @bookmyshow: 3. True Or False: @ItsPrachiDesai plays Naureen in #Azhar? #AzharToday @AzharTheFilm</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>@bookmyshow @ItsPrachiDesai @AzharTheFilm #Azhar #AzharToday Q.3 True</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>RT @bookmyshow: 8. Name the city #Azhar is from? #AzharToday @AzharTheFilm</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>@bookmyshow @AzharTheFilm Q8 Ans : Hyderabad #AzharToday #Azhar</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>There are too many promotional tweets from bookmyshow, let's delete these tweets.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[67]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_df</span> <span class="o">=</span> <span class="n">azhar_df</span><span class="p">[</span><span class="o">-</span><span class="n">azhar_df</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span> <span class="s">&quot;@bookmyshow&quot;</span> <span class="p">)]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[68]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">2</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[68]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>text</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>6</th>
+    <td>RT @bollywood_life: @emraanhashmi hits a sixer with #Azhar. Read our 3 star review:https://t.co/bLmOS5slfW @balajimotionpic https://t.co/09…</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>RT @taran_adaarsh: #AZHAR is Outstanding..Don't miss it!\n@emraanhashmi's career's best performance &amp;amp; his best film by far!! Must Watch film…</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Convert-these-tweets-into-Document-Matrix-using-the-dictionary-we-created-while-building-the-model">Convert these tweets into Document Matrix using the dictionary we created while building the model<a class="anchor-link" href="#Convert-these-tweets-into-Document-Matrix-using-the-dictionary-we-created-while-building-the-model">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[69]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_text</span> <span class="o">=</span> <span class="n">count_vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span> <span class="n">azhar_df</span><span class="o">.</span><span class="n">text</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[70]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_text</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[70]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;1x1921 sparse matrix of type &apos;&lt;class &apos;numpy.int64&apos;&gt;&apos;
+with 8 stored elements in Compressed Sparse Row format&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Classify-the-tweets">Classify the tweets<a class="anchor-link" href="#Classify-the-tweets">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[72]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_df</span><span class="p">[</span><span class="s">&quot;sentiment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span> <span class="n">azhar_text</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[73]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_df</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[73]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>text</th>
+    <th>sentiment</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>6</th>
+    <td>RT @bollywood_life: @emraanhashmi hits a sixer with #Azhar. Read our 3 star review:https://t.co/bLmOS5slfW @balajimotionpic https://t.co/09…</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>RT @taran_adaarsh: #AZHAR is Outstanding..Don't miss it!\n@emraanhashmi's career's best performance &amp;amp; his best film by far!! Must Watch film…</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <th>10</th>
+    <td>RT @ursmehreen: Omg! Today is Friday! #Azhar release 😍 how can I be thinking that it's Thursday? 🙈 #oops</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <th>11</th>
+    <td>RT @taran_adaarsh: #AZHAR is Outstanding..Don't miss it!\n@emraanhashmi's career's best performance &amp;amp; his best film by far!! Must Watch film…</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <th>13</th>
+    <td>RT @girishjohar: #Azhar starts on a comfortable note, strong WOM will ensure it has a good day 1 at the BO.... feedback is encouraging @emr…</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <th>14</th>
+    <td>RT @bobbytalkcinema: AZHAR - Interesting twist in the court case is here focussing on Lara Dutta.</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <th>16</th>
+    <td>Azhar Movie Review and Rating Hit or Flop Public Talk https://t.co/JFqo2P7WKP https://t.co/FesHpSZOzw</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <th>17</th>
+    <td>RT @itimestweets: Live #Azhar review: @emraanhashmi's portrayal of @azharflicks is truly admirable! @EmraanAddicted @TahaAmeen24 @BrotherOf…</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <th>19</th>
+    <td>RT @rajcheerfull: Looking forward to #Azhar . Congratulations &amp;amp; best wishes @EkmainaurEktu7 @ItsPrachiDesai @emraanhashmi @azharflicks http…</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <th>20</th>
+    <td>@TrollKejri your review on #Azhar #Azharthefilm</td>
+    <td>0</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Store-the-final-results">Store the final results<a class="anchor-link" href="#Store-the-final-results">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[74]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">azhar_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span> <span class="s">&quot;azhar_sentiments.csv&quot;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+  </div>
+</div>

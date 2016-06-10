@@ -1,0 +1,160 @@
+---
+layout: post
+title: "How to read live tweets?"
+date: 2016-05-25
+description: "Integrating with tweets streaming APIs"
+main-class: 'python'
+postbook: 'inotebook'
+published: true
+color: '#b31917'
+tags:
+- python
+- tweepy
+- tweets
+categories:
+- python
+introduction: "Integrating with tweets streaming APIs"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Reading-Live-Tweets">Reading Live Tweets<a class="anchor-link" href="#Reading-Live-Tweets">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">tweepy</span>
+<span class="kn">from</span> <span class="nn">tweepy</span> <span class="k">import</span> <span class="n">OAuthHandler</span>
+<span class="kn">from</span> <span class="nn">tweepy</span> <span class="k">import</span> <span class="n">Stream</span>
+<span class="kn">from</span> <span class="nn">tweepy.streaming</span> <span class="k">import</span> <span class="n">StreamListener</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="How-to-create-an-twitter-application-and-get-consumer-and-access-tokens">How to create an twitter application and get consumer and access tokens<a class="anchor-link" href="#How-to-create-an-twitter-application-and-get-consumer-and-access-tokens">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><p>This <a href="http://iag.me/socialmedia/how-to-create-a-twitter-app-in-8-easy-steps/">webpage</a> provides detailed steps on how to login to twitter account and get these details.</p>
+</li>
+<li><p>Once account is opened and the tokens are obtained, please enter the details in the section below</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">consumer_key</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">consumer_secret</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">access_token</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">access_secret</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">auth</span> <span class="o">=</span> <span class="n">OAuthHandler</span><span class="p">(</span><span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">)</span>
+<span class="n">auth</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">access_secret</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Provide-the-file-name-to-store-the-tweets">Provide the file name to store the tweets<a class="anchor-link" href="#Provide-the-file-name-to-store-the-tweets">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="k">class</span> <span class="nc">TweetsListener</span><span class="p">(</span> <span class="n">StreamListener</span> <span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">on_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+      <span class="k">try</span><span class="p">:</span>
+          <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;mytweets.json&#39;</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+              <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+              <span class="k">return</span> <span class="k">True</span>
+      <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+          <span class="nb">print</span><span class="p">(</span><span class="s">&quot;Error on_data: %s&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+      <span class="k">return</span> <span class="k">True</span>
+
+  <span class="k">def</span> <span class="nf">on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+      <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+      <span class="k">return</span> <span class="k">True</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Provide-the-filter-word-and-start-streaming-the-tweets">Provide the filter word and start streaming the tweets<a class="anchor-link" href="#Provide-the-filter-word-and-start-streaming-the-tweets">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">twitter_stream</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">(</span> <span class="n">auth</span><span class="p">,</span> <span class="n">TweetsListener</span><span class="p">()</span> <span class="p">)</span>
+<span class="n">twitter_stream</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="n">track</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ndtv&#39;</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+  </div>
+</div>
