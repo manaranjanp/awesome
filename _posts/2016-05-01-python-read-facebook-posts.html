@@ -1,0 +1,314 @@
+---
+layout: post
+title: "How to read facebook posts?"
+date: 2016-05-25
+description: "Integrating with facebook Graph APIs"
+main-class: 'python'
+postbook: 'inotebook'
+published: true
+color: '#b31917'
+tags:
+- python
+- facebook
+- posts
+categories:
+- python
+introduction: "Integrating with facebook Graph APIs"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Facebook-Integration">Facebook Integration<a class="anchor-link" href="#Facebook-Integration">&#182;</a></h2><ul>
+<li>This tutorial will help configure the facebook graph API and integrate with facebook to read public posts</li>
+<li>This tutorial reads the messages for the movie "Sultan"</li>
+<li>This tutorial uses facebook-sdk, so install the sdk as follows before following the next steps<ul>
+<li>pip install facebook-sdk</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Create-Facebook-App">Create Facebook App<a class="anchor-link" href="#Create-Facebook-App">&#182;</a></h3><ul>
+<li><p>Go to <a href="https://developers.facebook.com/apps">Facebook Apps dashboard</a></p>
+</li>
+<li><p>Then Click Add a New App -&gt; Choose platform WWW -&gt; Choose a new name for your app -&gt; Click Create New Facebook App ID -&gt; Create a New App ID -&gt; Choose Category (I chose "Entertainment") -&gt; Click Create App ID again.</p>
+</li>
+<li><p>Enter website url in the website url link and then go to the quick start link</p>
+</li>
+<li><p>Go back to <strong>Apps Review</strong> and make the app public</p>
+</li>
+<li><p>Go to <strong>Settings</strong> link and take note of App ID and App Secret</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-Graph-API-Tokens">Create Graph API Tokens<a class="anchor-link" href="#Create-Graph-API-Tokens">&#182;</a></h2><ul>
+<li><p>Go to <a href="https://developers.facebook.com/tools/explorer/">Graph API Explorer</a></p>
+</li>
+<li><p>In the Application drop down -&gt; Select the app created in Step 2 -&gt; Click Get User Access Token</p>
+</li>
+<li><p>It will ask to select permissions. Select the permission give as below and then click <strong>Get Access Token</strong></p>
+</li>
+</ul>
+<p><img src="facebook_permissions.png" width="400"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">facebook_appid</span> <span class="o">=</span> <span class="s1">&#39;1749562481950765&#39;</span>
+<span class="n">user_access_token</span> <span class="o">=</span> <span class="s1">&#39;EAACEdEose0cBAMhpWjBPWVFE1z6rEwrH2dEHhf22VTGDKGboXIzYVfgO9KyENPG8AgqlaSLZA5Nx04q9HtWnMvqbzf396s0ZBId9A3PwbKCxjljKEXAh8JxUGswDy4WkBqJ84SaqSDgaiKV83biqO56w2J8CT9J5DLzmIAzAZDZD&#39;</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">facebook</span>
+
+<span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s2">&quot;page_id&quot;</span>      <span class="p">:</span> <span class="n">facebook_appid</span><span class="p">,</span>
+  <span class="s2">&quot;access_token&quot;</span> <span class="p">:</span> <span class="n">user_access_token</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">graph</span> <span class="o">=</span> <span class="n">facebook</span><span class="o">.</span><span class="n">GraphAPI</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;access_token&#39;</span><span class="p">])</span>
+
+<span class="n">posts</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="s2">&quot;sultanthemovie&quot;</span><span class="o">+</span><span class="s2">&quot;/posts&quot;</span><span class="p">)</span>
+
+<span class="n">posts_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">posts</span><span class="p">)</span>
+<span class="n">posts_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">posts_json</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">idx</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">id_lists</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">posts_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+  <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+  <span class="k">if</span> <span class="s2">&quot;message&quot;</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+      <span class="nb">print</span><span class="p">(</span> <span class="n">idx</span> <span class="p">,</span> <span class="s2">&quot;:&quot;</span> <span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="p">)</span>
+  <span class="k">if</span> <span class="s2">&quot;story&quot;</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+      <span class="nb">print</span><span class="p">(</span> <span class="n">idx</span> <span class="p">,</span> <span class="s2">&quot;:&quot;</span> <span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;story&quot;</span><span class="p">]</span> <span class="p">)</span>
+  <span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span>
+  <span class="n">id_lists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1 : Dekho Sultan ka zabardast dhobi pachad, akhade mein aur jindagi mein. Book your tickets at - http://bit.ly/BookSultanTickets
+2 : Sultan shared BollywoodHungama.com&apos;s live video.
+3 : To watch Sultan ka dhamaakedar daav, book your tickets at - http://bit.ly/BookSultanTickets
+4 : After achieving 1 million downloads on Play Store and being featured as a top game for Android devices, Sultan: The Game makes its way to iOS now. Download the game on App Store now : bit.ly/yrfsultangame
+5 : Yo se Haryana ki Sherni! Watch Aarfa&apos;s contagious zest in #Sultan. BOOK YOUR TICKETS NOW http://bit.ly/BookSultanTickets
+6 : Sultan shared Yash Raj Films - YRF&apos;s post.
+7 : Make this Eid even more special with Sultan! Book your tickets at -  http://bit.ly/BookSultanTickets
+8 : Shout OUT LOUD if you&apos;re loving #Sultan! To watch him in theatres near you, book tickets at  http://bit.ly/BookSultanTickets
+9 : Participate in the #WatchingSultanThisEid contest by sending us pictures of your Sultan tickets &amp; win a #Timex watch.
+T&amp;C apply - http://bit.ly/29giPbY
+10 : Sultan shared Anushka Sharma&apos;s photo.
+11 : As a special tribute for wrestlers, exclusive screenings were organised for them on the release day in Delhi, Pune and Indore. Sultan has been a role close to Salman Khan&apos;s heart and this is his way of appreciating the real life Sultans!
+11 : Sultan added 11 new photos to the album: Sultan - Special Screenings For Wrestlers.
+12 : Sultan updated their cover photo.
+13 : Let the festivities begin with Sultan &amp; Aarfa! Book your tickets at - http://bit.ly/BookSultanTickets
+14 : Celebrate this Eid with SULTAN! Eid Mubarak :)
+15 : See you in the ring! Book your Sultan tickets at - http://bit.ly/BookSultanTickets
+16 : Overwhelming reviews all over! That&apos;s the power of SULTAN.
+Book your tickets at - http://bit.ly/BookSultanTickets
+17 : Their love for each other is their driving force! Watch Sultan &amp; Aarfa&apos;s tale. Book your tickets at - http://bit.ly/BookSultanTickets
+18 : Sultan in the wrestling ring &amp; Sultan of hearts!
+Laugh, cry &amp; cheer for him in theatres now. Book your tickets at - http://bit.ly/BookSultanTickets
+19 : Whistle &amp; cheer &apos;coz Sultan has entered the ring! Watch his story unfold at theatres near you. Book your tickets at -  http://bit.ly/BookSultanTickets
+20 : Sultan&apos;s power-packed punch is winning hearts all over! Have you watched it yet? Book your tickets for #Sultan at- http://bit.ly/BookSultanTickets
+21 : You&apos;ve got to watch it to believe it! Book your tickets for #Sultan right here - http://bit.ly/BookSultanTickets
+22 : Sultan ka daav hai zabardast! Rave reviews pouring in.
+Watch it at theatres near you. Book now- http://bit.ly/BookSultanTickets
+22 : Sultan added 4 new photos.
+23 : Sultan shared Yash Raj Films - YRF&apos;s post.
+24 : Sultan updated their cover photo.
+25 : THE BIG DAY IS HERE! Aa gaya hai SULTAN! Book your tickets at - http://bit.ly/BookSultanTickets
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">id_lists</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[22]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;1580052648923018_1689945294600419&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">comments</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_object</span><span class="p">(</span><span class="n">id_lists</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;/comments&quot;</span><span class="p">)</span>
+<span class="n">comments_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">comments</span><span class="p">)</span>
+<span class="n">comments_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">comments_json</span><span class="p">)</span>
+<span class="c1"># Each given id maps to an object.</span>
+
+<span class="n">idx</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">id_lists</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">comments_dict</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+  <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+  <span class="k">if</span> <span class="s2">&quot;message&quot;</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+      <span class="nb">print</span><span class="p">(</span> <span class="n">idx</span> <span class="p">,</span> <span class="s2">&quot;:&quot;</span> <span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="p">)</span>
+  <span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span>
+  <span class="n">id_lists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1 : Agar Rs.15000 - 50000 कमाना चाहते है तो .......आइये DIGITAL INDIA से जुड़िये......Zero investment.... JOIN होने के लिए आप  1⃣ अपने फ़ोन के play store में Champcash लिखो और उस app को अपने मोबाइल में install कर लो ! 2⃣ अब app पर click करो और sign up पर click करके अपनी डिटेल्स भर दो. 3⃣ Refer id of sponsor पूछेगा वहाँ पर 4670025 डाल दो  इस I&apos;D ( 4670025 ) को खाली पेपर पर लिख लें आगे जरूरत पङेगी  4⃣ complete challenge aur apna id activate karke business se jud jao. WhatsApp no 9818766094
+2 : super flop mere aamir ka record kbhi nhi tod paayega sala chddi wala
+3 : ek no movie hai sultan
+4 : Kia baat hai is movie ki
+5 : Jhakass movie... RE  SULTAN...
+6 : meri nazar me movir sirf 150 hi kma paaigi
+7 : Wah kya jhakas movie h ...
+8 : This is a good desi indian movie
+9 : How talented salman is!
+10 : 74 crore in 2 days
+11 :
+12 : Salman vai rockssz
+13 : All time BLOCKBUSTERR ♡♡♡
+14 : Right said
+15 : Namste he 😂😂😂😂
+16 : better than bajranfi bhaijaan?
+17 : Super movie sultaan
+18 : Superd 👈👈👈😍
+19 : 800 CRORE🌟🌟🌟🌟🌟
+20 : records thodegaa
+21 : Nice movie
+22 : bakwaas super flop
+23 : Prakash kumar
+24 : superb movie
+25 : VERY GOOD
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+  </div>
+</div>
