@@ -24,16 +24,23 @@ introduction: "Integrating with tweets streaming APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Reading-Live-Tweets">Reading Live Tweets<a class="anchor-link" href="#Reading-Live-Tweets">&#182;</a></h1>
+<h1 id="Reading-Live-Tweets">Reading Live Tweets<a class="anchor-link" href="#Reading-Live-Tweets">&#182;</a></h1><ul>
+<li>This tutorial provides steps to read live tweets and do a basic trend analysis</li>
+<li>The tweets can be filtered using a search term</li>
+<li>The tweets received are stored as json file and then the json file is loaded to a dataframe </li>
+<li>The tweet messages are tokenzied and stop words are removed from the text </li>
+<li>The final tokens are then counted and sorted in order of their frequency of occurances</li>
+</ul>
+
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
   <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">tweepy</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">tweepy</span>
 <span class="kn">from</span> <span class="nn">tweepy</span> <span class="k">import</span> <span class="n">OAuthHandler</span>
 <span class="kn">from</span> <span class="nn">tweepy</span> <span class="k">import</span> <span class="n">Stream</span>
 <span class="kn">from</span> <span class="nn">tweepy.streaming</span> <span class="k">import</span> <span class="n">StreamListener</span>
@@ -59,9 +66,9 @@ introduction: "Integrating with tweets streaming APIs"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ul>
-<li>This <a href="http://iag.me/socialmedia/how-to-create-a-twitter-app-in-8-easy-steps/">webpage</a> provides detailed steps on how to login to twitter account and get these details.
+<li><p>This <a href="http://iag.me/socialmedia/how-to-create-a-twitter-app-in-8-easy-steps/">webpage</a> provides detailed steps on how to login to twitter account and get these details.</p>
 </li>
-<li>Once account is opened and the tokens are obtained, please enter the details in the section below
+<li><p>Once account is opened and the tokens are obtained, please enter the details in the section below</p>
 </li>
 </ul>
 
@@ -70,13 +77,13 @@ introduction: "Integrating with tweets streaming APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
 <div class="inner_cell">
   <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="n">consumer_key</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
-<span class="n">consumer_secret</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
-<span class="n">access_token</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
-<span class="n">access_secret</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">consumer_key</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<span class="n">consumer_secret</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<span class="n">access_token</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<span class="n">access_secret</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 </pre></div>
 
 </div>
@@ -86,10 +93,10 @@ introduction: "Integrating with tweets streaming APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
 <div class="inner_cell">
   <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="n">auth</span> <span class="o">=</span> <span class="n">OAuthHandler</span><span class="p">(</span><span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">auth</span> <span class="o">=</span> <span class="n">OAuthHandler</span><span class="p">(</span><span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">)</span>
 <span class="n">auth</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">access_secret</span><span class="p">)</span>
 </pre></div>
 
@@ -109,23 +116,24 @@ introduction: "Integrating with tweets streaming APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
 <div class="inner_cell">
   <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="k">class</span> <span class="nc">TweetsListener</span><span class="p">(</span> <span class="n">StreamListener</span> <span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">TweetsListener</span><span class="p">(</span> <span class="n">StreamListener</span> <span class="p">):</span>
 
   <span class="k">def</span> <span class="nf">on_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
       <span class="k">try</span><span class="p">:</span>
-          <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;mytweets.json&#39;</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+          <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;mytweets.json&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
               <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-              <span class="k">return</span> <span class="k">True</span>
+              <span class="k">return</span> <span class="kc">True</span>
+          <span class="n">num_tweets</span> <span class="o">=</span> <span class="n">num_tweets</span> <span class="o">+</span> <span class="mi">1</span>
       <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-          <span class="nb">print</span><span class="p">(</span><span class="s">&quot;Error on_data: %s&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-      <span class="k">return</span> <span class="k">True</span>
+          <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error on_data: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+      <span class="k">return</span> <span class="kc">True</span>
 
   <span class="k">def</span> <span class="nf">on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
       <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-      <span class="k">return</span> <span class="k">True</span>
+      <span class="k">return</span> <span class="kc">True</span>
 </pre></div>
 
 </div>
@@ -144,14 +152,656 @@ introduction: "Integrating with tweets streaming APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
   <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="n">twitter_stream</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">(</span> <span class="n">auth</span><span class="p">,</span> <span class="n">TweetsListener</span><span class="p">()</span> <span class="p">)</span>
-<span class="n">twitter_stream</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="n">track</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ndtv&#39;</span><span class="p">]</span> <span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1">#Delete any existing file. If you do not want to delete the earlier file. Then you can commend the line below</span>
+<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span> <span class="s1">&#39;mytweets.json&#39;</span> <span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+  <span class="n">twitter_stream</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">(</span> <span class="n">auth</span><span class="p">,</span> <span class="n">TweetsListener</span><span class="p">()</span> <span class="p">)</span>
+  <span class="n">twitter_stream</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="n">track</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sultan&#39;</span><span class="p">]</span> <span class="p">)</span>
+<span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+  <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Streaming Stopped&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Streaming Stopped
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># read the entire file into a python array</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;mytweets.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+  <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+<span class="c1"># remove the trailing &quot;\n&quot; from each line</span>
+<span class="n">data</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(),</span> <span class="n">data</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Load all json messages as one python list</span>
+<span class="n">data_json_str</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Now the list of json message can be converted into dataframe. Python support loading </span>
+<span class="c1"># json messages as dataframe</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">tweets_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">data_json_str</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tweets_df</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[43]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>contributors</th>
+    <th>coordinates</th>
+    <th>created_at</th>
+    <th>entities</th>
+    <th>extended_entities</th>
+    <th>favorite_count</th>
+    <th>favorited</th>
+    <th>filter_level</th>
+    <th>geo</th>
+    <th>id</th>
+    <th>...</th>
+    <th>quoted_status_id</th>
+    <th>quoted_status_id_str</th>
+    <th>retweet_count</th>
+    <th>retweeted</th>
+    <th>retweeted_status</th>
+    <th>source</th>
+    <th>text</th>
+    <th>timestamp_ms</th>
+    <th>truncated</th>
+    <th>user</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>2016-07-09 05:26:48</td>
+    <td>{'user_mentions': [], 'hashtags': [], 'symbols': [], 'urls': [{'indices': [5, 28], 'expanded_url': 'https://twitter.com/Bollyhungama/status/751377917737734144', 'url': 'https://t.co/UWtrcygjAL', 'display_url': 'twitter.com/Bollyhungama/s…'}]}</td>
+    <td>NaN</td>
+    <td>0</td>
+    <td>False</td>
+    <td>low</td>
+    <td>NaN</td>
+    <td>751648779468566532</td>
+    <td>...</td>
+    <td>7.513779e+17</td>
+    <td>7.513779e+17</td>
+    <td>0</td>
+    <td>False</td>
+    <td>NaN</td>
+    <td>&lt;a href="http://twitter.com/download/android" rel="nofollow"&gt;Twitter for Android&lt;/a&gt;</td>
+    <td>😀😀😀😀 https://t.co/UWtrcygjAL</td>
+    <td>2016-07-09 05:26:48.641</td>
+    <td>False</td>
+    <td>{'created_at': 'Thu Jul 16 04:49:09 +0000 2015', 'is_translator': False, 'description': 'Known As Salman Khan Fan.', 'profile_image_url_https': 'https://pbs.twimg.com/profile_images/751085215750221825/_shRxcZh_normal.jpg', 'profile_use_background_image': True, 'profile_banner_url': 'https://pbs.twimg.com/profile_banners/3281209212/1467898277', 'profile_background_image_url': 'http://abs.twimg.com/images/themes/theme1/bg.png', 'contributors_enabled': False, 'profile_image_url': 'http://pbs.twimg.com/profile_images/751085215750221825/_shRxcZh_normal.jpg', 'geo_enabled': True, 'default_profile': True, 'notifications': None, 'lang': 'en', 'favourites_count': 15722, 'following': None, 'profile_background_image_url_https': 'https://abs.twimg.com/images/themes/theme1/bg.png', 'time_zone': Non...</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>2016-07-09 05:26:49</td>
+    <td>{'user_mentions': [{'name': 'Indian Boxoffice', 'id': 3306396280, 'id_str': '3306396280', 'indices': [3, 12], 'screen_name': 'TradeBOC'}, {'name': 'Salman Khan', 'id': 132385468, 'id_str': '132385468', 'indices': [92, 108], 'screen_name': 'BeingSalmanKhan'}, {'name': 'Anushka Sharma', 'id': 54829997, 'id_str': '54829997', 'indices': [110, 124], 'screen_name': 'AnushkaSharma'}], 'hashtags': [{'indices': [63, 70], 'text': 'SULTAN'}], 'symbols': [], 'urls': []}</td>
+    <td>NaN</td>
+    <td>0</td>
+    <td>False</td>
+    <td>low</td>
+    <td>NaN</td>
+    <td>751648781083545600</td>
+    <td>...</td>
+    <td>NaN</td>
+    <td>NaN</td>
+    <td>0</td>
+    <td>False</td>
+    <td>{'in_reply_to_status_id_str': None, 'retweeted': False, 'user': {'created_at': 'Tue Jun 02 05:44:19 +0000 2015', 'is_translator': False, 'description': 'Posts boxoffice collections of #Indians films,Analyise of boxoffice, Prediction,Verdicts,News etc.', 'profile_image_url_https': 'https://pbs.twimg.com/profile_images/605628260127358976/_2oZQTGV_normal.jpg', 'profile_use_background_image': True, 'profile_banner_url': 'https://pbs.twimg.com/profile_banners/3306396280/1433228593', 'profile_background_image_url': 'http://abs.twimg.com/images/themes/theme1/bg.png', 'contributors_enabled': False, 'profile_image_url': 'http://pbs.twimg.com/profile_images/605628260127358976/_2oZQTGV_normal.jpg', 'geo_enabled': False, 'default_profile': True, 'notifications': None, 'lang': 'en', 'favourites_cou...</td>
+    <td>&lt;a href="http://twitter.com/download/android" rel="nofollow"&gt;Twitter for Android&lt;/a&gt;</td>
+    <td>RT @TradeBOC: All time top 10 Domestic Second  Day collection, #SULTAN ranked 1st position. @beingsalmankhan· @anushkasharma</td>
+    <td>2016-07-09 05:26:49.026</td>
+    <td>False</td>
+    <td>{'created_at': 'Sun Aug 25 05:03:59 +0000 2013', 'is_translator': False, 'description': 'BEING HUMAN', 'profile_image_url_https': 'https://pbs.twimg.com/profile_images/724986408516096000/JJQKkejk_normal.jpg', 'profile_use_background_image': True, 'profile_banner_url': 'https://pbs.twimg.com/profile_banners/1698197552/1464489965', 'profile_background_image_url': 'http://abs.twimg.com/images/themes/theme1/bg.png', 'contributors_enabled': False, 'profile_image_url': 'http://pbs.twimg.com/profile_images/724986408516096000/JJQKkejk_normal.jpg', 'geo_enabled': True, 'default_profile': True, 'notifications': None, 'lang': 'en', 'favourites_count': 2922, 'following': None, 'profile_background_image_url_https': 'https://abs.twimg.com/images/themes/theme1/bg.png', 'time_zone': None, 'default_pro...</td>
+  </tr>
+</tbody>
+</table>
+<p>2 rows × 31 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tweets_df_text</span> <span class="o">=</span> <span class="n">tweets_df</span><span class="p">[[</span><span class="s1">&#39;text&#39;</span><span class="p">]]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;max_colwidth&#39;</span><span class="p">,</span> <span class="mi">800</span><span class="p">)</span>
+<span class="n">tweets_df_text</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[45]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>text</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>😀😀😀😀 https://t.co/UWtrcygjAL</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>RT @TradeBOC: All time top 10 Domestic Second  Day collection, #SULTAN ranked 1st position. @beingsalmankhan· @anushkasharma</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>RT @madreeve: @madreeve 5. https://t.co/CdtyFswvtX</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>RT @MVenkaiahNaidu: I rarely go to movies. Yesterday being a holiday, grand daughter Sushma took me to Salman Khan's starrer Sultan. 1/</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>RT @MayurStudios: #Sultan has Crushed the Lifetime Collections of previous YRF film #FAN , during early morning show today. https://t.co/UK…</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>RT @Tutejajoginder: #Sultan - @AnushkaSharma has now enjoyed a century each with Salman [Sultan], Aamir [PK], SRK [JTHJ]. Good going!</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>RT @Stenymerowin: எல்லாரும் வழக்கம் போல அனில அடிச்சு சாகடிங்க💪💪💪 https://t.co/AaE93jTwM3</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>RT @shubhh876: #SULTAN will hit 400 cr easily.. now 33 cr on day 3 is outstanding ..</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>RT @AsliShiva: #Sultan crossed 100cr mark on Friday. @BeingSalmanKhan's 10th consecutive film to do so.</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>RT @addatoday: ' @BeingSalmanKhan becomes 1st Person ever to have 'TEN' 100 crore Films at Indian BO. Creates HISTORY with #Sultan. https:/…</td>
+  </tr>
+  <tr>
+    <th>10</th>
+    <td>A look at the Standard Gauge Railway vs The Meter Gauge Railway at Sultan Hamud. #BrandObura exclusive https://t.co/OULU7u58u8</td>
+  </tr>
+  <tr>
+    <th>11</th>
+    <td>RT @kamaalrkhan: It's clear now that #Sultan will be first ever film which will collect 30Cr+ on first 5days n it's proof of Salman khan's…</td>
+  </tr>
+  <tr>
+    <th>12</th>
+    <td>RT @KRKBoxOffice: #Sultan collected 30+Cr on day3 and it's a record that any film collected 30+Cr on first 3days.</td>
+  </tr>
+  <tr>
+    <th>13</th>
+    <td>RT @EternalSalman_: Bajrangi Bhaijaan crossed HNY lifetime in 7\ndays. &amp;amp; Looking like #Sultan will cross HNY lifetime in just 5 days. :P</td>
+  </tr>
+  <tr>
+    <th>14</th>
+    <td>RT @Salilacharya: check out a post mortem analysis of #sultan with my fellow rjs @ArchanaaPania and @Su4ita @beingSalmanKhan https://t.co/5…</td>
+  </tr>
+  <tr>
+    <th>15</th>
+    <td>Sukses kk tam di kampung orang 🙏🏻\nSafe flight 😇 @ Sultan Hasanuddin International Airport https://t.co/nCIcje9ucw</td>
+  </tr>
+  <tr>
+    <th>16</th>
+    <td>RT @SultanEid016: What is Stardom..??\nThe thing that other star want to follow it. But in salman case the thing which follow #sultan is sta…</td>
+  </tr>
+  <tr>
+    <th>17</th>
+    <td>RT @saini12ajay_: @AnushkaSharma is only actress with two 100 crores club movies and one 500 crores movie and one more should added to this…</td>
+  </tr>
+  <tr>
+    <th>18</th>
+    <td>RT @kamaalrkhan: It's clear now that #Sultan will be first ever film which will collect 30Cr+ on first 5days n it's proof of Salman khan's…</td>
+  </tr>
+  <tr>
+    <th>19</th>
+    <td>@Gr8IndianFood #FilmyFoodie Sultan for Shahi Tukda</td>
+  </tr>
+  <tr>
+    <th>20</th>
+    <td>RT @sameeratweeter: My sister asking me can u whistle #Sultan #SalmanKhan #chandan \nLol</td>
+  </tr>
+  <tr>
+    <th>21</th>
+    <td>RT @KomalNahta: IT IS HUGE HUGE HUGE! That's #Sultan. Unstoppable tsunami from Salman Khan this Eid. Let the celebrations begin!!!</td>
+  </tr>
+  <tr>
+    <th>22</th>
+    <td>RT @umangarora_: #Sultan is a reminder that good flick can also be made with 'Simple Story' lineup and extraordinary Direction and Screenpl…</td>
+  </tr>
+  <tr>
+    <th>23</th>
+    <td>RT @AttitudeKnight: I loved the movie so so much, I think I will give it a watch again with my family. #Sultan</td>
+  </tr>
+  <tr>
+    <th>24</th>
+    <td>RT @kabirkhankk: #Sultan delivers a solid punch... A strong Emotional core that really moves you... @BeingSalmanKhan is at his best @Anushk…</td>
+  </tr>
+  <tr>
+    <th>25</th>
+    <td>RT @IndiaBoxOffice1: #Sultan is setting records all over the world, meanwhile, time for a POLL :\n\nWHO HAS THE LARGER FAN FOLLOWING?</td>
+  </tr>
+  <tr>
+    <th>26</th>
+    <td>RT @VishalDadlani: Whaaaaaaat! That's awesome! #Sultan @BeingSalmanKhan @aliabbaszafar @yrf @AnushkaSharma @ShekharRavjiani https://t.co/DD…</td>
+  </tr>
+  <tr>
+    <th>27</th>
+    <td>RT @kabirkhankk: At YRF to watch #Sultan 😄👍🏼 @aliabbaszafar @BeingSalmanKhan  @AnushkaSharma</td>
+  </tr>
+  <tr>
+    <th>28</th>
+    <td>200 Crore For Sultan: https://t.co/JiKZARmeFE via @YouTube</td>
+  </tr>
+  <tr>
+    <th>29</th>
+    <td>😀😀😀😀😀 https://t.co/EY0E6AcVD5</td>
+  </tr>
+  <tr>
+    <th>...</th>
+    <td>...</td>
+  </tr>
+  <tr>
+    <th>43</th>
+    <td>RT @MayurStudios: #Sultan - . @BeingSalmanKhan has now hit 10 centuries in a row - Dabangg, Ready, Bodyguard, ETT, D2, Jai Ho, Kick, BB, PR…</td>
+  </tr>
+  <tr>
+    <th>44</th>
+    <td>watching Sultan</td>
+  </tr>
+  <tr>
+    <th>45</th>
+    <td>RT @SalluLicious: Anushka Sharma looked CUTE&amp;amp;She did her role Excellently! Salman Bro&amp;amp;Her chemistry was really Stunning!They should do anot…</td>
+  </tr>
+  <tr>
+    <th>46</th>
+    <td>RT @Tutejajoginder: #Sultan - @AnushkaSharma has now enjoyed a century each with Salman [Sultan], Aamir [PK], SRK [JTHJ]. Good going!</td>
+  </tr>
+  <tr>
+    <th>47</th>
+    <td>With Melgi at Waiting Room Sultan Syarif Kasim II International Airport — https://t.co/wyPANu0zd9</td>
+  </tr>
+  <tr>
+    <th>48</th>
+    <td>RT @brijeshrtrivedi: #Sultan is a sport  movie with lots of emotions and awesome performances. Movie teach us never give up in life.</td>
+  </tr>
+  <tr>
+    <th>49</th>
+    <td>RT @raydeep: #Sultan storms @KomalNahta says this can be the biggest blockbuster of @BeingSalmanKhan.  Wll cross Rs 300 crore https://t.co/…</td>
+  </tr>
+  <tr>
+    <th>50</th>
+    <td>RT @nikimarwah: The movie #Sultan inspires, motivates, moves and entertains. Every scene is a treat! A fabulous package and a must watch fo…</td>
+  </tr>
+  <tr>
+    <th>51</th>
+    <td>RT @kabirkhankk: Ladies and Gentleman.... Here's SULTANNNNNN!!!  https://t.co/ELjPT6u9vf</td>
+  </tr>
+  <tr>
+    <th>52</th>
+    <td>RT @Bollyhungama: 100 cr club: @BeingSalmanKhan 's #SULTAN all set to surpass collections of #AIRLIFT &amp;amp; become highest grosser of 2016\nhttp…</td>
+  </tr>
+  <tr>
+    <th>53</th>
+    <td>RT @TheViralFever: Releasing every #EID.\n\n#Sultan #Dangal https://t.co/VseQtTmDLK</td>
+  </tr>
+  <tr>
+    <th>54</th>
+    <td>RT @sameeratweeter: Younger sister refuses to come to #chandan next time as can't hear a dialogue with such deafening whistles /claps #Sult…</td>
+  </tr>
+  <tr>
+    <th>55</th>
+    <td>#Sultan , I heard so much good things bout you. I am coming for you ! I can't wait! 😍 @BeingSalmanKhan</td>
+  </tr>
+  <tr>
+    <th>56</th>
+    <td>RT @Tutejajoginder: #Sultan - For @yrf, it is their fourth century after Ek Tha Tiger, Jab Tak Hai Jaan and Dhoom 3.</td>
+  </tr>
+  <tr>
+    <th>57</th>
+    <td>RT @MrUthaman: pandaram is leading. anils using all 420 work to win. Vote for thala ajith https://t.co/ITPqZIwNT8</td>
+  </tr>
+  <tr>
+    <th>58</th>
+    <td>RT @aamirmerijaan: I liked @iamsrk's fan more than Sultan to be honest!</td>
+  </tr>
+  <tr>
+    <th>59</th>
+    <td>RT @Ak47Damani: Most people celebrate this day by partying and everything, but SULTAN is my most important priority today :) #Sultan https:…</td>
+  </tr>
+  <tr>
+    <th>60</th>
+    <td>RT @taran_adarsh: #Sultan continued its MAJESTIC run for the third consecutive day [Fri]... Is all set for a POWER-PACKED 5-day weekend in…</td>
+  </tr>
+  <tr>
+    <th>61</th>
+    <td>#Sultan Box-office Collection for two days 73 Cr. 1st day 36.54 Cr&amp;amp; Day2 37.20 Cr. @BeingSalmanKhan  https://t.co/vpa8cgrGd0</td>
+  </tr>
+  <tr>
+    <th>62</th>
+    <td>RT @IconSalman: CROWD Gathered IN LAHORE TO WATCH SULTAN !!! #ReSultan https://t.co/xiWBeez5Vh</td>
+  </tr>
+  <tr>
+    <th>63</th>
+    <td>RT @aamir_khan: Saw Sultan last night . OUTSTANDING! Ali Abbas shines as writer and director. (1/2)</td>
+  </tr>
+  <tr>
+    <th>64</th>
+    <td>RT @iFaridoon: Watchin #Sultan wid Aarefa n Insha,packed hall..ppl clapping,laughing,clicking selfies wid Sultan cutout in interval https:/…</td>
+  </tr>
+  <tr>
+    <th>65</th>
+    <td>Re #Sultan kardi box office PR chadhai #SALMAN10thConsecutive100cr</td>
+  </tr>
+  <tr>
+    <th>66</th>
+    <td>RT @sameeratweeter: #Sultan #SalmanKhan the biggest superstar only he can break the BO collection ..\nWhoaaaaa</td>
+  </tr>
+  <tr>
+    <th>67</th>
+    <td>@BeingSalmanKhan खून में है मिट्टी, मिट्टी में है खून, ऊपर अल्लाह, नीचे तेरा जूनून, #Sultan. @AnushkaSharma I watched it. Its superb movie!</td>
+  </tr>
+  <tr>
+    <th>68</th>
+    <td>RT @Being_Soniyaa: Now KRK to SRK - Bhai mein kya kru , kitna negative bol diya SULTAN K liye but He is unstoppable.  \nThen both cries 😀😁😂</td>
+  </tr>
+  <tr>
+    <th>69</th>
+    <td>RT @RamGKrishna: #SULTAN \nDay1 -36.54 Cr. (Pre EID)\nDay2 -37.20 Cr. (EID)\nDay3 -32-33 Cr(Working Day)\nTotal -106-107 Cr\n\nNow Weekend Sat +…</td>
+  </tr>
+  <tr>
+    <th>70</th>
+    <td>RT @Tutejajoginder: #Sultan @aliabbaszafar has entered #100croreclub in style after MBKD and Gunday (which were successful too). He is in s…</td>
+  </tr>
+  <tr>
+    <th>71</th>
+    <td>RT @satishkaushik2: Uff what a film #Sultan @BeingSalmanKhan what a great performance..u r like a raging bull..unstoppable..hats off to the…</td>
+  </tr>
+  <tr>
+    <th>72</th>
+    <td>RT @kamaalrkhan: It's clear now that #Sultan will be first ever film which will collect 30Cr+ on first 5days n it's proof of Salman khan's…</td>
+  </tr>
+</tbody>
+</table>
+<p>73 rows × 1 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Tokenize the tweets message </span>
+<span class="c1"># Remove stop words</span>
+<span class="c1"># Calculate the occurance of words</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="k">import</span> <span class="n">CountVectorizer</span>
+
+<span class="n">vect</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span> <span class="n">stop_words</span> <span class="o">=</span> <span class="s2">&quot;english&quot;</span> <span class="p">)</span>
+<span class="n">vect</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span> <span class="n">tweets_df_text</span><span class="o">.</span><span class="n">text</span> <span class="p">)</span>
+<span class="n">tweets_vec</span> <span class="o">=</span> <span class="n">vect</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span> <span class="n">tweets_df_text</span><span class="o">.</span><span class="n">text</span> <span class="p">)</span>
+<span class="n">word_freq_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;term&#39;</span><span class="p">:</span> <span class="n">vect</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">(),</span>
+                           <span class="s1">&#39;tf&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span> <span class="n">tweets_vec</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()})</span>
+<span class="n">word_freq_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[46]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>term</th>
+    <th>tf</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>10</td>
+    <td>3</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>100</td>
+    <td>3</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>100cr</td>
+    <td>2</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>100crore</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>100croreclub</td>
+    <td>1</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Print the words in descending order</span>
+<span class="n">word_freq_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span> <span class="s2">&quot;tf&quot;</span><span class="p">,</span> <span class="n">ascending</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[47]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>term</th>
+    <th>tf</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>402</th>
+    <td>sultan</td>
+    <td>68</td>
+  </tr>
+  <tr>
+    <th>351</th>
+    <td>rt</td>
+    <td>60</td>
+  </tr>
+  <tr>
+    <th>224</th>
+    <td>https</td>
+    <td>21</td>
+  </tr>
+  <tr>
+    <th>71</th>
+    <td>beingsalmankhan</td>
+    <td>15</td>
+  </tr>
+  <tr>
+    <th>121</th>
+    <td>cr</td>
+    <td>12</td>
+  </tr>
+  <tr>
+    <th>295</th>
+    <td>movie</td>
+    <td>10</td>
+  </tr>
+  <tr>
+    <th>137</th>
+    <td>day</td>
+    <td>9</td>
+  </tr>
+  <tr>
+    <th>357</th>
+    <td>salman</td>
+    <td>9</td>
+  </tr>
+  <tr>
+    <th>181</th>
+    <td>film</td>
+    <td>8</td>
+  </tr>
+  <tr>
+    <th>430</th>
+    <td>tutejajoginder</td>
+    <td>7</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
 </div>
 </div>
 
