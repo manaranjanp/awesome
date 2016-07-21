@@ -28,7 +28,7 @@ introduction: "Analyzing publicly available NASA log files using Spark"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Analyzing-Apache-Log-Files">Analyzing Apache Log Files<a class="anchor-link" href="#Analyzing-Apache-Log-Files">&#182;</a></h2><ul>
-<li><p>This tutorial will cover the steps of processing log files</p>
+<li>This tutorial will cover the steps of processing log files
 <ul>
 <li>Read the log file as a dataframe</li>
 <li>Parse each log line, extract relevent fields and create a structured dataframe</li>
@@ -47,7 +47,7 @@ introduction: "Analyzing publicly available NASA log files using Spark"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Load-the-log-file">Load the log file<a class="anchor-link" href="#Load-the-log-file">&#182;</a></h3><p>The data set from NASA Kennedy Space Center web server in Florida. The full data set is freely available at <a href="http://ita.ee.lbl.gov/html/contrib/NASA-HTTP.html">http://ita.ee.lbl.gov/html/contrib/NASA-HTTP.html</a>, and it contains all HTTP requests for the month of august.</p>
+<h3 id="Load-the-log-file">Load the log file<a class="anchor-link" href="#Load-the-log-file">&#182;</a></h3>The data set from NASA Kennedy Space Center web server in Florida. The full data set is freely available at <a href="http://ita.ee.lbl.gov/html/contrib/NASA-HTTP.html">http://ita.ee.lbl.gov/html/contrib/NASA-HTTP.html</a>, and it contains all HTTP requests for the month of august.
 
 </div>
 </div>
@@ -180,9 +180,9 @@ only showing top 5 rows
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ul>
-<li><p>The logs are in <a href="https://www.w3.org/Daemon/User/Config/Logging.html#common-logfile-format">Common Log Format</a>.</p>
+<li>The logs are in <a href="https://www.w3.org/Daemon/User/Config/Logging.html#common-logfile-format">Common Log Format</a>.<
 </li>
-<li><p>The fields are</p>
+<li>The fields are
 <ul>
 <li><strong><em>remotehost rfc931 authuser [date] "request" status bytes</em></strong></li>
 </ul>
@@ -315,7 +315,7 @@ only showing top 2 rows
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Data-Cleaning">Data Cleaning<a class="anchor-link" href="#Data-Cleaning">&#182;</a></h3><p>Let's see how well our parsing logic worked. First, let's verify that there are no null rows in the original data set.</p>
+<h3 id="Data-Cleaning">Data Cleaning<a class="anchor-link" href="#Data-Cleaning">&#182;</a></h3>Let's see how well our parsing logic worked. First, let's verify that there are no null rows in the original data set.
 
 </div>
 </div>
