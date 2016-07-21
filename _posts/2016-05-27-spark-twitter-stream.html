@@ -1,0 +1,674 @@
+---
+layout: post
+title: "Twitter Trends Analysis using Spark Streaming"
+date: 2016-05-25
+description: "Twitter Trend Analysis Using Spark Streaming APIs"
+main-class: 'spark'
+published: true
+postbook: 'inotebook'
+color: '#7AAB13'
+tags:
+- spark
+- streaming
+- twitter
+- "data Science"
+- pyspark
+- 'twitter trend'
+categories:
+- spark
+introduction: "Twitter Trend Analysis Using Spark Streaming APIs"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Twitter-Trends-using-Spark-Streaming">Twitter Trends using Spark Streaming<a class="anchor-link" href="#Twitter-Trends-using-Spark-Streaming">&#182;</a></h1><ul>
+<li>This tutorial shows how to process live tweets for Trend Analysis using Spark Python API</li>
+<li>Spark 1.6 streaming API in python does not Twitter integration. This is only supported for Scala APIs</li>
+<li>This tutorial provides a simple workaround. This is a sample program and not a production ready example.</li>
+<li>This streaming example uses socketstream and listens to a TCP server, which integrates to twitter on it behalf and provided the tweets to this socket stream listener. </li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Create-a-Twitter-Broker">Create a Twitter Broker<a class="anchor-link" href="#Create-a-Twitter-Broker">&#182;</a></h3><ul>
+<li>The broker is a python client, which connect to twitter stream using tweepy library and forwards all tweets to the spark socket stream listener</li>
+</ul>
+<ul>
+<li>Install tweepy library, if not installed already<ul>
+<li><strong>pip install tweepy</strong></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>Save the following file as <strong>TweetRead.py</strong></li>
+</ul>
+
+<pre><code>import tweepy
+from tweepy import OAuthHandler
+from tweepy import Stream
+from tweepy.streaming import StreamListener
+import socket
+import json
+
+consumer_key = ''
+consumer_secret = ''
+access_token = ''
+access_secret = ''
+
+class TweetsListener(StreamListener):
+
+  def __init__(self, csocket):
+      self.client_socket = csocket
+
+  def on_data(self, data):
+      try:
+          msg = json.loads( data )
+          print( msg['text'].encode('utf-8') )
+          self.client_socket.send( msg['text'].encode('utf-8') )
+          return True
+      except BaseException as e:
+          print("Error on_data: %s" % str(e))
+      return True
+
+  def on_error(self, status):
+      print(status)
+      return True
+
+def sendData(c_socket):
+  auth = OAuthHandler(consumer_key, consumer_secret)
+  auth.set_access_token(access_token, access_secret)
+
+  twitter_stream = Stream(auth, TweetsListener(c_socket))
+  twitter_stream.filter(track=['ipl'])
+
+if __name__ == "__main__":
+  s = socket.socket()         # Create a socket object
+  host = "192.168.0.139"      # Get local machine name
+  port = 5555                 # Reserve a port for your service.
+  s.bind((host, port))        # Bind to the port
+
+  print("Listening on port: %s" % str(port))
+
+  s.listen(5)                 # Now wait for client connection.
+  c, addr = s.accept()        # Establish connection with client.
+
+  print( "Received request from: " + str( addr ) )
+
+  sendData( c )</code></pre>
+<ul>
+<li>Change the <strong>track=['ipl']</strong> to appropriate search key word and change <strong>host</strong> variable to the machine ip address where the this program is going to run.</li>
+</ul>
+<ul>
+<li>Run the program as <ul>
+<li><strong>python TweetRead.py</strong></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Create-a-Spark-Streaming-Program">Create a Spark Streaming Program<a class="anchor-link" href="#Create-a-Spark-Streaming-Program">&#182;</a></h3><ul>
+<li>Creat a new ipython notebook spark program and write the following code</li>
+</ul>
+<h4 id="Import-all-spark-streaming-libraries">Import all spark streaming libraries<a class="anchor-link" href="#Import-all-spark-streaming-libraries">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">SparkContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.streaming</span> <span class="k">import</span> <span class="n">StreamingContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SQLContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">desc</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[2]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;pyspark.context.SparkContext at 0x7f4c64d57390&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Create-a-spark-streaming-context">Create a spark streaming context<a class="anchor-link" href="#Create-a-spark-streaming-context">&#182;</a></h4><ul>
+<li>With a batch interval of 10 seconds. The messages would accumulate for 10 seconds and then get processed.</li>
+<li>Creat an sqlContext, which will be used to query the trends from the results</li>
+<li>The check point directory is going to save the messages to recover in case of streaming components fail.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ssc</span> <span class="o">=</span> <span class="n">StreamingContext</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="mi">10</span> <span class="p">)</span>
+<span class="n">sqlContext</span> <span class="o">=</span> <span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+<span class="n">ssc</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span> <span class="s">&quot;file:///home/hadoop/lab/programs/trends/checkpoint&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Connect-to-the-broker-to-recieve-the-tweets">Connect to the broker to recieve the tweets<a class="anchor-link" href="#Connect-to-the-broker-to-recieve-the-tweets">&#182;</a></h4><ul>
+<li>This should be the IP address and port number of your windows or mac machine, where the program TweetRead.py is running</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">socket_stream</span> <span class="o">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">socketTextStream</span><span class="p">(</span><span class="s">&quot;100.86.241.236&quot;</span><span class="p">,</span> <span class="mi">5555</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Create-a-window">Create a window<a class="anchor-link" href="#Create-a-window">&#182;</a></h4><ul>
+<li>The RDD will be created for every 10 seconds, but the data in RDD will be for the last 20 seconds</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">lines</span> <span class="o">=</span> <span class="n">socket_stream</span><span class="o">.</span><span class="n">window</span><span class="p">(</span> <span class="mi">20</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Create-a-namedtuple">Create a namedtuple<a class="anchor-link" href="#Create-a-namedtuple">&#182;</a></h4><ul>
+<li>To store the final tags and their counts as results</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;tag&quot;</span><span class="p">,</span> <span class="s">&quot;count&quot;</span> <span class="p">)</span>
+<span class="n">Tweet</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span> <span class="s">&#39;Tweet&#39;</span><span class="p">,</span> <span class="n">fields</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Process-the-stream">Process the stream<a class="anchor-link" href="#Process-the-stream">&#182;</a></h4><ul>
+<li><p>It receives tweet messages, splits the messages into words, filters all the words which start with a hashtag(#), converts the words to lowercase, maps each tag to (word, 1), then reduces and counts occurances of each hash tag.</p>
+</li>
+<li><p>Finally it converts the resulting tags and their counts into a dataframe, sorts the tags in descending order and takes only the first 10 records and registers it as a temp table.</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="p">(</span> <span class="n">lines</span><span class="o">.</span><span class="n">flatMap</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span> <span class="s">&quot; &quot;</span> <span class="p">)</span> <span class="p">)</span>
+  <span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">word</span><span class="p">:</span> <span class="n">word</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">)</span> <span class="p">)</span>
+  <span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">word</span><span class="p">:</span> <span class="p">(</span> <span class="n">word</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">1</span> <span class="p">)</span> <span class="p">)</span>
+  <span class="o">.</span><span class="n">reduceByKey</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="p">)</span>
+  <span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">Tweet</span><span class="p">(</span> <span class="n">rec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+  <span class="o">.</span><span class="n">foreachRDD</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rdd</span><span class="p">:</span> <span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">()</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="n">desc</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">)</span> <span class="p">)</span>
+              <span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span><span class="s">&quot;tweets&quot;</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sqlContext</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[8]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;pyspark.sql.context.SQLContext at 0x7f4c4c65f9e8&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Start-the-streaming-Process">Start the streaming Process<a class="anchor-link" href="#Start-the-streaming-Process">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">ssc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>             <span class="c"># Start the computation</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Plot-the-trending-tags">Plot the trending tags<a class="anchor-link" href="#Plot-the-trending-tags">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sn</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>:0: FutureWarning: IPython widgets are experimental and may change in the future.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">IPython</span> <span class="k">import</span> <span class="n">display</span>
+
+
+<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+  <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span> <span class="mi">20</span> <span class="p">)</span>
+  <span class="n">top_10_tweets</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&#39;Select tag, count from tweets&#39;</span> <span class="p">)</span>
+  <span class="n">top_10_df</span> <span class="o">=</span> <span class="n">top_10_tweets</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span>
+  <span class="n">display</span><span class="o">.</span><span class="n">clear_output</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+  <span class="n">sn</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">8</span> <span class="p">)</span> <span class="p">)</span>
+  <span class="n">sn</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span> <span class="n">x</span><span class="o">=</span><span class="s">&quot;count&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">&quot;tag&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">top_10_df</span><span class="p">)</span>
+  <span class="n">sn</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+  <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+rkJggg==
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">#ssc.stop()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+  </div>
+</div>
