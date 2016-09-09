@@ -28,9 +28,9 @@ introduction: "How to find optimal number of clusters?"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Finding-optimal-number-of-clusters">Finding optimal number of clusters<a class="anchor-link" href="#Finding-optimal-number-of-clusters">&#182;</a></h2><ul>
-<li><p>This tutorial explains how to find optimal number of clusters in a given dataset by using various techniques.</p>
+<li>This tutorial explains how to find optimal number of clusters in a given dataset by using various techniques.
 </li>
-<li><p>Different techniques discussed here are</p>
+<li>Different techniques discussed here are
 <ol>
 <li>Dendogram</li>
 <li>Elbow method</li>
@@ -221,9 +221,9 @@ introduction: "How to find optimal number of clusters?"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Using-Dendogram">Using Dendogram<a class="anchor-link" href="#Using-Dendogram">&#182;</a></h3><ul>
-<li><p>Dendogram shows the distance between any two observations in a dataset. The vertical axis determines the distance. The longer the axis, the larger the distance.</p>
+<li>Dendogram shows the distance between any two observations in a dataset. The vertical axis determines the distance. The longer the axis, the larger the distance.
 </li>
-<li><p>The <em>clustermap</em> feature in seaborn provides the dendogram. It also displays the distance between observations as well as the features. But we are mostly interested in observations.</p>
+<li>The <em>clustermap</em> feature in seaborn provides the dendogram. It also displays the distance between observations as well as the features. But we are mostly interested in observations.
 </li>
 </ul>
 
@@ -533,17 +533,17 @@ BCYAgA6BCQCgQ2ACAOj4/wGBPTyuAVSPzAAAAABJRU5ErkJggg==
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Elbow-Analysis">Elbow Analysis<a class="anchor-link" href="#Elbow-Analysis">&#182;</a></h2><ul>
-<li><p>This is taken from <a href="https://en.wikipedia.org/wiki/Elbow_method_(clustering">wikipedia</a>)</p>
+<li>This is taken from <a href="https://en.wikipedia.org/wiki/Elbow_method_(clustering">wikipedia</a>)
 </li>
-<li><p>The Elbow method is a method of interpretation and validation of consistency within cluster analysis designed to help finding the appropriate number of clusters in a dataset.</p>
+<li>The Elbow method is a method of interpretation and validation of consistency within cluster analysis designed to help finding the appropriate number of clusters in a dataset.
 </li>
-<li><p>Explained Variance: This method looks at the percentage of variance explained as a function of the number of clusters: One should choose a number of clusters so that adding another cluster doesn't give much better modeling of the data.</p>
+<li>Explained Variance: This method looks at the percentage of variance explained as a function of the number of clusters: One should choose a number of clusters so that adding another cluster doesn't give much better modeling of the data.
 </li>
-<li><p>if one plots the percentage of variance explained by the clusters against the number of clusters the first clusters will add much information (explain a lot of variance), but at some point the <strong>marginal gain in explained variance</strong> will drop, giving an angle in the graph. <strong>The number of clusters is chosen at this point, hence the "elbow criterion"</strong></p>
+<li>if one plots the percentage of variance explained by the clusters against the number of clusters the first clusters will add much information (explain a lot of variance), but at some point the <strong>marginal gain in explained variance</strong> will drop, giving an angle in the graph. <strong>The number of clusters is chosen at this point, hence the "elbow criterion"</strong>
 </li>
-<li><p>Given a set of observations (x1, x2, …, xn), where each observation is a d-dimensional real vector, k-means clustering aims to partition the n observations into k (≤ n) sets S = {S1, S2, …, Sk} so as to minimize the within-cluster sum of squares (WCSS) (sum of distance functions of each point in the cluster to the K center).</p>
+<li>Given a set of observations (x1, x2, …, xn), where each observation is a d-dimensional real vector, k-means clustering aims to partition the n observations into k (≤ n) sets S = {S1, S2, …, Sk} so as to minimize the within-cluster sum of squares (WCSS) (sum of distance functions of each point in the cluster to the K center).
 </li>
-<li><p>In other words, its objective is to find:</p>
+<li>In other words, its objective is to find:
 </li>
 </ul>
 $${\underset {\mathbf {S} }{\operatorname {arg\,min} }}\sum _{i=1}^{k}\sum _{\mathbf {x} \in S_{i}}\left\|\mathbf {x} -{\boldsymbol {\mu }}_{i}\right\|^{2}$$
@@ -955,15 +955,15 @@ izAMAACAvEUYBgAAQN4iDAMAACBv/f+wMr/JCpW2xgAAAABJRU5ErkJggg==
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Silhouette-Analysis">Silhouette Analysis<a class="anchor-link" href="#Silhouette-Analysis">&#182;</a></h2><ul>
-<li><p>Taken from <a href="https://en.wikipedia.org/wiki/Silhouette_(clustering">wikipedia</a></p>
+<li>Taken from <a href="https://en.wikipedia.org/wiki/Silhouette_(clustering">wikipedia</a>
 </li>
-<li><p>The silhouette value is a measure of how similar an object is to its own cluster (cohesion) compared to other clusters (separation).</p>
+<li>The silhouette value is a measure of how similar an object is to its own cluster (cohesion) compared to other clusters (separation).
 </li>
-<li><p>The silhouette ranges from -1 to 1, where a high value indicates that the object is well matched to its own cluster and poorly matched to neighboring clusters.</p>
+<li>The silhouette ranges from -1 to 1, where a high value indicates that the object is well matched to its own cluster and poorly matched to neighboring clusters.
 </li>
-<li><p>If most objects have a high value, then the clustering configuration is appropriate. If many points have a low or negative value, then the clustering configuration may have too many or too few clusters.</p>
+<li>If most objects have a high value, then the clustering configuration is appropriate. If many points have a low or negative value, then the clustering configuration may have too many or too few clusters.
 </li>
-<li><p>The silhouette can be calculated with any distance metric, such as the Euclidean distance or the Manhattan distance.</p>
+<li>The silhouette can be calculated with any distance metric, such as the Euclidean distance or the Manhattan distance.
 </li>
 </ul>
 <p><strong>Silhouette score</strong> of an observation is given by:</p>
@@ -3280,15 +3280,15 @@ kiRJklSVCQRJkiRJklSVCQRJkiRJklSVCQRJkiRJklTV/wcDWbzYZFIBvAAAAABJRU5ErkJggg==
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h3><ul>
-<li><p>At 2 number of clusters, the size of the clusters vary. Cluster 0 has large of observations assigned where as cluser 1 has few observations.</p>
+<li>At 2 number of clusters, the size of the clusters vary. Cluster 0 has large of observations assigned where as cluser 1 has few observations.
 </li>
-<li><p>At 3 number of clusters, the size of each clusters vary and cluster 0 has some observations assigned to wrong cluster.</p>
+<li>At 3 number of clusters, the size of each clusters vary and cluster 0 has some observations assigned to wrong cluster.
 </li>
-<li><p>At 4 number off clusters, the cluster sizes are fairly homogeneous. And no observations are assigned to wrong cluster and almost all clusters have observations that are more than the average Silhouette score.</p>
+<li>At 4 number off clusters, the cluster sizes are fairly homogeneous. And no observations are assigned to wrong cluster and almost all clusters have observations that are more than the average Silhouette score.
 </li>
-<li><p>At 5 number of clusters, the size of clusters are not homogeneous. And one clusters have all observations that are less than average Silhouette score.</p>
+<li>At 5 number of clusters, the size of clusters are not homogeneous. And one clusters have all observations that are less than average Silhouette score.
 </li>
-<li><p>So, from Silhouette analysis it can be concluded that 4 is an optimal number of clusters for this dataset.</p>
+<li>So, from Silhouette analysis it can be concluded that 4 is an optimal number of clusters for this dataset.
 </li>
 </ul>
 
