@@ -72,9 +72,9 @@ introduction: "Steps for preparaing the data for model building"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Dataset">Dataset<a class="anchor-link" href="#Dataset">&#182;</a></h2><ul>
-<li><p>A census dataset is available at <a href="https://github.com/WinVector/zmPDSwR/blob/master/Custdata/custdata2.tsv">github</a>, which will be used for demonstrating the steps of data cleaning, imputation and prepartion.</p>
+<li>A census dataset is available at <a href="https://github.com/WinVector/zmPDSwR/blob/master/Custdata/custdata2.tsv">github</a>, which will be used for demonstrating the steps of data cleaning, imputation and prepartion.
 </li>
-<li><p>The dataset contains information about customers like gender, if he or she is currently employed or not, income, marital status, house type where he or she lives, whether moved in recently, number of vehicles owned, age and state of residence. Also, the data contains whether he or she has an insurance cover. This dataset can be used to build a model predict income or whether a person has an insurance coverage or not. But before the models can be built, there could be numerous data challenges like missing data and data transformation. This artile gives an hands on approach to take this dataset and make it ready for building a model.</p>
+<li>The dataset contains information about customers like gender, if he or she is currently employed or not, income, marital status, house type where he or she lives, whether moved in recently, number of vehicles owned, age and state of residence. Also, the data contains whether he or she has an insurance cover. This dataset can be used to build a model predict income or whether a person has an insurance coverage or not. But before the models can be built, there could be numerous data challenges like missing data and data transformation. This artile gives an hands on approach to take this dataset and make it ready for building a model.
 </li>
 </ul>
 
@@ -390,15 +390,15 @@ memory usage: 72.1+ KB
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Variable-Types">Variable Types<a class="anchor-link" href="#Variable-Types">&#182;</a></h2><ul>
-<li><p>Variables can be of different types. Mostly it can be categorized into</p>
+<li>Variables can be of different types. Mostly it can be categorized into
 <ol>
 <li>Numerical </li>
 <li>Categorical</li>
 </ol>
 </li>
-<li><p>Numerical variables can be <strong>continuous</strong> as well as <strong>discrete</strong>. For example, in this dataset <em>income</em> and <em>age</em> are primarily continuous variables where as <em>num.vehicles</em> are discrete variables.</p>
+<li>Numerical variables can be <strong>continuous</strong> as well as <strong>discrete</strong>. For example, in this dataset <em>income</em> and <em>age</em> are primarily continuous variables where as <em>num.vehicles</em> are discrete variables.
 </li>
-<li><p>Variables like <em>sex</em>, <em>housing.type</em> or <em>health.ins</em> are categorical variables. Categorical variables can be of two types: <strong>nominal</strong> and <strong>ordinal</strong>. For example, <em>sex</em> or <em>housing.type</em> are nominal variables. Nominal variables do not have any relationships, they are just different categories. Ordinal variables have relationships i.e. different categories have a relative scale, but it can not be clearly qunatified. For example, ratings like <em>bad</em>, <em>good</em> and <em>best</em>. <em>Good</em> is better than <em>bad</em> and <em>best</em> is better than <em>good</em>. But the relative scale is not clearly quantifiable in most cases.</p>
+<li>Variables like <em>sex</em>, <em>housing.type</em> or <em>health.ins</em> are categorical variables. Categorical variables can be of two types: <strong>nominal</strong> and <strong>ordinal</strong>. For example, <em>sex</em> or <em>housing.type</em> are nominal variables. Nominal variables do not have any relationships, they are just different categories. Ordinal variables have relationships i.e. different categories have a relative scale, but it can not be clearly qunatified. For example, ratings like <em>bad</em>, <em>good</em> and <em>best</em>. <em>Good</em> is better than <em>bad</em> and <em>best</em> is better than <em>good</em>. But the relative scale is not clearly quantifiable in most cases.
 </li>
 </ul>
 
@@ -2152,17 +2152,17 @@ pgEAAAAAWNSfVygEDzSN+7kAAAAASUVORK5CYII=
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Why-data-is-missing?">Why data is missing?<a class="anchor-link" href="#Why-data-is-missing?">&#182;</a></h2><ul>
-<li><p>There can be multiple reasons, why data is missing.</p>
+<li>There can be multiple reasons, why data is missing.
 <ul>
 <li>Data is not available at the time of capturing</li>
 <li>It could be recording error, left empty intentionally or unintentionally</li>
 </ul>
 </li>
-<li><p>In this example, quite a lot of observations have missing data in <em>is.employed</em> column.</p>
+<li>In this example, quite a lot of observations have missing data in <em>is.employed</em> column.
 </li>
-<li><p>This may be either because the person does not have an active/ full time job. So, at the time of capturing, it was not sure weather to capture it as an employment or not.</p>
+<li>This may be either because the person does not have an active/ full time job. So, at the time of capturing, it was not sure weather to capture it as an employment or not.
 </li>
-<li><p>So, there are multiple steps that can be taken</p>
+<li>So, there are multiple steps that can be taken
 <ol>
 <li>Remove the rows from the dataset</li>
 <li>Impute the column as not employed i.e. false.</li>
@@ -2170,7 +2170,7 @@ pgEAAAAAWNSfVygEDzSN+7kAAAAASUVORK5CYII=
 <li>Look at the missing column with respect to other columns data to infer any relationships.</li>
 </ol>
 </li>
-<li><p>We can look at this column in relation to the income and age. We can assume people to be employed if they have some income.</p>
+<li>We can look at this column in relation to the income and age. We can assume people to be employed if they have some income.
 </li>
 </ul>
 
@@ -3961,9 +3961,9 @@ flag = np.concatenate(([True], aux[1:] != aux[:-1]))
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><ul>
-<li><p>Well, the patterns are different. Here are lot of observations have mortgate loans and have age less than 40. So, while capturing data it is observed that these people are actually not employed.</p>
+<li>Well, the patterns are different. Here are lot of observations have mortgate loans and have age less than 40. So, while capturing data it is observed that these people are actually not employed.
 </li>
-<li><p>We can plot people with income and age and check if there are any pattern emerging for the observations that have missing values for <em>is.employed</em>.</p>
+<li>We can plot people with income and age and check if there are any pattern emerging for the observations that have missing values for <em>is.employed</em>.
 </li>
 </ul>
 
@@ -5373,17 +5373,17 @@ TwghhBAiTkjiJ4QQQggRJyTxE0IIIYSIE/8PXUzFHc/fm+8AAAAASUVORK5CYII=
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Using-KNN-Imputation-Strategy">Using KNN Imputation Strategy<a class="anchor-link" href="#Using-KNN-Imputation-Strategy">&#182;</a></h3><ul>
-<li><p>Using KNN, the missing data can be filled using nearest neighbourhood observations. The nearest neighbours can be found using available values in other columns. For example, we can compute the missing num_vehicles by using income, age, housing.type etc.</p>
+<li>Using KNN, the missing data can be filled using nearest neighbourhood observations. The nearest neighbours can be found using available values in other columns. For example, we can compute the missing num_vehicles by using income, age, housing.type etc.
 </li>
-<li><p>A library called <strong>fancyimpute</strong> is available on github and has several new imputation strategies including KNN.</p>
+<li>A library called <strong>fancyimpute</strong> is available on github and has several new imputation strategies including KNN.
 <ul>
-<li><p>The github location for the library is <a href="https://github.com/hammerlab/fancyimpute">https://github.com/hammerlab/fancyimpute</a></p>
+<li>The github location for the library is <a href="https://github.com/hammerlab/fancyimpute">https://github.com/hammerlab/fancyimpute</a>
 </li>
-<li><p>To install, run <strong><em>pip install fancyimpute</em></strong> on anaconda prompt.</p>
+<li>To install, run <strong><em>pip install fancyimpute</em></strong> on anaconda prompt.
 </li>
 </ul>
 </li>
-<li><p><strong>This is yet to be implemented.</strong></p>
+<li><strong>This is yet to be implemented.</strong>
 </li>
 </ul>
 
@@ -5866,11 +5866,11 @@ TwghhBAiTkjiJ4QQQggRJyTxE0IIIYSIE/8PXUzFHc/fm+8AAAAASUVORK5CYII=
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Transforming-the-Variables">Transforming the Variables<a class="anchor-link" href="#Transforming-the-Variables">&#182;</a></h2><h3 id="Scaling-or-Normalizing-the-features">Scaling or Normalizing the features<a class="anchor-link" href="#Scaling-or-Normalizing-the-features">&#182;</a></h3><ul>
-<li><p>If the features are on different scale, they need to be brought into same sclae for comparison or some models may require the features to be represented on similar scales e.g. clustering.</p>
+<li>If the features are on different scale, they need to be brought into same sclae for comparison or some models may require the features to be represented on similar scales e.g. clustering.
 </li>
-<li><p>Alternatively, the features can be normalized. Normalized values will always have a mean of 0 and standard deviation of 1.</p>
+<li>Alternatively, the features can be normalized. Normalized values will always have a mean of 0 and standard deviation of 1.
 </li>
-<li><p>The following steps show how to scale and normalize the data.</p>
+<li>The following steps show how to scale and normalize the data.
 </li>
 </ul>
 
@@ -7123,7 +7123,7 @@ AirKRERERIKAijIRERGRIKCiTERERCQIqCgTERERCQL/B/ATqSpXgXHtAAAAAElFTkSuQmCC
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Preparing-data-for-building-models">Preparing data for building models<a class="anchor-link" href="#Preparing-data-for-building-models">&#182;</a></h2><ul>
-<li><p>After all imputation and data preparation, the final dataset for model building can be created. This dataset should contain</p>
+<li>After all imputation and data preparation, the final dataset for model building can be created. This dataset should contain
 <ul>
 <li>Exsting features which are not tranformed and can be used as it is </li>
 <li>The new features created from the features which can NOT be used as it is</li>
