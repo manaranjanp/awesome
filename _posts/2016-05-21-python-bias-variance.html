@@ -386,7 +386,8 @@ rqgwRETElf8PD8OepJaWAjwAAAAASUVORK5CYII=
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><p>The regression line does not seem to fit the data. The model assumes that relationship betweeb <em>y</em> and <em>x</em> is linear. These models are called highly biased model. These kind of models assume simplicity and do not explain variance in the data well.</p>
+<h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><p>The regression line does not seem to fit the data. The model assumes that relationship between <em>y</em> and <em>x</em> is linear. These models are called high-bias models. High bias models assume simplicity in relationship and do not explain variance in the data well. Even if the sample changes, the parameters
+ estimated by the models hardly respond. The model parameters are least sensitive to any changes in the sample.</p>
 
 </div>
 </div>
@@ -396,7 +397,7 @@ rqgwRETElf8PD8OepJaWAjwAAAAASUVORK5CYII=
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Fit-a-regression-with-polynomial-features">Fit a regression with polynomial features<a class="anchor-link" href="#Fit-a-regression-with-polynomial-features">&#182;</a></h3><p>Let's bring in another variable which is square of the feature <em>x</em></p>
+<h3 id="Fit-a-regression-with-polynomial-features">Fit a regression with polynomial features<a class="anchor-link" href="#Fit-a-regression-with-polynomial-features">&#182;</a></h3><p>Let's bring in a polynomial feature, which is square of the feature <em>x</em></p>
 $$y=\beta _{1}x_{1}+\beta _{2}x_{1}^2+\varepsilon _{i}$$
 </div>
 </div>
@@ -617,7 +618,7 @@ d5246lkAAAAASUVORK5CYII=
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><p>The regression line seems to fit data better than the previous line. But we we better this model by adding more polynomial features.</p>
+<h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><p>This regression line seems to fit data better than the previous model. But can we better this model by adding more polynomial features of higher order.</p>
 
 </div>
 </div>
