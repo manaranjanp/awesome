@@ -35,8 +35,8 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>After introducing the spark in the previous blog, I will try to explain the architecture of the spark in thi blog. The objective is to give an quick overview of various components in spark architecture, what their functinalities and how they enable spark to process large amount of data fast.</p>
-<p>The assumtion is that the reader must have prior understanding of the map reduce paradigm and some knowedge on Hadoop architecture.</p>
+After introducing the spark in the previous blog, I will try to explain the architecture of the spark in thi blog. The objective is to give an quick overview of various components in spark architecture, what their functinalities and how they enable spark to process large amount of data fast.
+The assumtion is that the reader must have prior understanding of the map reduce paradigm and some knowedge on Hadoop architecture.
 
 </div>
 </div>
@@ -64,7 +64,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Every spark application has two main components</p>
+Every spark application has two main components
 <ul>
 <li>One Driver </li>
 <li>A set of Executors (one or many)</li>
@@ -78,7 +78,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Driver</strong> - Is the coordinator of the spark application and hosts the spark Context object, which is the entry point to the application.</p>
+<strong>Driver</strong> - Is the coordinator of the spark application and hosts the spark Context object, which is the entry point to the application.
 <ul>
 <li>Driver negotiates with the external resource managers to provision all required resources for the spark application.</li>
 <li>Manages the executor tasks.</li>
@@ -94,7 +94,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong> Executors </strong> - are the actual work horses of the spark applications. There might be one or more executors provisioned for a spark applicaiton. Execturos are actually java containers running on physical or virtual machines, which in turn are managed under cluster mangers like YARN or Mesos.</p>
+<strong> Executors </strong> - are the actual work horses of the spark applications. There might be one or more executors provisioned for a spark applicaiton. Execturos are actually java containers running on physical or virtual machines, which in turn are managed under cluster mangers like YARN or Mesos.
 
 </div>
 </div>
@@ -119,7 +119,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The following diagram depicts the architecture of spark.</p>
+The following diagram depicts the architecture of spark.
 
 </div>
 </div>
@@ -129,8 +129,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="spark-arch1.jpg" width="800"></p>
-
+<p><img src="/assets/img/python/spark-arch1.jpg" width="800"></p>
 </div>
 </div>
 </div>
@@ -148,10 +147,10 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Executors load the external data (for example, files from HDFS) and load onto the memory of executors. For example here two blocks loaded into each executor memory. The in memory representation of these data partitions are called RDD (Resilient Distributed Datasets). Each chuck of data in memory is called partitions.</p>
-<p>The algorithm is expressed in terms of map reduce stages and driver pushes these map reduce tasks to the executors. Mappers can run in parallel across each RDD partitions in executors. If a reduce operation is assgined, then executors wait until all paritions are completed and proceed for data shuffle. After data shuffle is over, then executors can again run operation in parallel on these shuffled partitions.</p>
-<p>Finally, the resulting partitions after completion of all map reduce task are saved into an external systems, which is defined in the code submitted to spark. These serializing of resulting partitions can be accomplished in parallel by the executors.</p>
-<p><strong> As you can see, the executors actually load data in terms of RDD and its partitions and apply operations on those RDD partitions and driver only assignd and coordinates these task with the executors </strong>.</p>
+Executors load the external data (for example, files from HDFS) and load onto the memory of executors. For example here two blocks loaded into each executor memory. The in memory representation of these data partitions are called RDD (Resilient Distributed Datasets). Each chuck of data in memory is called partitions.
+The algorithm is expressed in terms of map reduce stages and driver pushes these map reduce tasks to the executors. Mappers can run in parallel across each RDD partitions in executors. If a reduce operation is assgined, then executors wait until all paritions are completed and proceed for data shuffle. After data shuffle is over, then executors can again run operation in parallel on these shuffled partitions.
+Finally, the resulting partitions after completion of all map reduce task are saved into an external systems, which is defined in the code submitted to spark. These serializing of resulting partitions can be accomplished in parallel by the executors.
+<strong> As you can see, the executors actually load data in terms of RDD and its partitions and apply operations on those RDD partitions and driver only assignd and coordinates these task with the executors </strong>.
 
 </div>
 </div>
@@ -170,9 +169,9 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The number of executors and their capacity in terms of cpu and memory are specified during the submission of the application.</p>
-<p>Driver then negotiates with the cluster manager e.g. <strong>Resource Manager</strong> in <strong>YARN</strong>. Yarn manager finds the best resources to schedule the executors and instructs the node managers to spawn these processes. Once the exectuors are started, then register with the Driver for further assignment and coordination of tasks.</p>
-<p>The machines (physical or virtual) managed by cluster manager are typically called slaves or workers. The number of executors requested are optimally allocated in available workers. It is possible that some workers might have been assigned more than one executors. Irrespective of wherever the executors are assigned, the capacity requested by the spark application is guaranteed by the YARN resource manager.</p>
+The number of executors and their capacity in terms of cpu and memory are specified during the submission of the application.
+Driver then negotiates with the cluster manager e.g. <strong>Resource Manager</strong> in <strong>YARN</strong>. Yarn manager finds the best resources to schedule the executors and instructs the node managers to spawn these processes. Once the exectuors are started, then register with the Driver for further assignment and coordination of tasks.
+The machines (physical or virtual) managed by cluster manager are typically called slaves or workers. The number of executors requested are optimally allocated in available workers. It is possible that some workers might have been assigned more than one executors. Irrespective of wherever the executors are assigned, the capacity requested by the spark application is guaranteed by the YARN resource manager.
 
 </div>
 </div>
@@ -182,7 +181,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="spark-arch2.jpg" width="800"></p>
+<p><img src="/assets/img/python/spark-arch2.jpg" width="800"></p>
 
 </div>
 </div>
@@ -201,12 +200,12 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Data can be read into spark application from any external systems. Spark is not tightly coupled with any specific file system or storage systems.</p>
-<p>Data can be loaded onto spark by two methods.</p>
+Data can be read into spark application from any external systems. Spark is not tightly coupled with any specific file system or storage systems.
+Data can be loaded onto spark by two methods.
 <ul>
-<li><p>Driver can read data onto a buffer and then parallelize (divide into smaller chunks and send to) to executors. But the amount of data that can be read and processed in this fashion is very limited.</p>
+<li>Driver can read data onto a buffer and then parallelize (divide into smaller chunks and send to) to executors. But the amount of data that can be read and processed in this fashion is very limited.
 </li>
-<li><p>Driver can give location of the files in external system and coordinate read of the data by executors directly. For example, which blocks would be read by which executors from HDFS file system.</p>
+<li>Driver can give location of the files in external system and coordinate read of the data by executors directly. For example, which blocks would be read by which executors from HDFS file system.
 </li>
 </ul>
 
@@ -218,7 +217,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="spark-arch3.jpg" width="800"></p>
+<p><img src="/assets/img/python/spark-arch3.jpg" width="800"></p>
 
 </div>
 </div>
@@ -237,21 +236,21 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>All operations are applied on RDD partitions in terms of map or reduce operations. All data analysis logics are expressed in terms of map and reduce operations.</p>
-<p>An example of map operation would be filtered or selecting data. An example of redue operation would be group by or sort by operations.</p>
-<p>Here is an example of a series of map and reduce operations.</p>
-<p><strong> Load data -&gt; map1 -&gt; map2 -&gt; map3 -&gt; reduce1 -&gt; map4 -&gt; reduce2 -&gt; reduce3 -&gt; save results </strong></p>
-<p>Once driver read the sequence of operations, it sends these as tasks to the executors. But it has to coordinate the execution of task to resolve any dependency between the RDD partitions across multiple executors.</p>
-<p>In this case the first operation is read data and map1. Let's say executor 1 finished map1 operation on P0 partition, before P1 partition and executor 2 finishes the map1 operation on P2 and P3 partitions.</p>
-<p><strong> Does, the executor need to wait for map1 operation to complete across all partitions, before it start map2 operation? </strong></p>
-<p>The answer is no, as map2 operation is independent of other partition data, so executor can proceed with map2 operation.</p>
-<p>The only time, executors need to wait before proceeding further is when there is a reduce operation. As reduce operation will depend on the data across all paritions. The data need to shuffled across exectuors before reduce operation can be applied.</p>
-<p>Driver understands this dependencies, given a sequence of map reduce tasks and then combine these operations into stages. Each stage can be processes in parallel across executors, but need to wait for all executors before proceeding to next stage.</p>
-<p>So, given the above sequence, driver divides the task into four stages as below.</p>
-<p><strong> Stage 1: </strong> load -&gt; map1 -&gt; map2 -&gt; map3</p>
-<p><strong> Stage 2: </strong> reduce1 -&gt; map4</p>
-<p><strong> Stage 3: </strong> reduce2</p>
-<p><strong> Stage 4: </strong> reduce3 -&gt; save</p>
+All operations are applied on RDD partitions in terms of map or reduce operations. All data analysis logics are expressed in terms of map and reduce operations.
+An example of map operation would be filtered or selecting data. An example of redue operation would be group by or sort by operations.
+Here is an example of a series of map and reduce operations.
+<strong> Load data -&gt; map1 -&gt; map2 -&gt; map3 -&gt; reduce1 -&gt; map4 -&gt; reduce2 -&gt; reduce3 -&gt; save results </strong>
+Once driver read the sequence of operations, it sends these as tasks to the executors. But it has to coordinate the execution of task to resolve any dependency between the RDD partitions across multiple executors.
+In this case the first operation is read data and map1. Let's say executor 1 finished map1 operation on P0 partition, before P1 partition and executor 2 finishes the map1 operation on P2 and P3 partitions.
+<strong> Does, the executor need to wait for map1 operation to complete across all partitions, before it start map2 operation? </strong>
+The answer is no, as map2 operation is independent of other partition data, so executor can proceed with map2 operation.
+The only time, executors need to wait before proceeding further is when there is a reduce operation. As reduce operation will depend on the data across all paritions. The data need to shuffled across exectuors before reduce operation can be applied.
+Driver understands this dependencies, given a sequence of map reduce tasks and then combine these operations into stages. Each stage can be processes in parallel across executors, but need to wait for all executors before proceeding to next stage.
+So, given the above sequence, driver divides the task into four stages as below.
+<strong> Stage 1: </strong> load -&gt; map1 -&gt; map2 -&gt; map3
+<strong> Stage 2: </strong> reduce1 -&gt; map4
+<strong> Stage 3: </strong> reduce2
+<strong> Stage 4: </strong> reduce3 -&gt; save
 
 </div>
 </div>
@@ -261,7 +260,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="spark-arch4.jpg" width="800"></p>
+<p><img src="/assets/img/python/spark-arch4.jpg" width="800"></p>
 
 </div>
 </div>
@@ -271,7 +270,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The diagram above depicts the stages created by driver and executed by executors.</p>
+The diagram above depicts the stages created by driver and executed by executors.
 
 </div>
 </div>
@@ -281,7 +280,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Not only the stages are executed in parallel, they can be done in parallel with an executor. Each Executor may have multiple paritions loaded onto their memory and can process these stages in parallel across partitions within the same  executor. Processing the partitions in parallel is calle tasks.</p>
+Not only the stages are executed in parallel, they can be done in parallel with an executor. Each Executor may have multiple paritions loaded onto their memory and can process these stages in parallel across partitions within the same  executor. Processing the partitions in parallel is calle tasks.
 
 </div>
 </div>
@@ -291,7 +290,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>But, to process partitions in parallel the executor should start multiple threads. And these threads can run in parallell in true sense, only if the executors have access to multiple CPUs.</p>
+But, to process partitions in parallel the executor should start multiple threads. And these threads can run in parallell in true sense, only if the executors have access to multiple CPUs.
 
 </div>
 </div>
@@ -301,7 +300,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>So, each executor should be allocated with multiple CPUs or cores, if we intend to run the task in parallel.</p>
+So, each executor should be allocated with multiple CPUs or cores, if we intend to run the task in parallel.
 
 </div>
 </div>
@@ -311,7 +310,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Conclusion:">Conclusion:<a class="anchor-link" href="#Conclusion:">&#182;</a></h3><p>In this blog, we delved into spark architecture quickly to undestand its components and their internal workings. In the next blog, we will dive more deeper to understand how spark manages memory and when it actually it evaluates and executes tasks.</p>
+<h3 id="Conclusion:">Conclusion:<a class="anchor-link" href="#Conclusion:">&#182;</a></h3>In this blog, we delved into spark architecture quickly to undestand its components and their internal workings. In the next blog, we will dive more deeper to understand how spark manages memory and when it actually it evaluates and executes tasks.
 
 </div>
 </div>
