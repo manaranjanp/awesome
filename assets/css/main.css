@@ -5,6 +5,7 @@ html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:1
 .post-spark .post-content a{color:#7aab13;border-bottom:2px dashed #7aab13;}
 .post-spark .post-content a:hover{background-color:#7aab13;color:#fff}
 .post-spark .post-content strong{color:#7aab13}
+.post-spark .post-content p{text-indent: :5px}
 .post-spark .post-content p code,.post-spark .post-content li code{color:#7aab13}
 .post-spark .post-content blockquote{border-left:.313rem solid #7aab13}
 .post-spark .header-post,.post-spark .header-site{background-color:#7aab13;}
