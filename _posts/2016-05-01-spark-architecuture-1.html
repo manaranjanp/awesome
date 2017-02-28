@@ -40,7 +40,7 @@ introduction: "Understanding spark architecture and its components"
 <p>The way map reduce is desinged on hadoop is the maps read data from HDFS, send to reducers and reducers write the result back to HDFS. This works well for algorithm that invovle single stage and very few stages. But algorithms which have hundred or thousands of iterations, this does not work well, as every map reduce stage writes the intermediate data to HDFS. Reading and writing to a file system, which ultimately write to disk, make processing extremely slow. Sometimes, advaned algorithms like machine learning algorithms takes several hours, even days to complete.</p>
 <p>The other key issues was Map Reduce on Hadoop is not designed for interactive processing. It is primarily designed for batch processing. But interactie processing is very popular in data analysis world, especially during the data exploration stage, where data analysts or data scientist would like to load large amount of data and then keep sending algorithms or instructions to execute and observe resutls.</p>
 <p>So, the team in UC Berkley designed a new framework which would support interactie and large stage iterative processing easier. Spark would load data from sources like HDFS and keep it on RAM and Map Reduce stages will pass intermediate data through RAM to make processing faster. The following diagram depicts the difference clearly.</p>
-<p><img src="./assets/img/python/mrstages.png" width="600"></p>
+<p><img src="/assets/img/python/mrstages.png" width="600"></p>
 <p>The other key driver for developing spark was to provide an abstract level programming interface to make analysis easier. There are lot of heavy lifting that need to be done while coding in map reduce on Hadoop framework i.e. lot of verbose in coding. Spark made it easier by providing abstract level interfaces with out thinking much of map reduce programming paradigm. Spark also built a strong Machine Learning library from the beginning. We will discuss in detail about language and API support in Spark later in this chapter.</p>
 
 </div>
@@ -59,7 +59,7 @@ introduction: "Understanding spark architecture and its components"
 <li>Number of partitions can be controlled in spark.</li>
 <li>RDDs are immutable i.e. RDDs are not modified. If an RDD is operated on (like filtering, grouping etc.), a new RDD is created to represent the resulting dataset. </li>
 <li><p>In a typical analysis, a new RDD is created when source data is loaded and then the dataset goes through multiple transformations to arrive at any insight. The results will be another RDD. But dataset goes through many transformations in between, so the intermediate results will also be RDDs.</p>
-<p><img src="./assets/img/python/rdds.png" width="600"></p>
+<p><img src="/assets/img/python/rdds.png" width="600"></p>
 </li>
 <li><p>Internally, spark maintains a lineage of how each RDD is created from other RDDs by keeping track of all depedencies and transformations.</p>
 </li>
@@ -101,7 +101,7 @@ introduction: "Understanding spark architecture and its components"
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="4.-What-functionalities-&amp;-APIs-spark-supports?">4. What functionalities &amp; APIs spark supports?<a class="anchor-link" href="#4.-What-functionalities-&amp;-APIs-spark-supports?">&#182;</a></h3><p>Spark suppports operating on RDDs using APIs. These APIs support transformations and actions on RDDs. We will discuss these in detail in the next chapter. Some examples of transformations would be parsing, grouping, filtering, sorting, joining or low level map reduce algorithms.</p>
 <p>Spark also support support higher level APIs like dataframes. Dataframes are very popular in R and Python data analysis and machine learning frameworks. Most data scientists are familiar working with dataframes as these concepts are there for many years in R and Python. Spark now enables these data scientists to work with very large data sets using dataframe like APIs. It also supports SQL syntax for querying large datasets.</p>
-<p><img src="./assets/img/python/sparkapis.png" width="600"></p>
+<p><img src="/assets/img/python/sparkapis.png" width="600"></p>
 <p>Spark also provides libraries for most of the popular machine learning algorithms like regression, classification, clustering and neural networks. It also provides APIs for data pipelines. We will explore these in more detail in later chapters. It has also a library for graph algorithms for large scale network analysis.</p>
 <p>Spark has inbuilt support for streaming data processing for deriving mode real time insights.</p>
 <p>Unlike Hadoop or any other framework, spark's baseline release has support for all these APIs and libraries. So, there is no need to any additional installation.</p>
@@ -223,7 +223,7 @@ introduction: "Understanding spark architecture and its components"
 <p>It should start the spark shell and show the spark version installed.</p>
 </li>
 </ul>
-<p><img src="./assets/img/python/pyspark.png" width="500"></p>
+<p><img src="/assets/img/python/pyspark.png" width="500"></p>
 
 </div>
 </div>
@@ -245,7 +245,7 @@ introduction: "Understanding spark architecture and its components"
 </li>
 </ul>
 <p>The following figure depicts the architecture and its components.</p>
-<p><img src="./assets/img/python/sparkworks.png" width="600"></p>
+<p><img src="/assets/img/python/sparkworks.png" width="600"></p>
 <p>Typicall workflow of a spark application is described below</p>
 <ul>
 <li><p>When a spark application starts, it starts a driver program. The driver programs creates a SparkContext object, which holds refernce to default configuration parameters and other environement parameters.</p>
