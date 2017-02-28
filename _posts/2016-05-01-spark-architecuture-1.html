@@ -42,7 +42,7 @@ introduction: "Understanding spark architecture and its components"
 <li>The other key issues was Map Reduce on Hadoop is not designed for interactive processing. It is primarily designed for batch processing. But interactie processing is very popular in data analysis world, especially during the data exploration stage, where data analysts or data scientist would like to load large amount of data and then keep sending algorithms or instructions to execute and observe resutls.</li>
 <li>So, the team in UC Berkley designed a new framework which would support interactie and large stage iterative processing easier. Spark would load data from sources like HDFS and keep it on RAM and Map Reduce stages will pass intermediate data through RAM to make processing faster. The following diagram depicts the difference clearly.</li>
 </ul>
-<p><img src="/assets/img/python/mrstages.png" width="600"></p>
+<p><img src="./assets/img/python/mrstages.png" width="600"></p>
 <ul>
 <li>The other key driver for developing spark was to provide an abstract level programming interface to make analysis easier. There are lot of heavy lifting that need to be done while coding in map reduce on Hadoop framework i.e. lot of verbose in coding. Spark made it easier by providing abstract level interfaces with out thinking much of map reduce programming paradigm. Spark also built a strong Machine Learning library from the beginning. We will discuss in detail about language and API support in Spark later in this chapter. </li>
 </ul>
@@ -63,7 +63,7 @@ introduction: "Understanding spark architecture and its components"
 <li>Number of partitions can be controlled in spark.</li>
 <li>RDDs are immutable i.e. RDDs are not modified. If an RDD is operated on (like filtering, grouping etc.), a new RDD is created to represent the resulting dataset. </li>
 <li>In a typical analysis, a new RDD is created when source data is loaded and then the dataset goes through multiple transformations to arrive at any insight. The results will be another RDD. But dataset goes through many transformations in between, so the intermediate results will also be RDDs.</p>
-<p><img src="/assets/img/python/rdds.png" width="600"></li>
+<p><img src="./assets/img/python/rdds.png" width="600"></li>
 <li>Internally, spark maintains a lineage of how each RDD is created from other RDDs by keeping track of all depedencies and transformations.</li>
 <li>Once an RDD is created, it is stored in RAM. But spark can also discard RDDs if there are no or little resources available for computation. </li>
 <li>When an RDD is required and not found in RAM, it is re-created using the lineage spark maintains.</li>
@@ -108,7 +108,7 @@ introduction: "Understanding spark architecture and its components"
 <li>Spark suppports operating on RDDs using APIs. These APIs support transformations and actions on RDDs. We will discuss these in detail in the next chapter. Some examples of transformations would be parsing, grouping, filtering, sorting, joining or low level map reduce algorithms.</li>
 <li>Spark also support support higher level APIs like dataframes. Dataframes are very popular in R and Python data analysis and machine learning frameworks. Most data scientists are familiar working with dataframes as these concepts are there for many years in R and Python. Spark now enables these data scientists to work with very large data sets using dataframe like APIs. It also supports SQL syntax for querying large datasets.</li>
 </ul>
-<p><img src="/assets/img/python/sparkapis.png" width="600"></p>
+<p><img src="./assets/img/python/sparkapis.png" width="600"></p>
 <ul>
 <li>Spark also provides libraries for most of the popular machine learning algorithms like regression, classification, clustering and neural networks. It also provides APIs for data pipelines. We will explore these in more detail in later chapters. It has also a library for graph algorithms for large scale network analysis.</li>
 <li>Spark has inbuilt support for streaming data processing for deriving mode real time insights.</li>
@@ -245,7 +245,7 @@ introduction: "Understanding spark architecture and its components"
 <p><em>pyspark</em></p>
 <p>It should start the spark shell and show the spark version installed.</li>
 </ul>
-<p><img src="/assets/img/python/pyspark.png" width="500"></p>
+<p><img src="./assets/img/python/pyspark.png" width="500"></p>
 
 </div>
 </div>
@@ -263,7 +263,7 @@ introduction: "Understanding spark architecture and its components"
 <li><strong>Cluster Manager</strong> - Cluster manager is not part of Spark. Cluster manager manages the worker nodes and their resources allocations. For example Resource Manager in YARN component of Hadoop. Spark Driver interacts with cluster manager and obtains resources in worker nodes to start executor processes.</li>
 <li>The following figure depicts the architecture and its components.</li>
 </ul>
-<p><img src="/assets/img/python/sparkworks.png" width="600"></p>
+<p><img src="./assets/img/python/sparkworks.png" width="600"></p>
 <ul>
 <li>Typicall workflow of a spark application is described below</p>
 <ul>

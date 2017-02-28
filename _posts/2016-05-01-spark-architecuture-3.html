@@ -128,7 +128,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="./assets/img/python/spark-arch5.jpg" width="500"></p>
+<p><img src="../assets/img/python/spark-arch5.jpg" width="500"></p>
 
 </div>
 </div>
@@ -220,7 +220,7 @@ introduction: "Understanding spark architecture and its components"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="./assets/img/python/spark memory.png" width="800"></p>
+<p><img src="../assets/img/python/spark memory.png" width="800"></p>
 
 </div>
 </div>
@@ -243,11 +243,11 @@ introduction: "Understanding spark architecture and its components"
 <li>All RDD are created and all map reduce operations are executed in executor space. So, as long as the map reduce access and tranform the RDD partitions, the paritions are available in executor space. But what if we define a variable in driver and try to access the variable inside map reduce operations. Becauase the variables defined in driver process space is not available in executors, driver will serialize the variable over the network to the executors.</li>
 <li>As show in the diagram below, the variable <strong>a</strong> is serialized from driver to the executor. Again, the scope of the variable <strong>a</strong> is inside the map or reduce function, the variable is cleaned after every iteration of map or reduce. So, if the map function is processing thousands of records, then <strong>a</strong> is serialized thousands of times from the driver during complete map operation. It is a very expensive way of sharing additional information to the executors from driver.</li>
 </ul>
-<p><img src="./assets/img/python/spark-arch7.jpg" width="500"></p>
+<p><img src="../assets/img/python/spark-arch7.jpg" width="500"></p>
 <ul>
 <li>So, a new broadcast variable is defined in spark to address this scenario. You can define a variable in driver and then broadcast it to all executors, which serialized it once and defines it in the process space of executors. And map reduce can access during its operations. The diagram below depicts this.</li>
 </ul>
-<p><img src="./assets/img/python/spark-arch8.jpg" width="500"></p>
+<p><img src="../assets/img/python/spark-arch8.jpg" width="500"></p>
 <ul>
 <li><strong> But the most important point is that it is a read-only variable and can not be modified by the executors</strong>. It is only a way of sharing additional information (besides the RDDs) with the executors.</li>
 </ul>
