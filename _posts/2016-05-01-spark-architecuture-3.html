@@ -1,0 +1,273 @@
+---
+layout: post
+title: "Understanding Spark - part 3: Architecutre"
+date: 2016-05-25
+description: "Understanding spark architecture and its components"
+main-class: 'spark'
+postbook: 'inotebook'
+published: true
+color: '#7AAB13'
+tags:
+- spark
+- architecture
+- driver
+- executor
+- RDD
+categories:
+- spark
+introduction: "Understanding spark architecture and its components"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Understanding-Spark:-Part-3:-Architecture">Understanding Spark: Part 3: Architecture<a class="anchor-link" href="#Understanding-Spark:-Part-3:-Architecture">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the <a href="http://www.awesomestats.in/spark-architecuture-2/">previous blog</a>, we discussed about the overall architecture of spark. In this blog we will get into more details of some aspects of Spark.</p>
+<p>Now, we have good understanding of</p>
+<ul>
+<li>Spark components like driver and executors</li>
+<li>How resources are provisioned from a cluster </li>
+<li>How map reduce tasks are grouped into stages and exectured in parallel in executors for optimal performance.</li>
+</ul>
+<p>So, let's looks into some more aspects in greater detail.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="1.-When-does-spark-decide-on-creating-stages?">1. When does spark decide on creating stages?<a class="anchor-link" href="#1.-When-does-spark-decide-on-creating-stages?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As driver receives instructions of map reduce operations either in batch or interactive mode, it actually does not perform any of those tasks. All the operations are lazily evaluated. Spark keeps track of all operations that need to be applied to RDDs. <strong>But then, when does spark decide to execute, create stages and schedule them on the executors?</strong></p>
+<p>For that, all operations in spark are categorized into two different kinds of operations: <strong>transformations</strong> and <strong>actions</strong>.</p>
+<p>Transformations are operations that need not apply immediately, but specifies the sequences of operations that need to be applied in case the results need to be created finally. Actions are operations that need results immediately.</p>
+<p>For example, <strong>filter</strong>, <strong>group by</strong>, <strong>map reduce</strong> are transformations, but <strong>show</strong>, <strong>save</strong>, <strong>collect</strong> are actions.</p>
+<p>When an action is triggered, spark evaluates what all previous transformations need to be applied on the existing RDDs to arrive at what the action demands and then groups these transformations to create an optimal number of stages and schedules them on executors.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>List of transformations are given <a href="http://spark.apache.org/docs/latest/programming-guide.html#transformations">here</a>.</p>
+<p>List of actions are given <a href="http://spark.apache.org/docs/latest/programming-guide.html#actions">here</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="2.-When-does-spark-create-RDDs-and-how-long-does-it-store-them-in-memory?">2. When does spark create RDDs and how long does it store them in memory?<a class="anchor-link" href="#2.-When-does-spark-create-RDDs-and-how-long-does-it-store-them-in-memory?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>RDDs are created when an action is triggered. Spark maintains the dependencies between RDDS as a DAG (Directed Acyclic Graph) and evaluates all the RDDs that the resulting RDD is dependent on.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For example (as given in the following diagram) RDD4 depends on RDD3, RDD3 depends on RDD2 and RDD2 depends on RDD1. And RDD1 is created from the input source.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="./assets/img/python/spark-arch5.jpg" width="500"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>So, in the spark application all transformations are specified which transforms RDD1 -&gt; RDD2 -&gt; RDD3 -&gt; RDD4. Spark DAG will store these dependencies between RDDs, but they are not created phycially in memory until some action is triggered. Assume that finally an action is triggered on RDD4. Now to create RDD4, it creates all previous RDDs. It starts with reading from input source and creating RDD1, then RDD2, then RDD3 and finally RDD4.</p>
+<p>These RDDs are kept in memory until all the stages are completed until the action is successful. But once the action is accomplished (for example the action may be to store the final results into a file system like HDFS), all RDDs are evicted from memory. By default, Spark does not store any RDD into memory for long. Spark assumes there is dearth of memory in the cluster.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>But recreating these RDDs everytime an action is triggered may be expensive, so RDDs can be explicitly made to stay in memory. But it is left to the developers to design their application and decide which RDDs will stay in memory and which will not.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For example (as given in the diagram above), let's say the spark application is designed in a manner that another RDD5 is created from RDD3. So, RDD5 depends on RDD3 and the DAG creates a dependency like RDD5 &lt;- RDD3 &lt;- RDD2 &lt;- RDD1. Now if an action is triggered on RDD5, then RDD3, RDD2 and RDD1 need to be evaluated again, as spark did not store any of the previous RDD when an action was triggered before on RDD4. This may be expensive from the applicaiton point of view. RDD3 becomes a critical RDD, on which multiple RDDs depend. So, you may decide to persist RDD3 in memory.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>RDD3 can be persisited by calling <strong><em>cache()</em></strong> or <strong><em>persist()</em></strong> APIs.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>RDD3 will be persisted when it is created first when an action is triggered on RDD4. So, then an action is triggered on RDD5, it can be evaluated from already persisted RDD3. So, future action become faster.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="3.-What-caching-mechanisms-exist-in-Spark?">3. What caching mechanisms exist in Spark?<a class="anchor-link" href="#3.-What-caching-mechanisms-exist-in-Spark?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>RDDs can be cached in memory or disk. The following table depicts the caching options available in spark.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="./assets/img/python/spark memory.png" width="800"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="4.-What-is-a-broadcast-variable-in-spark?">4. What is a broadcast variable in spark?<a class="anchor-link" href="#4.-What-is-a-broadcast-variable-in-spark?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>All RDD are created and all map reduce operations are executed in executor space. So, as long as the map reduce access and tranform the RDD partitions, the paritions are available in executor space. But what if we define a variable in driver and try to access the variable inside map reduce operations. Becauase the variables defined in driver process space is not available in executors, driver will serialize the variable over the network to the executors.</p>
+<p>As show in the diagram below, the variable <strong>a</strong> is serialized from driver to the executor. Again, the scope of the variable <strong>a</strong> is inside the map or reduce function, the variable is cleaned after every iteration of map or reduce. So, if the map function is processing thousands of records, then <strong>a</strong> is serialized thousands of times from the driver during complete map operation. It is a very expensive way of sharing additional information to the executors from driver.</p>
+<p><img src="./assets/img/python/spark-arch7.jpg" width="500"></p>
+<p>So, a new broadcast variable is defined in spark to address this scenario. You can define a variable in driver and then broadcast it to all executors, which serialized it once and defines it in the process space of executors. And map reduce can access during its operations. The diagram below depicts this.</p>
+<p><img src="./assets/img/python/spark-arch8.jpg" width="500"></p>
+<p><strong> But the most important point is that it is a read-only variable and can not be modified by the executors</strong>. It is only a way of sharing additional information (besides the RDDs) with the executors.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="5.-What-is-an-accumulator-in-spark?">5. What is an accumulator in spark?<a class="anchor-link" href="#5.-What-is-an-accumulator-in-spark?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Accumulators are variables that can be used in spark to collect metrics from executors to driver. Once an accumulator is defined by driver, it is shared with the executors. Executors can modify its value. And finally share it values to driver, which aggregates to calculate metrics at the applicaiton level.</p>
+<p>For example, let's define an accumulator to collect how many bad records exist. Now, every executor will increment the value based on how many bad records they encounter and share with the driver. When driver aggregates all the values from all executors, it finds total number of bad records in the application.</p>
+<ul>
+<li>An accumulator is with an initial value </li>
+</ul>
+<p><strong>val bad_recs = sc.accumulator(0, "Numer of bad records") </strong></p>
+<ul>
+<li>Tasks running on the cluster can then add to it using the add method or the += operator</li>
+</ul>
+<p><strong>data.map { x =&gt; if x is bad then bad_recs += 1 }</strong></p>
+<ul>
+<li>Driver program can read the accumulator’s value</li>
+</ul>
+<p><strong>bad_recs.value</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+  </div>
+</div>
