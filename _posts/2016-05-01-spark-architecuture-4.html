@@ -1,0 +1,336 @@
+---
+layout: post
+title: "Understanding Spark - part 4: Operations"
+date: 2016-05-25
+description: "Few tips on Spark applications deployment and operations"
+main-class: 'spark'
+postbook: 'inotebook'
+published: true
+color: '#7AAB13'
+tags:
+- spark
+- architecture
+- operations
+categories:
+- spark
+introduction: "Few tips on Spark applications deployment and operations"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Understanding-Spark:-Part-4:-Operations">Understanding Spark: Part 4: Operations<a class="anchor-link" href="#Understanding-Spark:-Part-4:-Operations">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="1.-How-to-specify-the-resources-needed-while-submitting-the-spark-applicaiton?">1. How to specify the resources needed while submitting the spark applicaiton?<a class="anchor-link" href="#1.-How-to-specify-the-resources-needed-while-submitting-the-spark-applicaiton?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><p>While submitting an application, it is necessary to specify which mode it will run on, using <strong><em>--master</em></strong> parameter.</p>
+<ul>
+<li>yarn</li>
+<li>mesos</li>
+<li>local</li>
+<li>spark </li>
+</ul>
+</li>
+<li><p>Once deployment mode is specified, number of executors can be specified using</p>
+<ul>
+<li><strong><em> --num-executors n </em></strong> </li>
+</ul>
+</li>
+<li><p>CPU and memory requirements for executors can be specified.</p>
+<ul>
+<li><strong><em> --executor-memory </em></strong> ( for example 20G )</li>
+<li><p><strong><em> --total-executor-cores n </em></strong></p>
+<p>-Driver cpu and memory requirements can be specified using</p>
+</li>
+<li><p><strong><em> --driver-memory </em></strong> ( for example 2G )</p>
+</li>
+<li><strong><em> --driver-cores n </em></strong></li>
+</ul>
+</li>
+<li><p>More examples can be found at <a href="http://spark.apache.org/docs/latest/submitting-applications.html">http://spark.apache.org/docs/latest/submitting-applications.html</a></p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="2.-What-is-difference-between-deploy-mode,-client-and-cluster?">2. What is difference between deploy-mode, client and cluster?<a class="anchor-link" href="#2.-What-is-difference-between-deploy-mode,-client-and-cluster?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><p><strong>deploy-mode</strong> is used to specify the location where the driver is going to run.</p>
+<ul>
+<li><strong><em> --deploy-mode client/cluster </em></strong></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>For client mode, the driver will run on client machine, mostly from the machine from where the spark application is deployed. This is the default mode and only mode when using interactive mode.</li>
+</ul>
+<ul>
+<li>For cluster mode, the driver will run on one of the machines/workers on the cluster. This is the recommended mode when running in batch mode.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="3.-Can-the-resources-be-allocated-to-Spark-applications-dynamically?">3. Can the resources be allocated to Spark applications dynamically?<a class="anchor-link" href="#3.-Can-the-resources-be-allocated-to-Spark-applications-dynamically?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><p>Yes, spark application can be configured to use resources dynamically. In this case a minimumm and maximum number of executors need to be specified. So, the spark application can gracefully decommission executors if not in use, but can not go below the minimum number of executors. Similarily, it can request for more executors but can not exceed maximum number of executors configured. To begin with an initial number of executors are also defined.</p>
+</li>
+<li><p>The following properties need to be configured for dynamic allocation</p>
+<ul>
+<li><strong><em> spark.dynamicAllocation.enabled = true </em></strong></li>
+<li><strong><em> spark.shuffle.service.enabled = true </em></strong> </li>
+<li><strong><em> spark.dynamicAllocation.initialExecutors = 3 </em></strong> (Initial number of executors to run if dynamic allocation is enabled, this is same as "spark.dynamicAllocation.minExecutors") </li>
+<li><strong><em> spark.dynamicAllocation.minExecutors = 3 </em></strong> (executors number will come to this number if executors are not in use, after 60 sec(default), controlled by "spark.dynamicAllocation. executorIdleTimeout") </li>
+<li><strong><em> spark.dynamicAllocation.maxExecutors = 30 </em></strong> (maximum executors that job can request) ***</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>In dynamic allocation, spark request for new resources when the backlog time exceeds the time configured by <strong><em>spark.dynamicAllocation.schedulerBacklogTimeout</em></strong>. Also continues to trigger requests for new resources if the backlog continues and can be defined by <strong><em>spark.dynamicAllocation.sustainedSchedulerBacklogTimeout</em></strong></p>
+</li>
+<li><p>The resources requested by spark increases exponentially, for example the pplication will add 1 executor in the first round, and then 2, 4, 8 and so on executors in the subsequent rounds.</p>
+</li>
+<li><p>More detailed explanation is given at <a href="https://spark.apache.org/docs/latest/job-scheduling.html#dynamic-resource-allocation">https://spark.apache.org/docs/latest/job-scheduling.html#dynamic-resource-allocation</a></p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="4.-On-which-port-the-web-UI-for-spark-application-run-for-monitoring-the-spark-applications?">4. On which port the web UI for spark application run for monitoring the spark applications?<a class="anchor-link" href="#4.-On-which-port-the-web-UI-for-spark-application-run-for-monitoring-the-spark-applications?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Every spark application has an web UI port. The UI port is opened on 4040 port of the machine where the drier is running. If the port 4040 is not available, then it will try to open at subsequent port 4041, 4042 etc.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="5.-Why-it-is-not-recommended-to-use-collect()-call-in-driver?">5. Why it is not recommended to use collect() call in driver?<a class="anchor-link" href="#5.-Why-it-is-not-recommended-to-use-collect()-call-in-driver?">&#182;</a></h3><ul>
+<li><strong><em> collect() </em></strong> on an RDD will collect all the paritions of the RDD to the driver. And the complete RDD will be availabe in driver as a single buffer. Driver can then feed this data to an external library like pandas, matplotlib for further processing or visualizing. This is a very useful technique. </li>
+</ul>
+<ul>
+<li>But the drawback of the call is if RDD size is very large, then driver may crash becuase of <strong><em>Out Of Memory</em></strong> error, there by killing the whole spark applicaiton. </li>
+</ul>
+<ul>
+<li>So, the <strong><em>collect()</em></strong> call should be used judiciously to only bring a small set of data onto driver memory. To overcome any unexpected error, <strong><em>spark.driver.maxResultSize</em></strong> can be set to limit the size of data that can be collected.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="6.-How-to-pass-additional-jar-files,-data-files-or-python-files-to-the-spark-application?">6. How to pass additional jar files, data files or python files to the spark application?<a class="anchor-link" href="#6.-How-to-pass-additional-jar-files,-data-files-or-python-files-to-the-spark-application?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Spark application may need additional thirdy party libraries in terms of jar files or python files. The spark application may be using these libraries and their APIs and hence need to have these files maded available to all the executors during run time.</li>
+</ul>
+<ul>
+<li>jars can be passed using <strong>*--jars</strong> option in spark submit.</li>
+</ul>
+<ul>
+<li><strong><em>--files</em></strong> and <strong><em>--archives</em></strong> options support specifying file names with the # similar to Hadoop. For example you can specify: --files localtest.txt#appSees.txt and this will upload the file you have locally named localtest.txt into HDFS but this will be linked to by the name appSees.txt, and your application should use the name as appSees.txt to reference it when running on YARN.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="7.-How-to-clean-the-application-related-files-like-jar-file-and-other-dependent-files-from-the-system?">7. How to clean the application related files like jar file and other dependent files from the system?<a class="anchor-link" href="#7.-How-to-clean-the-application-related-files-like-jar-file-and-other-dependent-files-from-the-system?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>All the JAR file and additional files passed to the spark application are copied to the working directory for each SparkContext on the executor nodes. This can take a significant amount of space over a long period of time and will need to be cleaned up. With YARN, cleanup is handled automatically, and with Spark standalone, automatic cleanup can be configured with the <strong>spark.worker.cleanup.appDataTtl</strong> property.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="8.-Some-useful-commands-for-managing-applications-on-YARN?">8. Some useful commands for managing applications on YARN?<a class="anchor-link" href="#8.-Some-useful-commands-for-managing-applications-on-YARN?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><p>List all applications</p>
+<ul>
+<li><strong><em> yarn application -list </em></strong></li>
+</ul>
+</li>
+<li><p>application status</p>
+<ul>
+<li><strong><em> yarn application -status <code>&lt;Application-ID&gt;</code> </em></strong> </li>
+</ul>
+</li>
+<li><p>kill an application</p>
+<ul>
+<li><strong><em> yarn application -kill <code>&lt;Application-ID&gt;</code> </em></strong> </li>
+</ul>
+</li>
+<li><p>application status for specific states</p>
+<ul>
+<li><strong><em> yarn application -appStates </em></strong> </li>
+<li>The valid application state can be one of the following:  ALL, NEW, NEW_SAVING, SUBMITTED, ACCEPTED, RUNNING, FINISHED, FAILED, KILLED</li>
+</ul>
+</li>
+<li><p>Check logs for an application</p>
+<ul>
+<li><strong><em> yarn logs -applicationId <code>&lt;Application-ID&gt;</code> </em></strong> </li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="9.-How-to-submit-a-spark-application-to-a-specific-queue-in-Yarn?">9. How to submit a spark application to a specific queue in Yarn?<a class="anchor-link" href="#9.-How-to-submit-a-spark-application-to-a-specific-queue-in-Yarn?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>To submit a spark application to a Yarn queue, submit the spark application or start spark shell with Yarn master mode and provide <strong><em>--queue <code>&lt;queue name</code>&gt; </em></strong>. The queue should be already configured and available in Yarn and the user submitting the application must have access to deploy application in the queue. For this you need to check the Yarn configurations.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="10.-Is-there-a-mechanism-to-restart-spark-driver-if-the-driver-fails?">10. Is there a mechanism to restart spark driver if the driver fails?<a class="anchor-link" href="#10.-Is-there-a-mechanism-to-restart-spark-driver-if-the-driver-fails?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Yes, but only when spark runs on <strong><em> cluster mode </em></strong>. By default, Yarn will restart the container running the driver. In spark and mesos mode, you can provide <strong><em> --suprervise </em></strong> option to restart driver if it fails.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+  </div>
+</div>
