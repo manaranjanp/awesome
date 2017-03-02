@@ -44,7 +44,7 @@ introduction: "Few tips on Spark applications deployment and operations"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ul>
-<li><p>While submitting an application, it is necessary to specify which mode it will run on, using <strong><em>--master</em></strong> parameter.</p>
+<li>While submitting an application, it is necessary to specify which mode it will run on, using <strong><em>--master</em></strong> parameter.</p>
 <ul>
 <li>yarn</li>
 <li>mesos</li>
@@ -52,24 +52,21 @@ introduction: "Few tips on Spark applications deployment and operations"
 <li>spark </li>
 </ul>
 </li>
-<li><p>Once deployment mode is specified, number of executors can be specified using</p>
+<li>Once deployment mode is specified, number of executors can be specified using</p>
 <ul>
 <li><strong><em> --num-executors n </em></strong> </li>
 </ul>
 </li>
-<li><p>CPU and memory requirements for executors can be specified.</p>
+<li>CPU and memory requirements for executors can be specified.</p>
 <ul>
 <li><strong><em> --executor-memory </em></strong> ( for example 20G )</li>
-<li><p><strong><em> --total-executor-cores n </em></strong></p>
-<p>-Driver cpu and memory requirements can be specified using</p>
-</li>
-<li><p><strong><em> --driver-memory </em></strong> ( for example 2G )</p>
-</li>
+<li><strong><em> --total-executor-cores n </em></strong></p>
+<p>-Driver cpu and memory requirements can be specified using</li>
+<li><strong><em> --driver-memory </em></strong> ( for example 2G )</li>
 <li><strong><em> --driver-cores n </em></strong></li>
 </ul>
 </li>
-<li><p>More examples can be found at <a href="http://spark.apache.org/docs/latest/submitting-applications.html">http://spark.apache.org/docs/latest/submitting-applications.html</a></p>
-</li>
+<li>More examples can be found at <a href="http://spark.apache.org/docs/latest/submitting-applications.html">http://spark.apache.org/docs/latest/submitting-applications.html</a></li>
 </ul>
 
 </div>
@@ -90,7 +87,7 @@ introduction: "Few tips on Spark applications deployment and operations"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ul>
-<li><p><strong>deploy-mode</strong> is used to specify the location where the driver is going to run.</p>
+<li><strong>deploy-mode</strong> is used to specify the location where the driver is going to run.</p>
 <ul>
 <li><strong><em> --deploy-mode client/cluster </em></strong></li>
 </ul>
@@ -121,9 +118,8 @@ introduction: "Few tips on Spark applications deployment and operations"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ul>
-<li><p>Yes, spark application can be configured to use resources dynamically. In this case a minimumm and maximum number of executors need to be specified. So, the spark application can gracefully decommission executors if not in use, but can not go below the minimum number of executors. Similarily, it can request for more executors but can not exceed maximum number of executors configured. To begin with an initial number of executors are also defined.</p>
-</li>
-<li><p>The following properties need to be configured for dynamic allocation</p>
+<li>Yes, spark application can be configured to use resources dynamically. In this case a minimumm and maximum number of executors need to be specified. So, the spark application can gracefully decommission executors if not in use, but can not go below the minimum number of executors. Similarily, it can request for more executors but can not exceed maximum number of executors configured. To begin with an initial number of executors are also defined.</li>
+<li>The following properties need to be configured for dynamic allocation</p>
 <ul>
 <li><strong><em> spark.dynamicAllocation.enabled = true </em></strong></li>
 <li><strong><em> spark.shuffle.service.enabled = true </em></strong> </li>
@@ -134,12 +130,9 @@ introduction: "Few tips on Spark applications deployment and operations"
 </li>
 </ul>
 <ul>
-<li><p>In dynamic allocation, spark request for new resources when the backlog time exceeds the time configured by <strong><em>spark.dynamicAllocation.schedulerBacklogTimeout</em></strong>. Also continues to trigger requests for new resources if the backlog continues and can be defined by <strong><em>spark.dynamicAllocation.sustainedSchedulerBacklogTimeout</em></strong></p>
-</li>
-<li><p>The resources requested by spark increases exponentially, for example the pplication will add 1 executor in the first round, and then 2, 4, 8 and so on executors in the subsequent rounds.</p>
-</li>
-<li><p>More detailed explanation is given at <a href="https://spark.apache.org/docs/latest/job-scheduling.html#dynamic-resource-allocation">https://spark.apache.org/docs/latest/job-scheduling.html#dynamic-resource-allocation</a></p>
-</li>
+<li>In dynamic allocation, spark request for new resources when the backlog time exceeds the time configured by <strong><em>spark.dynamicAllocation.schedulerBacklogTimeout</em></strong>. Also continues to trigger requests for new resources if the backlog continues and can be defined by <strong><em>spark.dynamicAllocation.sustainedSchedulerBacklogTimeout</em></strong></li>
+<li>The resources requested by spark increases exponentially, for example the pplication will add 1 executor in the first round, and then 2, 4, 8 and so on executors in the subsequent rounds.</li>
+<li>More detailed explanation is given at <a href="https://spark.apache.org/docs/latest/job-scheduling.html#dynamic-resource-allocation">https://spark.apache.org/docs/latest/job-scheduling.html#dynamic-resource-allocation</a></li>
 </ul>
 
 </div>
@@ -247,28 +240,28 @@ introduction: "Few tips on Spark applications deployment and operations"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ul>
-<li><p>List all applications</p>
+<li>List all applications</p>
 <ul>
 <li><strong><em> yarn application -list </em></strong></li>
 </ul>
 </li>
-<li><p>application status</p>
+<li>application status</p>
 <ul>
 <li><strong><em> yarn application -status <code>&lt;Application-ID&gt;</code> </em></strong> </li>
 </ul>
 </li>
-<li><p>kill an application</p>
+<li>kill an application</p>
 <ul>
 <li><strong><em> yarn application -kill <code>&lt;Application-ID&gt;</code> </em></strong> </li>
 </ul>
 </li>
-<li><p>application status for specific states</p>
+<li>application status for specific states</p>
 <ul>
 <li><strong><em> yarn application -appStates </em></strong> </li>
 <li>The valid application state can be one of the following:  ALL, NEW, NEW_SAVING, SUBMITTED, ACCEPTED, RUNNING, FINISHED, FAILED, KILLED</li>
 </ul>
 </li>
-<li><p>Check logs for an application</p>
+<li>Check logs for an application</p>
 <ul>
 <li><strong><em> yarn logs -applicationId <code>&lt;Application-ID&gt;</code> </em></strong> </li>
 </ul>
