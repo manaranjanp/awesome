@@ -1,0 +1,3226 @@
+---
+layout: post
+title: "Recommending movies to users using Collaborative Filtering"
+date: 2016-05-25
+description: "Making movie recommendations using movielens data"
+main-class: 'python'
+postbook: 'inotebook'
+published: true
+color: '#b31917'
+tags:
+- python
+- pandas
+- "data Science"
+- 'collaborative filtering'
+- similarity
+- movielens
+categories:
+- python
+introduction: "Making movie recommendations using movielens data"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Recommendation-Systems">Recommendation Systems<a class="anchor-link" href="#Recommendation-Systems">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><p>Knowing <strong>"What customers are most likely to buy in future"</strong> is key to personalized marketing for most of the businesses. Understanding customers past purchase behavior or customer demographics could be key to make future buy predictions. But how to use the customer behavior data, depends on many different algorithms or techniques. Some alogorithms may use demographic information to make this predictions. But most of the times, the orgranizations may not have these kind of information about customers at all. All that organization will have are what customers bought in past or if the liked it or not.</p>
+</li>
+<li><p>Recommendation systems use techniques to leverage these information and make recommendation, which has been proved to be very successful. For examples, Amazon.com's most popular feature of <strong>"Customers who bought this also buys this?"</strong></p>
+</li>
+<li><p>Some of the key techiques that recommendation systems use are</p>
+</li>
+</ul>
+
+<pre><code>- Association Rules mining
+- Collaborative Filtering
+- Matrix Factorization
+- Page Rank Algorithm
+
+
+</code></pre>
+<ul>
+<li><p>We will discuss <strong>Collaborative filtering</strong> techinque in this article.</p>
+</li>
+<li><p>Two most widely used <strong>Collaborative filtering techniques</strong> are</p>
+</li>
+</ul>
+
+<pre><code>- User Similarity
+- Item Similarity
+
+</code></pre>
+<ul>
+<li><p>Here is a nice <a href="https://buildingrecommenders.wordpress.com/2015/11/16/overview-of-recommender-algorithms-part-1/">blog</a> explanation of collaborative filtering.</p>
+</li>
+<li><p>For the purpose of demonstration, we will use the data provided by movilens. It is available <a href="https://grouplens.org/datasets/movielens/">here</a>.</p>
+</li>
+<li><p>The dataset contains information about which user watched which movie and what ratings (on a scale of 1 - 5 ) he have given to the movie.</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loading-Ratings-dataset">Loading Ratings dataset<a class="anchor-link" href="#Loading-Ratings-dataset">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rating_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span> <span class="s2">&quot;ml-100k/u.data&quot;</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">None</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rating_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[3]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>0</th>
+    <th>1</th>
+    <th>2</th>
+    <th>3</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>196</td>
+    <td>242</td>
+    <td>3</td>
+    <td>881250949</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>186</td>
+    <td>302</td>
+    <td>3</td>
+    <td>891717742</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>22</td>
+    <td>377</td>
+    <td>1</td>
+    <td>878887116</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>244</td>
+    <td>51</td>
+    <td>2</td>
+    <td>880606923</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>166</td>
+    <td>346</td>
+    <td>1</td>
+    <td>886397596</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>298</td>
+    <td>474</td>
+    <td>4</td>
+    <td>884182806</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>115</td>
+    <td>265</td>
+    <td>2</td>
+    <td>881171488</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>253</td>
+    <td>465</td>
+    <td>5</td>
+    <td>891628467</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>305</td>
+    <td>451</td>
+    <td>3</td>
+    <td>886324817</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>6</td>
+    <td>86</td>
+    <td>3</td>
+    <td>883603013</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Name-the-columns">Name the columns<a class="anchor-link" href="#Name-the-columns">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rating_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;userid&quot;</span><span class="p">,</span> <span class="s2">&quot;movieid&quot;</span><span class="p">,</span> <span class="s2">&quot;rating&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rating_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[5]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>userid</th>
+    <th>movieid</th>
+    <th>rating</th>
+    <th>timestamp</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>196</td>
+    <td>242</td>
+    <td>3</td>
+    <td>881250949</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>186</td>
+    <td>302</td>
+    <td>3</td>
+    <td>891717742</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>22</td>
+    <td>377</td>
+    <td>1</td>
+    <td>878887116</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>244</td>
+    <td>51</td>
+    <td>2</td>
+    <td>880606923</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>166</td>
+    <td>346</td>
+    <td>1</td>
+    <td>886397596</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>298</td>
+    <td>474</td>
+    <td>4</td>
+    <td>884182806</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>115</td>
+    <td>265</td>
+    <td>2</td>
+    <td>881171488</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>253</td>
+    <td>465</td>
+    <td>5</td>
+    <td>891628467</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>305</td>
+    <td>451</td>
+    <td>3</td>
+    <td>886324817</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>6</td>
+    <td>86</td>
+    <td>3</td>
+    <td>883603013</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Number-of-unique-users">Number of unique users<a class="anchor-link" href="#Number-of-unique-users">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">len</span><span class="p">(</span> <span class="n">rating_df</span><span class="o">.</span><span class="n">userid</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>943</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Number-of-unique-movies">Number of unique movies<a class="anchor-link" href="#Number-of-unique-movies">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">len</span><span class="p">(</span> <span class="n">rating_df</span><span class="o">.</span><span class="n">movieid</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1682</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><strong>So a total of 1682 movies and 943 users data is available in the dataset.</strong></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Let's-drop-the-timestamp-columns.-We-do-not-need-it.">Let's drop the timestamp columns. We do not need it.<a class="anchor-link" href="#Let's-drop-the-timestamp-columns.-We-do-not-need-it.">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rating_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rating_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>userid</th>
+    <th>movieid</th>
+    <th>rating</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>196</td>
+    <td>242</td>
+    <td>3</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>186</td>
+    <td>302</td>
+    <td>3</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>22</td>
+    <td>377</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>244</td>
+    <td>51</td>
+    <td>2</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>166</td>
+    <td>346</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>298</td>
+    <td>474</td>
+    <td>4</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>115</td>
+    <td>265</td>
+    <td>2</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>253</td>
+    <td>465</td>
+    <td>5</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>305</td>
+    <td>451</td>
+    <td>3</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>6</td>
+    <td>86</td>
+    <td>3</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loading-Movies-Data">Loading Movies Data<a class="anchor-link" href="#Loading-Movies-Data">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movies_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span> <span class="s2">&quot;ml-100k/u.item&quot;</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s1">&#39;\|&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">None</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/Users/manaranjan/anaconda/lib/python3.5/site-packages/ipykernel/__main__.py:1: ParserWarning: Falling back to the &#39;python&#39; engine because the &#39;c&#39; engine does not support regex separators (separators &gt; 1 char and different from &#39;\s+&#39; are interpreted as regex); you can avoid this warning by specifying engine=&#39;python&#39;.
+if __name__ == &#39;__main__&#39;:
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movies_df</span> <span class="o">=</span> <span class="n">movies_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,:</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">movies_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;movieid&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movies_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>movieid</th>
+    <th>title</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>Toy Story (1995)</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2</td>
+    <td>GoldenEye (1995)</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>3</td>
+    <td>Four Rooms (1995)</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>4</td>
+    <td>Get Shorty (1995)</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>5</td>
+    <td>Copycat (1995)</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>6</td>
+    <td>Shanghai Triad (Yao a yao yao dao waipo qiao) ...</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>7</td>
+    <td>Twelve Monkeys (1995)</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>8</td>
+    <td>Babe (1995)</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>9</td>
+    <td>Dead Man Walking (1995)</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>10</td>
+    <td>Richard III (1995)</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Finding-User-Similarities">Finding User Similarities<a class="anchor-link" href="#Finding-User-Similarities">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">pairwise_distances</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">cosine</span><span class="p">,</span> <span class="n">correlation</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Create-the-pivot-table">Create the pivot table<a class="anchor-link" href="#Create-the-pivot-table">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_movies_df</span> <span class="o">=</span> <span class="n">rating_df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;userid&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;movieid&#39;</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="s2">&quot;rating&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Fill-'0'-for-ratings-not-given-by-users">Fill '0' for ratings not given by users<a class="anchor-link" href="#Fill-'0'-for-ratings-not-given-by-users">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_movies_df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_movies_df</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(943, 1682)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_movies_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">:</span><span class="mi">30</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th>movieid</th>
+    <th>21</th>
+    <th>22</th>
+    <th>23</th>
+    <th>24</th>
+    <th>25</th>
+    <th>26</th>
+    <th>27</th>
+    <th>28</th>
+    <th>29</th>
+    <th>30</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>10</th>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>3.0</td>
+    <td>3.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>5.0</td>
+    <td>3.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>11</th>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>12</th>
+    <td>3.0</td>
+    <td>4.0</td>
+    <td>5.0</td>
+    <td>1.0</td>
+    <td>1.0</td>
+    <td>0.0</td>
+    <td>3.0</td>
+    <td>5.0</td>
+    <td>2.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>13</th>
+    <td>0.0</td>
+    <td>3.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>2.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>14</th>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>3.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>15</th>
+    <td>0.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>2.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>16</th>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>17</th>
+    <td>0.0</td>
+    <td>5.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>3.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>3.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>18</th>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>19</th>
+    <td>0.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Calculate-the-distances">Calculate the distances<a class="anchor-link" href="#Calculate-the-distances">&#182;</a></h3><p>Based on what users have given ratings to different items, we can calculate the distances between them. Less the distance more similar they are.</p>
+<p>For example, following users have given different ratings to differnt books.</p>
+<p><img src="/assets/img/python/recomend-1.png" width="400"></p>
+<p>Now, we can find similar users based the distance between user depending on how they have rated the movies. The dimensions are the books and scale is the ratings users have provided.</p>
+<p><img src="/assets/img/python/recomend-1.png" width="400"></p>
+<p>For calculating distances, many similarity coefficients can be calculated. Most widely used similarity coefficients are <em>Euclidean</em>, <em>Cosine</em>, <em>Pearson Correlation</em> etc.</p>
+<p>We will use cosine distance here. Here we are insterested in similarity. That means higher the value more similar they are. But as the function gives us the distance, we will deduct it from 1.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_sim</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">pairwise_distances</span><span class="p">(</span> <span class="n">user_movies_df</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">(),</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_sim_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">user_sim</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_sim_df</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[20]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>0</th>
+    <th>1</th>
+    <th>2</th>
+    <th>3</th>
+    <th>4</th>
+    <th>5</th>
+    <th>6</th>
+    <th>7</th>
+    <th>8</th>
+    <th>9</th>
+    <th>...</th>
+    <th>933</th>
+    <th>934</th>
+    <th>935</th>
+    <th>936</th>
+    <th>937</th>
+    <th>938</th>
+    <th>939</th>
+    <th>940</th>
+    <th>941</th>
+    <th>942</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1.000000</td>
+    <td>0.166931</td>
+    <td>0.047460</td>
+    <td>0.064358</td>
+    <td>0.378475</td>
+    <td>0.430239</td>
+    <td>0.440367</td>
+    <td>0.319072</td>
+    <td>0.078138</td>
+    <td>0.376544</td>
+    <td>...</td>
+    <td>0.369527</td>
+    <td>0.119482</td>
+    <td>0.274876</td>
+    <td>0.189705</td>
+    <td>0.197326</td>
+    <td>0.118095</td>
+    <td>0.314072</td>
+    <td>0.148617</td>
+    <td>0.179508</td>
+    <td>0.398175</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>0.166931</td>
+    <td>1.000000</td>
+    <td>0.110591</td>
+    <td>0.178121</td>
+    <td>0.072979</td>
+    <td>0.245843</td>
+    <td>0.107328</td>
+    <td>0.103344</td>
+    <td>0.161048</td>
+    <td>0.159862</td>
+    <td>...</td>
+    <td>0.156986</td>
+    <td>0.307942</td>
+    <td>0.358789</td>
+    <td>0.424046</td>
+    <td>0.319889</td>
+    <td>0.228583</td>
+    <td>0.226790</td>
+    <td>0.161485</td>
+    <td>0.172268</td>
+    <td>0.105798</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>0.047460</td>
+    <td>0.110591</td>
+    <td>1.000000</td>
+    <td>0.344151</td>
+    <td>0.021245</td>
+    <td>0.072415</td>
+    <td>0.066137</td>
+    <td>0.083060</td>
+    <td>0.061040</td>
+    <td>0.065151</td>
+    <td>...</td>
+    <td>0.031875</td>
+    <td>0.042753</td>
+    <td>0.163829</td>
+    <td>0.069038</td>
+    <td>0.124245</td>
+    <td>0.026271</td>
+    <td>0.161890</td>
+    <td>0.101243</td>
+    <td>0.133416</td>
+    <td>0.026556</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>0.064358</td>
+    <td>0.178121</td>
+    <td>0.344151</td>
+    <td>1.000000</td>
+    <td>0.031804</td>
+    <td>0.068044</td>
+    <td>0.091230</td>
+    <td>0.188060</td>
+    <td>0.101284</td>
+    <td>0.060859</td>
+    <td>...</td>
+    <td>0.052107</td>
+    <td>0.036784</td>
+    <td>0.133115</td>
+    <td>0.193471</td>
+    <td>0.146058</td>
+    <td>0.030138</td>
+    <td>0.196858</td>
+    <td>0.152041</td>
+    <td>0.170086</td>
+    <td>0.058752</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>0.378475</td>
+    <td>0.072979</td>
+    <td>0.021245</td>
+    <td>0.031804</td>
+    <td>1.000000</td>
+    <td>0.237286</td>
+    <td>0.373600</td>
+    <td>0.248930</td>
+    <td>0.056847</td>
+    <td>0.201427</td>
+    <td>...</td>
+    <td>0.338794</td>
+    <td>0.080580</td>
+    <td>0.094924</td>
+    <td>0.079779</td>
+    <td>0.148607</td>
+    <td>0.071459</td>
+    <td>0.239955</td>
+    <td>0.139595</td>
+    <td>0.152497</td>
+    <td>0.313941</td>
+  </tr>
+</tbody>
+</table>
+<p>5 rows × 943 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Who-is-similar-to-who?">Who is similar to who?<a class="anchor-link" href="#Who-is-similar-to-who?">&#182;</a></h3><ul>
+<li>Users with highest similarity values can be treated as similar users.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_sim_df</span><span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[21]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0    0
+1    1
+2    2
+3    3
+4    4
+dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>The above results show that user are most similar to themselves. But this is not what we want. So, we will fill the diagonal of the matrix (which represent the relationship with self) with 0.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Setting-correlation-with-self-to-0">Setting correlation with self to 0<a class="anchor-link" href="#Setting-correlation-with-self-to-0">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span> <span class="n">user_sim</span><span class="p">,</span> <span class="mi">0</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_sim_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">user_sim</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_sim_df</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[24]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>0</th>
+    <th>1</th>
+    <th>2</th>
+    <th>3</th>
+    <th>4</th>
+    <th>5</th>
+    <th>6</th>
+    <th>7</th>
+    <th>8</th>
+    <th>9</th>
+    <th>...</th>
+    <th>933</th>
+    <th>934</th>
+    <th>935</th>
+    <th>936</th>
+    <th>937</th>
+    <th>938</th>
+    <th>939</th>
+    <th>940</th>
+    <th>941</th>
+    <th>942</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>0.000000</td>
+    <td>0.166931</td>
+    <td>0.047460</td>
+    <td>0.064358</td>
+    <td>0.378475</td>
+    <td>0.430239</td>
+    <td>0.440367</td>
+    <td>0.319072</td>
+    <td>0.078138</td>
+    <td>0.376544</td>
+    <td>...</td>
+    <td>0.369527</td>
+    <td>0.119482</td>
+    <td>0.274876</td>
+    <td>0.189705</td>
+    <td>0.197326</td>
+    <td>0.118095</td>
+    <td>0.314072</td>
+    <td>0.148617</td>
+    <td>0.179508</td>
+    <td>0.398175</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>0.166931</td>
+    <td>0.000000</td>
+    <td>0.110591</td>
+    <td>0.178121</td>
+    <td>0.072979</td>
+    <td>0.245843</td>
+    <td>0.107328</td>
+    <td>0.103344</td>
+    <td>0.161048</td>
+    <td>0.159862</td>
+    <td>...</td>
+    <td>0.156986</td>
+    <td>0.307942</td>
+    <td>0.358789</td>
+    <td>0.424046</td>
+    <td>0.319889</td>
+    <td>0.228583</td>
+    <td>0.226790</td>
+    <td>0.161485</td>
+    <td>0.172268</td>
+    <td>0.105798</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>0.047460</td>
+    <td>0.110591</td>
+    <td>0.000000</td>
+    <td>0.344151</td>
+    <td>0.021245</td>
+    <td>0.072415</td>
+    <td>0.066137</td>
+    <td>0.083060</td>
+    <td>0.061040</td>
+    <td>0.065151</td>
+    <td>...</td>
+    <td>0.031875</td>
+    <td>0.042753</td>
+    <td>0.163829</td>
+    <td>0.069038</td>
+    <td>0.124245</td>
+    <td>0.026271</td>
+    <td>0.161890</td>
+    <td>0.101243</td>
+    <td>0.133416</td>
+    <td>0.026556</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>0.064358</td>
+    <td>0.178121</td>
+    <td>0.344151</td>
+    <td>0.000000</td>
+    <td>0.031804</td>
+    <td>0.068044</td>
+    <td>0.091230</td>
+    <td>0.188060</td>
+    <td>0.101284</td>
+    <td>0.060859</td>
+    <td>...</td>
+    <td>0.052107</td>
+    <td>0.036784</td>
+    <td>0.133115</td>
+    <td>0.193471</td>
+    <td>0.146058</td>
+    <td>0.030138</td>
+    <td>0.196858</td>
+    <td>0.152041</td>
+    <td>0.170086</td>
+    <td>0.058752</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>0.378475</td>
+    <td>0.072979</td>
+    <td>0.021245</td>
+    <td>0.031804</td>
+    <td>0.000000</td>
+    <td>0.237286</td>
+    <td>0.373600</td>
+    <td>0.248930</td>
+    <td>0.056847</td>
+    <td>0.201427</td>
+    <td>...</td>
+    <td>0.338794</td>
+    <td>0.080580</td>
+    <td>0.094924</td>
+    <td>0.079779</td>
+    <td>0.148607</td>
+    <td>0.071459</td>
+    <td>0.239955</td>
+    <td>0.139595</td>
+    <td>0.152497</td>
+    <td>0.313941</td>
+  </tr>
+</tbody>
+</table>
+<p>5 rows × 943 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Finding-user-similarities">Finding user similarities<a class="anchor-link" href="#Finding-user-similarities">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">user_sim_df</span><span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span> <span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[25]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>544    756
+309    246
+448    893
+628    537
+284    413
+572    693
+225    866
+567    311
+75     176
+726    496
+dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="This-shows-which-results-are-similar-to-each-other.-The-actual-user-id-will-be-the-index-number-+-1.-That-means-user-545-is-similar-to-user-757-and-so-on-and-so-forth.">This shows which results are similar to each other. The actual user id will be the index number + 1. That means user 545 is similar to user 757 and so on and so forth.<a class="anchor-link" href="#This-shows-which-results-are-similar-to-each-other.-The-actual-user-id-will-be-the-index-number-+-1.-That-means-user-545-is-similar-to-user-757-and-so-on-and-so-forth.">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Movies-similar-users-like-or-dislike">Movies similar users like or dislike<a class="anchor-link" href="#Movies-similar-users-like-or-dislike">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>We can find the actual movie names and check if the similar users have rated them similarity or differently.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_user_similar_movies</span><span class="p">(</span> <span class="n">user1</span><span class="p">,</span> <span class="n">user2</span> <span class="p">):</span>
+  <span class="n">common_movies</span> <span class="o">=</span> <span class="n">rating_df</span><span class="p">[</span><span class="n">rating_df</span><span class="o">.</span><span class="n">userid</span> <span class="o">==</span> <span class="n">user1</span><span class="p">]</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+      <span class="n">rating_df</span><span class="p">[</span><span class="n">rating_df</span><span class="o">.</span><span class="n">userid</span> <span class="o">==</span> <span class="n">user2</span><span class="p">],</span>
+      <span class="n">on</span> <span class="o">=</span> <span class="s2">&quot;movieid&quot;</span><span class="p">,</span>
+      <span class="n">how</span> <span class="o">=</span> <span class="s2">&quot;inner&quot;</span> <span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">common_movies</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span> <span class="n">movies_df</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s1">&#39;movieid&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="User-310-Vs.-User-247">User 310 Vs. User 247<a class="anchor-link" href="#User-310-Vs.-User-247">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">get_user_similar_movies</span><span class="p">(</span> <span class="mi">310</span><span class="p">,</span> <span class="mi">247</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[27]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>userid_x</th>
+    <th>movieid</th>
+    <th>rating_x</th>
+    <th>userid_y</th>
+    <th>rating_y</th>
+    <th>title</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>310</td>
+    <td>258</td>
+    <td>3</td>
+    <td>247</td>
+    <td>5</td>
+    <td>Contact (1997)</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>310</td>
+    <td>257</td>
+    <td>5</td>
+    <td>247</td>
+    <td>4</td>
+    <td>Men in Black (1997)</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>310</td>
+    <td>251</td>
+    <td>5</td>
+    <td>247</td>
+    <td>4</td>
+    <td>Shall We Dance? (1996)</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>310</td>
+    <td>1022</td>
+    <td>5</td>
+    <td>247</td>
+    <td>4</td>
+    <td>Fast, Cheap &amp; Out of Control (1997)</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>310</td>
+    <td>222</td>
+    <td>3</td>
+    <td>247</td>
+    <td>3</td>
+    <td>Star Trek: First Contact (1996)</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>310</td>
+    <td>181</td>
+    <td>4</td>
+    <td>247</td>
+    <td>4</td>
+    <td>Return of the Jedi (1983)</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>310</td>
+    <td>50</td>
+    <td>5</td>
+    <td>247</td>
+    <td>5</td>
+    <td>Star Wars (1977)</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Recommending-to-user-3">Recommending to user 3<a class="anchor-link" href="#Recommending-to-user-3">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Challenges-with-User-similarity">Challenges with User similarity<a class="anchor-link" href="#Challenges-with-User-similarity">&#182;</a></h3><ul>
+<li><p>The challenge with calculating user similarity is the user need to have some prior purchases and should have rated them. This recommendation technique does not work for new users. The system need to wait until the user make some purchases and rates them. Only then similar users can be found and recommendations can be made. This is called <strong>cold start</strong> problem.</p>
+</li>
+<li><p>This can be avoided by calculating item similarities based how how users are buying these items and rates them together. Here the items are entities and users are dimensions.</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Finding-Item-Similarity">Finding Item Similarity<a class="anchor-link" href="#Finding-Item-Similarity">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Let's-create-a-pivot-table-of-Movies-to-Users">Let's create a pivot table of Movies to Users<a class="anchor-link" href="#Let's-create-a-pivot-table-of-Movies-to-Users">&#182;</a></h3><ul>
+<li>The rows are movies and columns are users. And the values in the matrix are the rating for a specific movie by a specific user.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rating_mat</span> <span class="o">=</span> <span class="n">rating_df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;movieid&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;userid&#39;</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="s2">&quot;rating&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Fill-with-0,-where-users-have-not-rated-the-movies">Fill with 0, where users have not rated the movies<a class="anchor-link" href="#Fill-with-0,-where-users-have-not-rated-the-movies">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rating_mat</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rating_mat</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[30]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(1682, 943)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rating_mat</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[31]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th>userid</th>
+    <th>1</th>
+    <th>2</th>
+    <th>3</th>
+    <th>4</th>
+    <th>5</th>
+    <th>6</th>
+    <th>7</th>
+    <th>8</th>
+    <th>9</th>
+    <th>10</th>
+    <th>...</th>
+    <th>934</th>
+    <th>935</th>
+    <th>936</th>
+    <th>937</th>
+    <th>938</th>
+    <th>939</th>
+    <th>940</th>
+    <th>941</th>
+    <th>942</th>
+    <th>943</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>5.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>...</td>
+    <td>2.0</td>
+    <td>3.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>3.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>3.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>...</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>5.0</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>...</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>3.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>...</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>2.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>3.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>...</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>...</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>2.0</td>
+    <td>5.0</td>
+    <td>3.0</td>
+    <td>4.0</td>
+    <td>4.0</td>
+    <td>...</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>1.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>...</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>5.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>...</td>
+    <td>0.0</td>
+    <td>1.0</td>
+    <td>4.0</td>
+    <td>5.0</td>
+    <td>3.0</td>
+    <td>5.0</td>
+    <td>3.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>3.0</td>
+    <td>2.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>4.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>...</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+    <td>0.0</td>
+  </tr>
+</tbody>
+</table>
+<p>10 rows × 943 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Calculating-the-item-distances-and-similarities">Calculating the item distances and similarities<a class="anchor-link" href="#Calculating-the-item-distances-and-similarities">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movie_sim</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">pairwise_distances</span><span class="p">(</span> <span class="n">rating_mat</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">(),</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;correlation&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movie_sim</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[33]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(1682, 1682)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movie_sim_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">movie_sim</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movie_sim_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[35]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>0</th>
+    <th>1</th>
+    <th>2</th>
+    <th>3</th>
+    <th>4</th>
+    <th>5</th>
+    <th>6</th>
+    <th>7</th>
+    <th>8</th>
+    <th>9</th>
+    <th>...</th>
+    <th>1672</th>
+    <th>1673</th>
+    <th>1674</th>
+    <th>1675</th>
+    <th>1676</th>
+    <th>1677</th>
+    <th>1678</th>
+    <th>1679</th>
+    <th>1680</th>
+    <th>1681</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1.000000</td>
+    <td>0.234595</td>
+    <td>0.193362</td>
+    <td>0.226213</td>
+    <td>0.128840</td>
+    <td>0.015113</td>
+    <td>0.347354</td>
+    <td>0.254490</td>
+    <td>0.209502</td>
+    <td>0.104655</td>
+    <td>...</td>
+    <td>0.018215</td>
+    <td>-0.029676</td>
+    <td>-0.029676</td>
+    <td>-0.029676</td>
+    <td>0.018215</td>
+    <td>-0.029676</td>
+    <td>-0.029676</td>
+    <td>-0.029676</td>
+    <td>0.034179</td>
+    <td>0.034179</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>0.234595</td>
+    <td>1.000000</td>
+    <td>0.190649</td>
+    <td>0.409044</td>
+    <td>0.240712</td>
+    <td>0.030062</td>
+    <td>0.220022</td>
+    <td>0.206020</td>
+    <td>0.077894</td>
+    <td>0.072906</td>
+    <td>...</td>
+    <td>-0.012451</td>
+    <td>-0.012451</td>
+    <td>-0.012451</td>
+    <td>-0.012451</td>
+    <td>-0.012451</td>
+    <td>-0.012451</td>
+    <td>-0.012451</td>
+    <td>-0.012451</td>
+    <td>0.071415</td>
+    <td>0.071415</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>0.193362</td>
+    <td>0.190649</td>
+    <td>1.000000</td>
+    <td>0.227849</td>
+    <td>0.141368</td>
+    <td>0.065347</td>
+    <td>0.258855</td>
+    <td>0.078636</td>
+    <td>0.146181</td>
+    <td>0.079608</td>
+    <td>...</td>
+    <td>-0.009764</td>
+    <td>-0.009764</td>
+    <td>-0.009764</td>
+    <td>-0.009764</td>
+    <td>0.023964</td>
+    <td>-0.009764</td>
+    <td>-0.009764</td>
+    <td>-0.009764</td>
+    <td>-0.009764</td>
+    <td>0.091421</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>0.226213</td>
+    <td>0.409044</td>
+    <td>0.227849</td>
+    <td>1.000000</td>
+    <td>0.237298</td>
+    <td>0.021878</td>
+    <td>0.295489</td>
+    <td>0.352800</td>
+    <td>0.229922</td>
+    <td>0.138220</td>
+    <td>...</td>
+    <td>-0.016619</td>
+    <td>-0.016619</td>
+    <td>0.088984</td>
+    <td>0.088984</td>
+    <td>0.025622</td>
+    <td>-0.016619</td>
+    <td>-0.016619</td>
+    <td>-0.016619</td>
+    <td>0.046743</td>
+    <td>0.067863</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>0.128840</td>
+    <td>0.240712</td>
+    <td>0.141368</td>
+    <td>0.237298</td>
+    <td>1.000000</td>
+    <td>-0.008594</td>
+    <td>0.205289</td>
+    <td>0.145866</td>
+    <td>0.142541</td>
+    <td>-0.033746</td>
+    <td>...</td>
+    <td>-0.009889</td>
+    <td>-0.009889</td>
+    <td>-0.009889</td>
+    <td>-0.009889</td>
+    <td>-0.009889</td>
+    <td>-0.009889</td>
+    <td>-0.009889</td>
+    <td>-0.009889</td>
+    <td>-0.009889</td>
+    <td>0.088618</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>0.015113</td>
+    <td>0.030062</td>
+    <td>0.065347</td>
+    <td>0.021878</td>
+    <td>-0.008594</td>
+    <td>1.000000</td>
+    <td>0.054415</td>
+    <td>0.012330</td>
+    <td>0.079619</td>
+    <td>0.166084</td>
+    <td>...</td>
+    <td>-0.005159</td>
+    <td>-0.005159</td>
+    <td>-0.005159</td>
+    <td>-0.005159</td>
+    <td>-0.005159</td>
+    <td>-0.005159</td>
+    <td>-0.005159</td>
+    <td>-0.005159</td>
+    <td>-0.005159</td>
+    <td>-0.005159</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>0.347354</td>
+    <td>0.220022</td>
+    <td>0.258855</td>
+    <td>0.295489</td>
+    <td>0.205289</td>
+    <td>0.054415</td>
+    <td>1.000000</td>
+    <td>0.190670</td>
+    <td>0.286572</td>
+    <td>0.178505</td>
+    <td>...</td>
+    <td>-0.026036</td>
+    <td>0.039920</td>
+    <td>-0.026036</td>
+    <td>-0.026036</td>
+    <td>0.039920</td>
+    <td>-0.026036</td>
+    <td>-0.026036</td>
+    <td>-0.026036</td>
+    <td>0.039920</td>
+    <td>0.039920</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>0.254490</td>
+    <td>0.206020</td>
+    <td>0.078636</td>
+    <td>0.352800</td>
+    <td>0.145866</td>
+    <td>0.012330</td>
+    <td>0.190670</td>
+    <td>1.000000</td>
+    <td>0.229331</td>
+    <td>0.152679</td>
+    <td>...</td>
+    <td>-0.017230</td>
+    <td>0.075617</td>
+    <td>0.057047</td>
+    <td>0.057047</td>
+    <td>0.075617</td>
+    <td>-0.017230</td>
+    <td>-0.017230</td>
+    <td>-0.017230</td>
+    <td>0.075617</td>
+    <td>-0.017230</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>0.209502</td>
+    <td>0.077894</td>
+    <td>0.146181</td>
+    <td>0.229922</td>
+    <td>0.142541</td>
+    <td>0.079619</td>
+    <td>0.286572</td>
+    <td>0.229331</td>
+    <td>1.000000</td>
+    <td>0.158373</td>
+    <td>...</td>
+    <td>-0.021125</td>
+    <td>-0.021125</td>
+    <td>0.047273</td>
+    <td>0.047273</td>
+    <td>0.064372</td>
+    <td>-0.021125</td>
+    <td>-0.021125</td>
+    <td>-0.021125</td>
+    <td>0.047273</td>
+    <td>0.064372</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>0.104655</td>
+    <td>0.072906</td>
+    <td>0.079608</td>
+    <td>0.138220</td>
+    <td>-0.033746</td>
+    <td>0.166084</td>
+    <td>0.178505</td>
+    <td>0.152679</td>
+    <td>0.158373</td>
+    <td>1.000000</td>
+    <td>...</td>
+    <td>-0.010138</td>
+    <td>-0.010138</td>
+    <td>0.073967</td>
+    <td>0.073967</td>
+    <td>-0.010138</td>
+    <td>-0.010138</td>
+    <td>-0.010138</td>
+    <td>-0.010138</td>
+    <td>-0.010138</td>
+    <td>-0.010138</td>
+  </tr>
+</tbody>
+</table>
+<p>10 rows × 1682 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Finding-similar-movies-to-&quot;Toy-Story&quot;">Finding similar movies to "Toy Story"<a class="anchor-link" href="#Finding-similar-movies-to-&quot;Toy-Story&quot;">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movies_df</span><span class="p">[</span><span class="s1">&#39;similarity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">movie_sim_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">movies_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;movieid&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;similarity&#39;</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movies_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[37]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>movieid</th>
+    <th>title</th>
+    <th>similarity</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>1</td>
+    <td>Toy Story (1995)</td>
+    <td>1.000000</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2</td>
+    <td>GoldenEye (1995)</td>
+    <td>0.234595</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>3</td>
+    <td>Four Rooms (1995)</td>
+    <td>0.193362</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>4</td>
+    <td>Get Shorty (1995)</td>
+    <td>0.226213</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>5</td>
+    <td>Copycat (1995)</td>
+    <td>0.128840</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>6</td>
+    <td>Shanghai Triad (Yao a yao yao dao waipo qiao) ...</td>
+    <td>0.015113</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>7</td>
+    <td>Twelve Monkeys (1995)</td>
+    <td>0.347354</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>8</td>
+    <td>Babe (1995)</td>
+    <td>0.254490</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>9</td>
+    <td>Dead Man Walking (1995)</td>
+    <td>0.209502</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>10</td>
+    <td>Richard III (1995)</td>
+    <td>0.104655</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">movies_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span> <span class="p">[</span><span class="s2">&quot;similarity&quot;</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[38]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>movieid</th>
+    <th>title</th>
+    <th>similarity</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>49</th>
+    <td>50</td>
+    <td>Star Wars (1977)</td>
+    <td>0.457677</td>
+  </tr>
+  <tr>
+    <th>120</th>
+    <td>121</td>
+    <td>Independence Day (ID4) (1996)</td>
+    <td>0.454544</td>
+  </tr>
+  <tr>
+    <th>116</th>
+    <td>117</td>
+    <td>Rock, The (1996)</td>
+    <td>0.431789</td>
+  </tr>
+  <tr>
+    <th>150</th>
+    <td>151</td>
+    <td>Willy Wonka and the Chocolate Factory (1971)</td>
+    <td>0.423975</td>
+  </tr>
+  <tr>
+    <th>180</th>
+    <td>181</td>
+    <td>Return of the Jedi (1983)</td>
+    <td>0.422991</td>
+  </tr>
+  <tr>
+    <th>404</th>
+    <td>405</td>
+    <td>Mission: Impossible (1996)</td>
+    <td>0.416770</td>
+  </tr>
+  <tr>
+    <th>94</th>
+    <td>95</td>
+    <td>Aladdin (1992)</td>
+    <td>0.407829</td>
+  </tr>
+  <tr>
+    <th>117</th>
+    <td>118</td>
+    <td>Twister (1996)</td>
+    <td>0.404908</td>
+  </tr>
+  <tr>
+    <th>221</th>
+    <td>222</td>
+    <td>Star Trek: First Contact (1996)</td>
+    <td>0.391073</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="That-means-anyone-who-buys-Toy-Story-and-likes-it,-the-top-3-movies-that-can-be-recommender-to-him-or-her-are--Star-Wars-(1977),-Independence-Day-(ID4)-(1996)-and-Rock,-The-(1996)">That means anyone who buys <em>Toy Story</em> and likes it, the top 3 movies that can be recommender to him or her are  <em>Star Wars (1977)</em>, <em>Independence Day (ID4) (1996)</em> and <em>Rock, The (1996)</em><a class="anchor-link" href="#That-means-anyone-who-buys-Toy-Story-and-likes-it,-the-top-3-movies-that-can-be-recommender-to-him-or-her-are--Star-Wars-(1977),-Independence-Day-(ID4)-(1996)-and-Rock,-The-(1996)">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Utility-function-to-find-similar-movies">Utility function to find similar movies<a class="anchor-link" href="#Utility-function-to-find-similar-movies">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_similar_movies</span><span class="p">(</span> <span class="n">movieid</span><span class="p">,</span> <span class="n">topN</span> <span class="o">=</span> <span class="mi">5</span> <span class="p">):</span>
+  <span class="n">movies_df</span><span class="p">[</span><span class="s1">&#39;similarity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">movie_sim_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">movieid</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+  <span class="n">top_n</span> <span class="o">=</span> <span class="n">movies_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span> <span class="p">[</span><span class="s2">&quot;similarity&quot;</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="kc">False</span> <span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="n">topN</span><span class="p">]</span>
+  <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;Similar Movies to: &quot;</span><span class="p">,</span> <span class="p">)</span>
+  <span class="k">return</span> <span class="n">top_n</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Similar-movies-to-Twister">Similar movies to <em>Twister</em><a class="anchor-link" href="#Similar-movies-to-Twister">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">get_similar_movies</span><span class="p">(</span> <span class="mi">118</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Similar Movies to:
+</pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt output_prompt">Out[40]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>movieid</th>
+    <th>title</th>
+    <th>similarity</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>117</th>
+    <td>118</td>
+    <td>Twister (1996)</td>
+    <td>1.000000</td>
+  </tr>
+  <tr>
+    <th>120</th>
+    <td>121</td>
+    <td>Independence Day (ID4) (1996)</td>
+    <td>0.629867</td>
+  </tr>
+  <tr>
+    <th>404</th>
+    <td>405</td>
+    <td>Mission: Impossible (1996)</td>
+    <td>0.542379</td>
+  </tr>
+  <tr>
+    <th>545</th>
+    <td>546</td>
+    <td>Broken Arrow (1996)</td>
+    <td>0.509549</td>
+  </tr>
+  <tr>
+    <th>596</th>
+    <td>597</td>
+    <td>Eraser (1996)</td>
+    <td>0.489693</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Similar-movies-to-The-Godfather">Similar movies to <em>The Godfather</em><a class="anchor-link" href="#Similar-movies-to-The-Godfather">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">get_similar_movies</span><span class="p">(</span> <span class="mi">127</span><span class="p">,</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Similar Movies to:
+</pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt output_prompt">Out[41]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>movieid</th>
+    <th>title</th>
+    <th>similarity</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>126</th>
+    <td>127</td>
+    <td>Godfather, The (1972)</td>
+    <td>1.000000</td>
+  </tr>
+  <tr>
+    <th>186</th>
+    <td>187</td>
+    <td>Godfather: Part II, The (1974)</td>
+    <td>0.543335</td>
+  </tr>
+  <tr>
+    <th>49</th>
+    <td>50</td>
+    <td>Star Wars (1977)</td>
+    <td>0.409379</td>
+  </tr>
+  <tr>
+    <th>181</th>
+    <td>182</td>
+    <td>GoodFellas (1990)</td>
+    <td>0.396741</td>
+  </tr>
+  <tr>
+    <th>22</th>
+    <td>23</td>
+    <td>Taxi Driver (1976)</td>
+    <td>0.369608</td>
+  </tr>
+  <tr>
+    <th>99</th>
+    <td>100</td>
+    <td>Fargo (1996)</td>
+    <td>0.345218</td>
+  </tr>
+  <tr>
+    <th>179</th>
+    <td>180</td>
+    <td>Apocalypse Now (1979)</td>
+    <td>0.334691</td>
+  </tr>
+  <tr>
+    <th>191</th>
+    <td>192</td>
+    <td>Raging Bull (1980)</td>
+    <td>0.331378</td>
+  </tr>
+  <tr>
+    <th>356</th>
+    <td>357</td>
+    <td>One Flew Over the Cuckoo's Nest (1975)</td>
+    <td>0.331135</td>
+  </tr>
+  <tr>
+    <th>233</th>
+    <td>234</td>
+    <td>Jaws (1975)</td>
+    <td>0.325565</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Similar-movies-to-The-Lion-King">Similar movies to <em>The Lion King</em><a class="anchor-link" href="#Similar-movies-to-The-Lion-King">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">get_similar_movies</span><span class="p">(</span> <span class="mi">71</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Similar Movies to:
+</pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt output_prompt">Out[42]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>movieid</th>
+    <th>title</th>
+    <th>similarity</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>70</th>
+    <td>71</td>
+    <td>Lion King, The (1994)</td>
+    <td>1.000000</td>
+  </tr>
+  <tr>
+    <th>94</th>
+    <td>95</td>
+    <td>Aladdin (1992)</td>
+    <td>0.683855</td>
+  </tr>
+  <tr>
+    <th>587</th>
+    <td>588</td>
+    <td>Beauty and the Beast (1991)</td>
+    <td>0.605291</td>
+  </tr>
+  <tr>
+    <th>68</th>
+    <td>69</td>
+    <td>Forrest Gump (1994)</td>
+    <td>0.572755</td>
+  </tr>
+  <tr>
+    <th>81</th>
+    <td>82</td>
+    <td>Jurassic Park (1993)</td>
+    <td>0.557333</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Similar-movies-to-Star-Trek">Similar movies to <em>Star Trek</em><a class="anchor-link" href="#Similar-movies-to-Star-Trek">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">get_similar_movies</span><span class="p">(</span> <span class="mi">228</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Similar Movies to:
+</pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt output_prompt">Out[43]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>movieid</th>
+    <th>title</th>
+    <th>similarity</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>227</th>
+    <td>228</td>
+    <td>Star Trek: The Wrath of Khan (1982)</td>
+    <td>1.000000</td>
+  </tr>
+  <tr>
+    <th>228</th>
+    <td>229</td>
+    <td>Star Trek III: The Search for Spock (1984)</td>
+    <td>0.747498</td>
+  </tr>
+  <tr>
+    <th>229</th>
+    <td>230</td>
+    <td>Star Trek IV: The Voyage Home (1986)</td>
+    <td>0.723112</td>
+  </tr>
+  <tr>
+    <th>226</th>
+    <td>227</td>
+    <td>Star Trek VI: The Undiscovered Country (1991)</td>
+    <td>0.685605</td>
+  </tr>
+  <tr>
+    <th>175</th>
+    <td>176</td>
+    <td>Aliens (1986)</td>
+    <td>0.590461</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Similar-movies-to-Sleepless-in-Seattle">Similar movies to <em>Sleepless in Seattle</em><a class="anchor-link" href="#Similar-movies-to-Sleepless-in-Seattle">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">get_similar_movies</span><span class="p">(</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Similar Movies to:
+</pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt output_prompt">Out[44]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>movieid</th>
+    <th>title</th>
+    <th>similarity</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>87</th>
+    <td>88</td>
+    <td>Sleepless in Seattle (1993)</td>
+    <td>1.000000</td>
+  </tr>
+  <tr>
+    <th>65</th>
+    <td>66</td>
+    <td>While You Were Sleeping (1995)</td>
+    <td>0.612566</td>
+  </tr>
+  <tr>
+    <th>392</th>
+    <td>393</td>
+    <td>Mrs. Doubtfire (1993)</td>
+    <td>0.596703</td>
+  </tr>
+  <tr>
+    <th>201</th>
+    <td>202</td>
+    <td>Groundhog Day (1993)</td>
+    <td>0.567747</td>
+  </tr>
+  <tr>
+    <th>731</th>
+    <td>732</td>
+    <td>Dave (1993)</td>
+    <td>0.564841</td>
+  </tr>
+  <tr>
+    <th>215</th>
+    <td>216</td>
+    <td>When Harry Met Sally... (1989)</td>
+    <td>0.552912</td>
+  </tr>
+  <tr>
+    <th>738</th>
+    <td>739</td>
+    <td>Pretty Woman (1990)</td>
+    <td>0.547383</td>
+  </tr>
+  <tr>
+    <th>450</th>
+    <td>451</td>
+    <td>Grease (1978)</td>
+    <td>0.542937</td>
+  </tr>
+  <tr>
+    <th>401</th>
+    <td>402</td>
+    <td>Ghost (1990)</td>
+    <td>0.539376</td>
+  </tr>
+  <tr>
+    <th>203</th>
+    <td>204</td>
+    <td>Back to the Future (1985)</td>
+    <td>0.524770</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="The-item-similarity-has-been-able-to-find-out-the-movies-that-can-be-recommended.-And-these-recommendations-look-appropriate.">The item similarity has been able to find out the movies that can be recommended. And these recommendations look appropriate.<a class="anchor-link" href="#The-item-similarity-has-been-able-to-find-out-the-movies-that-can-be-recommended.-And-these-recommendations-look-appropriate.">&#182;</a></h4>
+</div>
+</div>
+</div>
+  </div>
+</div>
