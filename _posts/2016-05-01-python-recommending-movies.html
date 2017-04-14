@@ -37,12 +37,9 @@ introduction: "Making movie recommendations using movielens data"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ul>
-<li><p>Knowing <strong>"What customers are most likely to buy in future"</strong> is key to personalized marketing for most of the businesses. Understanding customers past purchase behavior or customer demographics could be key to make future buy predictions. But how to use the customer behavior data, depends on many different algorithms or techniques. Some alogorithms may use demographic information to make this predictions. But most of the times, the orgranizations may not have these kind of information about customers at all. All that organization will have are what customers bought in past or if the liked it or not.</p>
-</li>
-<li><p>Recommendation systems use techniques to leverage these information and make recommendation, which has been proved to be very successful. For examples, Amazon.com's most popular feature of <strong>"Customers who bought this also buys this?"</strong></p>
-</li>
-<li><p>Some of the key techiques that recommendation systems use are</p>
-</li>
+<li>Knowing <strong>"What customers are most likely to buy in future"</strong> is key to personalized marketing for most of the businesses. Understanding customers past purchase behavior or customer demographics could be key to make future buy predictions. But how to use the customer behavior data, depends on many different algorithms or techniques. Some alogorithms may use demographic information to make this predictions. But most of the times, the orgranizations may not have these kind of information about customers at all. All that organization will have are what customers bought in past or if the liked it or not.</li>
+<li>Recommendation systems use techniques to leverage these information and make recommendation, which has been proved to be very successful. For examples, Amazon.com's most popular feature of <strong>"Customers who bought this also buys this?"</strong></li>
+<li>Some of the key techiques that recommendation systems use are</li>
 </ul>
 
 <pre><code>- Association Rules mining
@@ -53,10 +50,8 @@ introduction: "Making movie recommendations using movielens data"
 
 </code></pre>
 <ul>
-<li><p>We will discuss <strong>Collaborative filtering</strong> techinque in this article.</p>
-</li>
-<li><p>Two most widely used <strong>Collaborative filtering techniques</strong> are</p>
-</li>
+<li>We will discuss <strong>Collaborative filtering</strong> techinque in this article.</li>
+<li>Two most widely used <strong>Collaborative filtering techniques</strong> are</li>
 </ul>
 
 <pre><code>- User Similarity
@@ -64,12 +59,9 @@ introduction: "Making movie recommendations using movielens data"
 
 </code></pre>
 <ul>
-<li><p>Here is a nice <a href="https://buildingrecommenders.wordpress.com/2015/11/16/overview-of-recommender-algorithms-part-1/">blog</a> explanation of collaborative filtering.</p>
-</li>
-<li><p>For the purpose of demonstration, we will use the data provided by movilens. It is available <a href="https://grouplens.org/datasets/movielens/">here</a>.</p>
-</li>
-<li><p>The dataset contains information about which user watched which movie and what ratings (on a scale of 1 - 5 ) he have given to the movie.</p>
-</li>
+<li>Here is a nice <a href="https://buildingrecommenders.wordpress.com/2015/11/16/overview-of-recommender-algorithms-part-1/">blog</a> explanation of collaborative filtering.</li>
+<li>For the purpose of demonstration, we will use the data provided by movilens. It is available <a href="https://grouplens.org/datasets/movielens/">here</a>.</li>
+<li>The dataset contains information about which user watched which movie and what ratings (on a scale of 1 - 5 ) he have given to the movie.</li>
 </ul>
 
 </div>
@@ -992,7 +984,7 @@ if __name__ == &#39;__main__&#39;:
 <p>For example, following users have given different ratings to differnt books.</p>
 <p><img src="/assets/img/python/recomend-1.png" width="400"></p>
 <p>Now, we can find similar users based the distance between user depending on how they have rated the movies. The dimensions are the books and scale is the ratings users have provided.</p>
-<p><img src="/assets/img/python/recomend-1.png" width="400"></p>
+<p><img src="/assets/img/python/recomend-2.png" width="400"></p>
 <p>For calculating distances, many similarity coefficients can be calculated. Most widely used similarity coefficients are <em>Euclidean</em>, <em>Cosine</em>, <em>Pearson Correlation</em> etc.</p>
 <p>We will use cosine distance here. Here we are insterested in similarity. That means higher the value more similar they are. But as the function gives us the distance, we will deduct it from 1.</p>
 
@@ -1706,10 +1698,8 @@ dtype: int64</pre>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Challenges-with-User-similarity">Challenges with User similarity<a class="anchor-link" href="#Challenges-with-User-similarity">&#182;</a></h3><ul>
-<li><p>The challenge with calculating user similarity is the user need to have some prior purchases and should have rated them. This recommendation technique does not work for new users. The system need to wait until the user make some purchases and rates them. Only then similar users can be found and recommendations can be made. This is called <strong>cold start</strong> problem.</p>
-</li>
-<li><p>This can be avoided by calculating item similarities based how how users are buying these items and rates them together. Here the items are entities and users are dimensions.</p>
-</li>
+<li>The challenge with calculating user similarity is the user need to have some prior purchases and should have rated them. This recommendation technique does not work for new users. The system need to wait until the user make some purchases and rates them. Only then similar users can be found and recommendations can be made. This is called <strong>cold start</strong> problem.</li>
+<li>This can be avoided by calculating item similarities based how how users are buying these items and rates them together. Here the items are entities and users are dimensions.</li>
 </ul>
 
 </div>
