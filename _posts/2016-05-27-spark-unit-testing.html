@@ -111,19 +111,21 @@ Captain = namedtuple( 'Captain', fields )</p>
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><code></p>
-<p>from captains_module import getNumCaptainsByMinMatches, getNumMatchesPerCountry
+<pre><code>
+from captains_module import getNumCaptainsByMinMatches, getNumMatchesPerCountry
 from pyspark import SparkConf, SparkContext
-import pytest</p>
-<p>test_input_data = ['Ponting  R T,Australia,1995-2012,230,165,51,14,124',
+import pytest
+
+test_input_data = ['Ponting  R T,Australia,1995-2012,230,165,51,14,124',
                'Fleming  S P,New Zealand,1994-2007,218,98,106,14,105',
                'Ranatunga  A,Sri Lanka,1982-1999,193,89,95,9,102',
                'Dhoni  M S*,India,2004-,186,103,68,15,88',
                'Border  A R,Australia,1979-1994,178,107,67,4,86',
                'Crowe  M D,New Zealand,1982-1995,44,21,22,1,28',
                'Atherton  M A,England,1990-1998,43,20,21,2,20',
-               'Walsh  C A,West Indies,1985-2000,43,22,20,1,20']</p>
-<p>@pytest.fixture(scope="session")
+               'Walsh  C A,West Indies,1985-2000,43,22,20,1,20']
+
+@pytest.fixture(scope="session")
 def spark_context(request):
   """ fixture for creating a spark context
   Args:
@@ -131,20 +133,20 @@ def spark_context(request):
   """
   conf = (SparkConf().setMaster("local[2]").setAppName("pytest-pyspark-local-testing"))
   sc = SparkContext(conf=conf)
-  request.addfinalizer(lambda: sc.stop())</p>
+  request.addfinalizer(lambda: sc.stop())
 
-<pre><code>return sc
+  return sc
 
 
+
+pytestmark = pytest.mark.usefixtures("spark_context")
+def test_get_num_captains(spark_context):
+test_input_rdd = spark_context.parallelize( test_input_data, 2 )
+assert getNumCaptainsByMinMatches( test_input_rdd, 100 ) == 5, "Incorrect number of captains"
+def test_get_num_matches_per_country(spark_context):
+test_input_rdd = spark_context.parallelize( test_input_data, 2 )
+assert getNumMatchesPerCountry( test_input_rdd ).collect()[0] == ('Australia', 408 )
 </code></pre>
-<p>pytestmark = pytest.mark.usefixtures("spark_context")</p>
-<p>def test_get_num_captains(spark_context):
-test_input_rdd = spark_context.parallelize( test_input_data, 2 )
-assert getNumCaptainsByMinMatches( test_input_rdd, 100 ) == 5, "Incorrect number of captains"</p>
-<p>def test_get_num_matches_per_country(spark_context):
-test_input_rdd = spark_context.parallelize( test_input_data, 2 )
-assert getNumMatchesPerCountry( test_input_rdd ).collect()[0] == ('Australia', 408 )</p>
-<p></code></p>
 
 </div>
 </div>
