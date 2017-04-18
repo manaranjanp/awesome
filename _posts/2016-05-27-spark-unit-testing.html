@@ -1,0 +1,280 @@
+---
+layout: post
+title: "Unit Testing PySpark Code"
+date: 2016-05-25
+description: "Unit Testing PySpark Code using pytest library"
+main-class: 'spark'
+postbook: 'inotebook'
+published: true
+color: '#637a91'
+tags:
+- spark
+- pyspark
+- "unit test"
+- rdd
+categories:
+- spark
+introduction: "Unit Testing PySpark Code using pytest library"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Unit-testing-Spark-Code-using-pytest-library">Unit testing Spark Code using pytest library<a class="anchor-link" href="#Unit-testing-Spark-Code-using-pytest-library">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Unit testing of spark code makes it extremely useful to find out functional problems and eliminate bugs before conducting performance test and finally migrating to production.</li>
+<li>Spark's support for running in local mode makes it easier to conduct the unit test. One of the most widely used libraruy in python world is py.test, which is less verbose and provides great support for reusable fixtures and parametrization in fixtures.</li>
+<li>In this tutorial we will demonstrate steps required to write unit test cases for pyspark applications.</li>
+<li>We will use the captains performance spark code for this unit testing example. But we will rewrite those operations in terms of functions, which can be then tested using unit test functions.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Writing-the-spark-application">Writing the spark application<a class="anchor-link" href="#Writing-the-spark-application">&#182;</a></h2><ul>
+<li>Write the following code in a file called <strong>captains_module.py</strong>.</li>
+<li>It defines two functions</p>
+<ul>
+<li><strong>getNumCaptainsByMinMatches()</strong> - Takes an rdd and returns number of captains who captained more then certain number of matches, which is also passed as a parameter.</li>
+<li><strong>getNumMatchesPerCountry()</strong> - Takes an rdd and returns total number of matches played by each country.</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code></p>
+<p>from collections import namedtuple
+from pyspark import SparkContext</p>
+<p>fields = ("name", "country", "career", "matches", "won", "lost", "ties", "toss" )
+Captain = namedtuple( 'Captain', fields )</p>
+<p>def parseRecs( line ):
+  fields = line.split(",")
+  return Captain( fields[0], fields[1], fields[2], int( fields[3] ),
+                 int( fields[4] ), int(fields[5]), int(fields[6]), int(fields[7] ) )</p>
+<p>def getNumCaptainsByMinMatches( anRDD, num_matches = 100 ):
+  return anRDD.map( lambda rec: parseRecs( rec) )              \
+  .filter( lambda rec: rec.matches &gt; num_matches ).count()</p>
+<p>def getNumMatchesPerCountry( anRDD ):
+  return anRDD.map( lambda rec: parseRecs( rec) )       \
+  .map( lambda rec: ( rec.country , rec.matches) )      \
+  .reduceByKey( lambda a, b: a + b )                    \
+  .sortBy( lambda rec: rec[1], ascending = False )</p>
+<p></code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Write-the-Unit-test-cases">Write the Unit test cases<a class="anchor-link" href="#Write-the-Unit-test-cases">&#182;</a></h2><p>Now write the following code in another file called <strong>captains_test.py</strong>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code></p>
+<p>from captains_module import getNumCaptainsByMinMatches, getNumMatchesPerCountry
+from pyspark import SparkConf, SparkContext
+import pytest</p>
+<p>test_input_data = ['Ponting  R T,Australia,1995-2012,230,165,51,14,124',
+               'Fleming  S P,New Zealand,1994-2007,218,98,106,14,105',
+               'Ranatunga  A,Sri Lanka,1982-1999,193,89,95,9,102',
+               'Dhoni  M S*,India,2004-,186,103,68,15,88',
+               'Border  A R,Australia,1979-1994,178,107,67,4,86',
+               'Crowe  M D,New Zealand,1982-1995,44,21,22,1,28',
+               'Atherton  M A,England,1990-1998,43,20,21,2,20',
+               'Walsh  C A,West Indies,1985-2000,43,22,20,1,20']</p>
+<p>@pytest.fixture(scope="session")
+def spark_context(request):
+  """ fixture for creating a spark context
+  Args:
+      request: pytest.FixtureRequest object
+  """
+  conf = (SparkConf().setMaster("local[2]").setAppName("pytest-pyspark-local-testing"))
+  sc = SparkContext(conf=conf)
+  request.addfinalizer(lambda: sc.stop())</p>
+
+<pre><code>return sc
+
+
+</code></pre>
+<p>pytestmark = pytest.mark.usefixtures("spark_context")</p>
+<p>def test_get_num_captains(spark_context):
+test_input_rdd = spark_context.parallelize( test_input_data, 2 )
+assert getNumCaptainsByMinMatches( test_input_rdd, 100 ) == 5, "Incorrect number of captains"</p>
+<p>def test_get_num_matches_per_country(spark_context):
+test_input_rdd = spark_context.parallelize( test_input_data, 2 )
+assert getNumMatchesPerCountry( test_input_rdd ).collect()[0] == ('Australia', 408 )</p>
+<p></code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The steps in the pytest code,</p>
+<ul>
+<li><strong>test_input_data</strong> - first initialize test data, which can be used for test the functions</li>
+<li><strong>spark_context</strong> - is a reusable fixture for initializing the spark context for all subsequent test cases</li>
+<li><strong>test_get_num_captains</strong> - is th test function for finding out how many captains, captained more than certain number of matches</li>
+<li><strong>test_get_num_matches_per_country</strong> - is the test function for finding out how many total number matches played for each country</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Steps-to-execute-the-pytest-code">Steps to execute the pytest code<a class="anchor-link" href="#Steps-to-execute-the-pytest-code">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Copy / Transfer both the py files into a directory e.g. <strong>/home/hadoop/lab/programs</strong></li>
+</ul>
+<ul>
+<li>Ensure that the following environment variables are defined in the system (<em>change the paths as applicable to your system</em>)</li>
+</ul>
+
+<pre><code>- export SPARK_HOME=/home/hadoop/lab/software/spark-1.6.0-bin-hadoop2.6
+
+- export PYTHONPATH=$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.9-src.zip:$PYTHONPATH
+
+
+</code></pre>
+<ul>
+<li>Run the following command to execute the script</li>
+</ul>
+
+<pre><code>- python -m pytest -v captains_test.py</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Verifying-the-script-output">Verifying the script output<a class="anchor-link" href="#Verifying-the-script-output">&#182;</a></h1><p>The script typically shows how many test cases passes and how many failed. Also, in verbose mode (-v), it shows which all test cases passed and which all test cases failed.</p>
+<p>A sample output is shown below.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Successful-scenario">Successful scenario<a class="anchor-link" href="#Successful-scenario">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/assets/img/python/unittest.png" width="400"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The results show both the test cases have passed.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Faliure-Scenario">Faliure Scenario<a class="anchor-link" href="#Faliure-Scenario">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The following snapshot shows one of the test cases have failed. It shows which one has failed and the reason of failures. It is showing the actual results was <strong>('Australia', 408)</strong>, where as the expected results was <strong>('Australia', 409)</strong>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/assets/img/python/unittest-2.png" width="400"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+  </div>
+</div>
