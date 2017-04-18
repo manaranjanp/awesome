@@ -35,14 +35,10 @@ introduction: "Unit Testing PySpark Code using pytest library"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ul>
-<li><p>Unit testing of spark code makes it extremely useful to find out functional problems and eliminate bugs before conducting performance test and finally migrating to production.</p>
-</li>
-<li><p>Spark's support for running in local mode makes it easier to conduct the unit test. One of the most widely used libraruy in python world is py.test, which is less verbose and provides great support for reusable fixtures and parametrization in fixtures.</p>
-</li>
-<li><p>In this tutorial we will demonstrate steps required to write unit test cases for pyspark applications.</p>
-</li>
-<li><p>We will use the captains performance spark code for this unit testing example. But we will rewrite those operations in terms of functions, which can be then tested using unit test functions.</p>
-</li>
+<li>Unit testing of spark code makes it extremely useful to find out functional problems and eliminate bugs before conducting performance test and finally migrating to production.</li>
+<li>Spark's support for running in local mode makes it easier to conduct the unit test. One of the most widely used libraruy in python world is py.test, which is less verbose and provides great support for reusable fixtures and parametrization in fixtures.</li>
+<li>In this tutorial we will demonstrate steps required to write unit test cases for pyspark applications.</li>
+<li>We will use the captains performance spark code for this unit testing example. But we will rewrite those operations in terms of functions, which can be then tested using unit test functions.</li>
 </ul>
 
 </div>
@@ -54,14 +50,11 @@ introduction: "Unit Testing PySpark Code using pytest library"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Writing-the-spark-application">Writing the spark application<a class="anchor-link" href="#Writing-the-spark-application">&#182;</a></h2><ul>
-<li><p>Write the following code in a file called <strong>captains_module.py</strong>.</p>
-</li>
-<li><p>It defines two functions</p>
+<li>Write the following code in a file called <strong>captains_module.py</strong>.</li>
+<li>It defines two functions</p>
 <ul>
-<li><p><strong>getNumCaptainsByMinMatches()</strong> - Takes an rdd and returns number of captains who captained more then certain number of matches, which is also passed as a parameter.</p>
-</li>
-<li><p><strong>getNumMatchesPerCountry()</strong> - Takes an rdd and returns total number of matches played by each country.</p>
-</li>
+<li><strong>getNumCaptainsByMinMatches()</strong> - Takes an rdd and returns number of captains who captained more then certain number of matches, which is also passed as a parameter.</li>
+<li><strong>getNumMatchesPerCountry()</strong> - Takes an rdd and returns total number of matches played by each country.</li>
 </ul>
 </li>
 </ul>
@@ -75,23 +68,24 @@ introduction: "Unit Testing PySpark Code using pytest library"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <pre><code>
-<p>from collections import namedtuple
-from pyspark import SparkContext</p>
-<p>fields = ("name", "country", "career", "matches", "won", "lost", "ties", "toss" )
-Captain = namedtuple( 'Captain', fields )</p>
-<p>def parseRecs( line ):
+from collections import namedtuple
+from pyspark import SparkContext
+fields = ("name", "country", "career", "matches", "won", "lost", "ties", "toss" )
+Captain = namedtuple( 'Captain', fields )
+def parseRecs( line ):
   fields = line.split(",")
   return Captain( fields[0], fields[1], fields[2], int( fields[3] ),
-                 int( fields[4] ), int(fields[5]), int(fields[6]), int(fields[7] ) )</p>
-<p>def getNumCaptainsByMinMatches( anRDD, num_matches = 100 ):
+                 int( fields[4] ), int(fields[5]), int(fields[6]), int(fields[7] ) )
+def getNumCaptainsByMinMatches( anRDD, num_matches = 100 ):
   return anRDD.map( lambda rec: parseRecs( rec) )              \
-  .filter( lambda rec: rec.matches &gt; num_matches ).count()</p>
-<p>def getNumMatchesPerCountry( anRDD ):
+  .filter( lambda rec: rec.matches &gt; num_matches ).count()
+
+def getNumMatchesPerCountry( anRDD ):
   return anRDD.map( lambda rec: parseRecs( rec) )       \
   .map( lambda rec: ( rec.country , rec.matches) )      \
   .reduceByKey( lambda a, b: a + b )                    \
-  .sortBy( lambda rec: rec[1], ascending = False )</p>
-<p></code></pre>
+  .sortBy( lambda rec: rec[1], ascending = False )
+</code></pre>
 
 </div>
 </div>
@@ -158,14 +152,10 @@ assert getNumMatchesPerCountry( test_input_rdd ).collect()[0] == ('Australia', 4
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>The steps in the pytest code,</p>
 <ul>
-<li><p><strong>test_input_data</strong> - first initialize test data, which can be used for test the functions</p>
-</li>
-<li><p><strong>spark_context</strong> - is a reusable fixture for initializing the spark context for all subsequent test cases</p>
-</li>
-<li><p><strong>test_get_num_captains</strong> - is th test function for finding out how many captains, captained more than certain number of matches</p>
-</li>
-<li><p><strong>test_get_num_matches_per_country</strong> - is the test function for finding out how many total number matches played for each country</p>
-</li>
+<li><strong>test_input_data</strong> - first initialize test data, which can be used for test the functions</li>
+<li><strong>spark_context</strong> - is a reusable fixture for initializing the spark context for all subsequent test cases</li>
+<li><strong>test_get_num_captains</strong> - is th test function for finding out how many captains, captained more than certain number of matches</li>
+<li><strong>test_get_num_matches_per_country</strong> - is the test function for finding out how many total number matches played for each country</li>
 </ul>
 
 </div>
