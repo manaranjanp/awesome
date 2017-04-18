@@ -141,7 +141,7 @@ pytestmark = pytest.mark.usefixtures("spark_context")
 # Test case for number of captains with minimum number of mataches captained
 def test_get_num_captains(spark_context):
   test_input_rdd = spark_context.parallelize( test_input_data, 2 )
-  assert getNumCaptainsByMinMatches( test_input_rdd, 100 ) == 5, "Incorrect number of captains"
+  assert getNumCaptainsByMinMatches( test_input_rdd, 100 ) == 5, "Incorrect"
 
 # Test case for Number of matached played by each country
 def test_get_num_matches_per_country(spark_context):
@@ -158,7 +158,9 @@ def test_get_num_matches_per_country(spark_context):
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The steps in the pytest code,</p>
+  <div class="text_cell_render border-box-sizing rendered_html">
+
+<h3 id="steps-in-the-Unit-test-cases">The steps in the pytest code<a class="anchor-link" href="#steps-in-the-Unit-test-cases">&#182;</a></h3>
 <ul>
 <li><strong>test_input_data</strong> - first initialize test data, which can be used for test the functions</li>
 <li><strong>spark_context</strong> - is a reusable fixture for initializing the spark context for all subsequent test cases</li>
