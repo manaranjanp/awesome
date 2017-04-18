@@ -70,15 +70,22 @@ introduction: "Unit Testing PySpark Code using pytest library"
 <pre><code>
 from collections import namedtuple
 from pyspark import SparkContext
+
 fields = ("name", "country", "career", "matches", "won", "lost", "ties", "toss" )
+
 Captain = namedtuple( 'Captain', fields )
+
+
 def parseRecs( line ):
   fields = line.split(",")
   return Captain( fields[0], fields[1], fields[2], int( fields[3] ),
                  int( fields[4] ), int(fields[5]), int(fields[6]), int(fields[7] ) )
+
+
 def getNumCaptainsByMinMatches( anRDD, num_matches = 100 ):
   return anRDD.map( lambda rec: parseRecs( rec) )              \
   .filter( lambda rec: rec.matches &gt; num_matches ).count()
+
 
 def getNumMatchesPerCountry( anRDD ):
   return anRDD.map( lambda rec: parseRecs( rec) )       \
@@ -120,26 +127,27 @@ test_input_data = ['Ponting  R T,Australia,1995-2012,230,165,51,14,124',
                'Walsh  C A,West Indies,1985-2000,43,22,20,1,20']
 
 @pytest.fixture(scope="session")
+
 def spark_context(request):
-  """ fixture for creating a spark context
-  Args:
-      request: pytest.FixtureRequest object
-  """
-  conf = (SparkConf().setMaster("local[2]").setAppName("pytest-pyspark-local-testing"))
+
+  conf = (SparkConf().setMaster("local[2]").setAppName("captains-unittest"))
   sc = SparkContext(conf=conf)
   request.addfinalizer(lambda: sc.stop())
 
   return sc
 
-
-
 pytestmark = pytest.mark.usefixtures("spark_context")
+
+# Test case for number of captains with minimum number of mataches captained
 def test_get_num_captains(spark_context):
-test_input_rdd = spark_context.parallelize( test_input_data, 2 )
-assert getNumCaptainsByMinMatches( test_input_rdd, 100 ) == 5, "Incorrect number of captains"
+  test_input_rdd = spark_context.parallelize( test_input_data, 2 )
+  assert getNumCaptainsByMinMatches( test_input_rdd, 100 ) == 5, "Incorrect number of captains"
+
+# Test case for Number of matached played by each country
 def test_get_num_matches_per_country(spark_context):
-test_input_rdd = spark_context.parallelize( test_input_data, 2 )
-assert getNumMatchesPerCountry( test_input_rdd ).collect()[0] == ('Australia', 408 )
+  test_input_rdd = spark_context.parallelize( test_input_data, 2 )
+  assert getNumMatchesPerCountry( test_input_rdd ).collect()[0] == ('Australia', 408 )
+
 </code></pre>
 
 </div>
