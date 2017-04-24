@@ -360,9 +360,9 @@ introduction: "Tips for monitoring and debugging spark applications"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Check-Spark-UI">Check Spark UI<a class="anchor-link" href="#Check-Spark-UI">&#182;</a></h3><p>A job is created as shown below.</p>
-<p><img src="debug/captain-debug-1.png"></p>
+<p><img src="/assets/img/python/captain-debug-1.png"></p>
 <p>Click on the runJob and it will take to the stages. The DAG Visualization shows that it read from the text file.</p>
-<p><img src="debug/captain-debug-1.png"></p>
+<p><img src="/assets/img/python/captain-debug-1.png"></p>
 
 </div>
 </div>
@@ -543,7 +543,7 @@ introduction: "Tips for monitoring and debugging spark applications"
 <li>Size of each partition </li>
 <li>If the partitions are replicated (by default they are not replicated)</li>
 </ul>
-<p><img src="debug/captain-debug-3.png"></p>
+<p><img src="/assets/img/python/captain-debug-3.png"></p>
 <h4 id="Check-Stages">Check Stages<a class="anchor-link" href="#Check-Stages">&#182;</a></h4><p>Click on the stages and click on the <strong>count</strong> stage.</p>
 <p>This should open up the DAG visualization. It shows summary stats, aggregated metric for all tasks and again individual tasks metrics.</p>
 <p>In this case,</p>
@@ -553,7 +553,7 @@ introduction: "Tips for monitoring and debugging spark applications"
 <li>Input size and number of records processed by each partition.</li>
 <li>Locality Level. If PROCESS_LOCAL, then the task is accomplished where the partition exists.</li>
 </ul>
-<p><img src="debug/captain-debug-4.png"></p>
+<p><img src="/assets/img/python/captain-debug-4.png"></p>
 <h4 id="Event-Timeline">Event Timeline<a class="anchor-link" href="#Event-Timeline">&#182;</a></h4><p>Event time line diagram show the following details</p>
 <ul>
 <li>Scheduler Delay</li>
