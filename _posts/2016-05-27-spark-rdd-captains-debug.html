@@ -1,0 +1,1286 @@
+---
+layout: post
+title: "Tips for monitoring and debugging spark applications"
+date: 2017-04-24
+description: "Using spark web UI and spark APIs"
+main-class: 'spark'
+postbook: 'inotebook'
+published: true
+color: '#637a91'
+tags:
+- spark
+- debug
+- monitoring
+- "spark UI"
+categories:
+- spark
+introduction: "Tips for monitoring and debugging spark applications"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Overview">Overview<a class="anchor-link" href="#Overview">&#182;</a></h2><ul>
+<li>This notebook gives on overview of how to read data into Spark Framework and apply basic RDD operations like parsing, filtering, grouping, sorting and map reduce operations using keys and values.</li>
+<li>When spark starts, the sparkContext is created and available as variable <em>sc</em></li>
+<li>This dataset is taken from cricinfo.com. There are two datasets available: <a href="/assets/data/captains_ODI.csv">Captains ODIs</a> &amp; <a href="/assets/data/captains_Test.csv">Captains Tests</a> </li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Spark Context Created.. Let&#39;s verify it</span>
+<span class="n">sc</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[1]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;pyspark.context.SparkContext at 0x7f2118725400&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Useful-information-about-spark-context">Useful information about spark context<a class="anchor-link" href="#Useful-information-about-spark-context">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Application Identifier</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">applicationId</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[2]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;local-1469148966251&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[3]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>dict_keys([&apos;PYTHONHASHSEED&apos;])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Python version it is running</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">pythonVer</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[4]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;3.4&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Get-all-Spark-Configurations">Get all Spark Configurations<a class="anchor-link" href="#Get-all-Spark-Configurations">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Use sc.getConf.getAll.foreach(println) for SCALA</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">getAll</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[5]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;spark.driver.extraClassPath&apos;,
+&apos;/home/hadoop/lab/software/apache-hive-1.2.1-bin/lib/guava-14.0.1.jar:/home/hadoop/lab/software/apache-hive-1.2.1-bin/lib/mysql-connector-java-5.1.30-bin.jar:/home/hadoop/lab/lib/com.databricks_spark-csv_2.10-1.3.0.jar:/home/hadoop/lab/lib/org.apache.commons_commons-csv-1.1.jar:/home/hadoop/lab/lib/org.apache.commons_commons-csv-1.1.jar&apos;),
+(&apos;spark.rdd.compress&apos;, &apos;True&apos;),
+(&apos;spark.sql.hive.metastore.jars&apos;,
+&apos;/home/hadoop/lab/software/apache-hive-1.2.1-bin/lib/*:/home/hadoop/lab/software/hadoop-2.7.1/share/hadoop/common/*:/home/hadoop/lab/software/hadoop-2.7.1/share/hadoop/hdfs/*:/home/hadoop/lab/software/hadoop-2.7.1/share/hadoop/hdfs/lib/*:/home/hadoop/lab/software/hadoop-2.7.1/share/hadoop/yarn/*:/home/hadoop/lab/software/hadoop-2.7.1/share/hadoop/yarn/lib/*:/home/hadoop/lab/software/hadoop-2.7.1/share/hadoop/mapreduce/*:/home/hadoop/lab/software/hadoop-2.7.1/share/hadoop/mapreduce/lib/*&apos;),
+(&apos;spark.executor.extraClassPath&apos;,
+&apos;/home/hadoop/lab/lib/com.databricks_spark-csv_2.10-1.3.0.jar:/home/hadoop/lab/lib/org.apache.commons_commons-csv-1.1.jar:/home/hadoop/lab/lib/org.apache.commons_commons-csv-1.1.jar:/home/hadoop/lab/software/apache-hive-1.2.1-bin/lib/mysql-connector-java-5.1.30-bin.jar&apos;),
+(&apos;spark.serializer.objectStreamReset&apos;, &apos;100&apos;),
+(&apos;spark.sql.hive.metastore.version&apos;, &apos;1.2.1&apos;),
+(&apos;spark.submit.deployMode&apos;, &apos;client&apos;),
+(&apos;spark.app.name&apos;, &apos;pyspark-shell&apos;),
+(&apos;spark.sql.hive.metastore.sharedPrefixes&apos;, &apos;com.mysql.jdbc&apos;),
+(&apos;spark.master&apos;, &apos;local[2]&apos;)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Get-specific-properties-values">Get specific properties values<a class="anchor-link" href="#Get-specific-properties-values">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;spark.master&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;local[2]&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Get-the-Web-URL">Get the Web URL<a class="anchor-link" href="#Get-the-Web-URL">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="ODI-Performance-Analysis">ODI Performance Analysis<a class="anchor-link" href="#ODI-Performance-Analysis">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Check-Spark-Web-UI">Check Spark Web UI<a class="anchor-link" href="#Check-Spark-Web-UI">&#182;</a></h3><ul>
+<li>Go to <a href="http://hadooplab.bigdataleap.com:4040/">http://hadooplab.bigdataleap.com:4040/</a>  (Change the DNS name with your machine name or IP address where the spark application is running)</li>
+</ul>
+<ul>
+<li>Check the <strong>Executor</strong> page. This lists the executor process running. As this application is runnin on local mode, the drive and executor running on same JVM process.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Read-the-capatings_ODI.csv-file-from-local-file-system">Read the capatings_ODI.csv file from local file system<a class="anchor-link" href="#Read-the-capatings_ODI.csv-file-from-local-file-system">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="p">(</span> <span class="s">&quot;file:///home/hadoop/lab/data/captains_ODI.csv&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Check-Spark-UI">Check Spark UI<a class="anchor-link" href="#Check-Spark-UI">&#182;</a></h3><p>As you can notice there are no jobs created as no <strong>action</strong> is called.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Check-the-first-record">Check the first record<a class="anchor-link" href="#Check-the-first-record">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[8]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;Ponting  R T,Australia,1995-2012,230,165,51,14,124&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Check-Spark-UI">Check Spark UI<a class="anchor-link" href="#Check-Spark-UI">&#182;</a></h3><p>A job is created as shown below.</p>
+<p><img src="debug/captain-debug-1.png"></p>
+<p>Click on the runJob and it will take to the stages. The DAG Visualization shows that it read from the text file.</p>
+<p><img src="debug/captain-debug-1.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Display-the-first-10-records">Display the first 10 records<a class="anchor-link" href="#Display-the-first-10-records">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&apos;Ponting  R T,Australia,1995-2012,230,165,51,14,124&apos;,
+&apos;Fleming  S P,New Zealand,1994-2007,218,98,106,14,105&apos;,
+&apos;Ranatunga  A,Sri Lanka,1982-1999,193,89,95,9,102&apos;,
+&apos;Dhoni  M S*,India,2004-,186,103,68,15,88&apos;,
+&apos;Border  A R,Australia,1979-1994,178,107,67,4,86&apos;,
+&apos;Azharuddin  M,India,1985-2000,174,89,77,8,96&apos;,
+&apos;Smith  G C,South Africa,2002-2013,149,91,51,7,74&apos;,
+&apos;Ganguly  S C,India,1992-2007,147,76,66,5,74&apos;,
+&apos;Cronje  W J,South Africa,1992-2000,140,99,37,4,74&apos;,
+&apos;Imran Khan,Pakistan,1974-1992,139,75,59,5,70&apos;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Checking-the-RDD-type">Checking the RDD type<a class="anchor-link" href="#Checking-the-RDD-type">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># captains_odis should be of RDD type</span>
+<span class="nb">type</span><span class="p">(</span> <span class="n">captains_odis</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[10]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>pyspark.rdd.RDD</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Cache-the-RDD-into-memory">Cache the RDD into memory<a class="anchor-link" href="#Cache-the-RDD-into-memory">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span><span class="o">.</span><span class="n">persist</span><span class="p">(</span> <span class="n">StorageLevel</span><span class="o">.</span><span class="n">MEMORY_ONLY_SER</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:-2</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Counting-the-number-of-records">Counting the number of records<a class="anchor-link" href="#Counting-the-number-of-records">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Count the number of records</span>
+<span class="n">captains_odis</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>98</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Check-Web-UI">Check Web UI<a class="anchor-link" href="#Check-Web-UI">&#182;</a></h3><h4 id="Check-Storage">Check Storage<a class="anchor-link" href="#Check-Storage">&#182;</a></h4><p>The <strong>Storage</strong> tab shows the RDD is now persisited. It shows number of partitions created and total memory allocation for the RDD.</p>
+<p>Click on the RDD and it will show you all partitions for the RDD</p>
+<p>It shows the following information</p>
+<ul>
+<li>The executor location of the partitions</li>
+<li>Size of each partition </li>
+<li>If the partitions are replicated (by default they are not replicated)</li>
+</ul>
+<p><img src="debug/captain-debug-3.png"></p>
+<h4 id="Check-Stages">Check Stages<a class="anchor-link" href="#Check-Stages">&#182;</a></h4><p>Click on the stages and click on the <strong>count</strong> stage.</p>
+<p>This should open up the DAG visualization. It shows summary stats, aggregated metric for all tasks and again individual tasks metrics.</p>
+<p>In this case,</p>
+<ul>
+<li>Number of tasks should be equal to number of partitions.</li>
+<li>Duration of execution by each partition.</li>
+<li>Input size and number of records processed by each partition.</li>
+<li>Locality Level. If PROCESS_LOCAL, then the task is accomplished where the partition exists.</li>
+</ul>
+<p><img src="debug/captain-debug-4.png"></p>
+<h4 id="Event-Timeline">Event Timeline<a class="anchor-link" href="#Event-Timeline">&#182;</a></h4><p>Event time line diagram show the following details</p>
+<ul>
+<li>Scheduler Delay</li>
+<li>Shuffle Read Time</li>
+<li>Executor Computing Time</li>
+<li>Shuffle Write Time</li>
+</ul>
+<p>The above time line may provide clue to further optimization the spark proceses like serialization or computation time.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Obtaining-these-information-from-APIs">Obtaining these information from APIs<a class="anchor-link" href="#Obtaining-these-information-from-APIs">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="How-many-partitions-in-an-RDD?">How many partitions in an RDD?<a class="anchor-link" href="#How-many-partitions-in-an-RDD?">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## use someRDD.partitions.size in SCALA</span>
+<span class="n">captains_odis</span><span class="o">.</span><span class="n">getNumPartitions</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>2</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Is-the-RDD-cached()">Is the RDD cached()<a class="anchor-link" href="#Is-the-RDD-cached()">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span><span class="o">.</span><span class="n">is_cached</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>True</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Where-is-the-cache-stored?-Storage-Level?">Where is the cache stored? Storage Level?<a class="anchor-link" href="#Where-is-the-cache-stored?-Storage-Level?">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span><span class="o">.</span><span class="n">getStorageLevel</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>StorageLevel(False, True, False, False, 1)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c">## Use StorageLevel.description in SCALA</span>
+<span class="nb">print</span><span class="p">(</span> <span class="n">captains_odis</span><span class="o">.</span><span class="n">getStorageLevel</span><span class="p">()</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Memory Serialized 1x Replicated
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Parsing-the-lines-and-creating-records">Parsing the lines and creating records<a class="anchor-link" href="#Parsing-the-lines-and-creating-records">&#182;</a></h3><ul>
+<li>The RDD does not have a header. Let's define a header and then assign it to the RDD</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;country&quot;</span><span class="p">,</span> <span class="s">&quot;career&quot;</span><span class="p">,</span> <span class="s">&quot;matches&quot;</span><span class="p">,</span> <span class="s">&quot;won&quot;</span><span class="p">,</span> <span class="s">&quot;lost&quot;</span><span class="p">,</span> <span class="s">&quot;ties&quot;</span><span class="p">,</span> <span class="s">&quot;toss&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Check-the-RDD-lineage">Check the RDD lineage<a class="anchor-link" href="#Check-the-RDD-lineage">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Define-named-tuples-to-represent-records">Define named tuples to represent records<a class="anchor-link" href="#Define-named-tuples-to-represent-records">&#182;</a></h3><ul>
+<li>Lets define a tuple ( a record ) for each line. We need to iterate through each line and convert that into a record. The record can be defined as a namedTuple type and called Captain. Let's also link the names for the fields</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">Captain</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span> <span class="s">&#39;Captain&#39;</span><span class="p">,</span> <span class="n">fields</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Define a function to parse each line and convert them into records</span>
+<span class="k">def</span> <span class="nf">parseRecs</span><span class="p">(</span> <span class="n">line</span> <span class="p">):</span>
+  <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">Captain</span><span class="p">(</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span> <span class="n">fields</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="p">),</span>
+                 <span class="nb">int</span><span class="p">(</span> <span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains</span> <span class="o">=</span> <span class="n">captains_odis</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">parseRecs</span><span class="p">(</span> <span class="n">rec</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Which country has played how many matches..</span>
+<span class="n">countries</span> <span class="o">=</span> <span class="n">captains</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">country</span> <span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">matches</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[59]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># use countries.toDebugString in SCALA </span>
+<span class="nb">print</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">countries</span><span class="o">.</span><span class="n">toDebugString</span><span class="p">(),</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(2) PythonRDD[34] at RDD at PythonRDD.scala:43 []
+|  MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:-2 []
+|      CachedPartitions: 2; MemorySize: 3.4 KB; ExternalBlockStoreSize: 0.0 B; DiskSize: 0.0 B
+|  file:///home/hadoop/lab/data/captains_ODI.csv HadoopRDD[0] at textFile at NativeMethodAccessorImpl.java:-2 []
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong> There is ONE STAGE of operation for reading records, parsing and creating keys and values </strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Aggregating-values-by-keys">Aggregating values by keys<a class="anchor-link" href="#Aggregating-values-by-keys">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Aggregate by countries</span>
+<span class="n">matches_countries</span> <span class="o">=</span> <span class="n">countries</span><span class="o">.</span><span class="n">reduceByKey</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[61]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="nb">print</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">matches_countries</span><span class="o">.</span><span class="n">toDebugString</span><span class="p">(),</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(2) PythonRDD[39] at RDD at PythonRDD.scala:43 []
+|  MapPartitionsRDD[38] at mapPartitions at PythonRDD.scala:374 []
+|  ShuffledRDD[37] at partitionBy at NativeMethodAccessorImpl.java:-2 []
++-(2) PairwiseRDD[36] at reduceByKey at &lt;ipython-input-60-30c85538e831&gt;:2 []
+  |  PythonRDD[35] at reduceByKey at &lt;ipython-input-60-30c85538e831&gt;:2 []
+  |  MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:-2 []
+  |      CachedPartitions: 2; MemorySize: 3.4 KB; ExternalBlockStoreSize: 0.0 B; DiskSize: 0.0 B
+  |  file:///home/hadoop/lab/data/captains_ODI.csv HadoopRDD[0] at textFile at NativeMethodAccessorImpl.java:-2 []
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong> There are TWO STAGEs of operation for creating keys and values then shuffle and reducing it (aggregating)</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Sorting-records">Sorting records<a class="anchor-link" href="#Sorting-records">&#182;</a></h3><ul>
+<li>Sort the countries by the number of matches they played by descending order by names (key)</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[62]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Sort by value by descending</span>
+<span class="n">match_sorted</span> <span class="o">=</span> <span class="n">matches_countries</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[63]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="nb">print</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">match_sorted</span><span class="o">.</span><span class="n">toDebugString</span><span class="p">(),</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(2) PythonRDD[46] at RDD at PythonRDD.scala:43 []
+|  MapPartitionsRDD[45] at mapPartitions at PythonRDD.scala:374 []
+|  ShuffledRDD[44] at partitionBy at NativeMethodAccessorImpl.java:-2 []
++-(2) PairwiseRDD[43] at sortBy at &lt;ipython-input-62-361045a5af76&gt;:2 []
+  |  PythonRDD[42] at sortBy at &lt;ipython-input-62-361045a5af76&gt;:2 []
+  |  MapPartitionsRDD[38] at mapPartitions at PythonRDD.scala:374 []
+  |  ShuffledRDD[37] at partitionBy at NativeMethodAccessorImpl.java:-2 []
+  +-(2) PairwiseRDD[36] at reduceByKey at &lt;ipython-input-60-30c85538e831&gt;:2 []
+     |  PythonRDD[35] at reduceByKey at &lt;ipython-input-60-30c85538e831&gt;:2 []
+     |  MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:-2 []
+     |      CachedPartitions: 2; MemorySize: 3.4 KB; ExternalBlockStoreSize: 0.0 B; DiskSize: 0.0 B
+     |  file:///home/hadoop/lab/data/captains_ODI.csv HadoopRDD[0] at textFile at NativeMethodAccessorImpl.java:-2 []
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong> There is THREE STAGE of operation for reading map, reduce and another reduce stage for sorting the record by values </strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><p><strong> The number (2) in bracker shows the number of parallelism. </strong></p>
+<h3 id="Let's-change-the-number-of-partitions-during-reduce-stage">Let's change the number of partitions during reduce stage<a class="anchor-link" href="#Let's-change-the-number-of-partitions-during-reduce-stage">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[74]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">matches_countries</span> <span class="o">=</span> <span class="n">countries</span><span class="o">.</span><span class="n">reduceByKey</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span> <span class="n">numPartitions</span> <span class="o">=</span> <span class="mi">4</span> <span class="p">)</span>
+<span class="n">match_sorted</span> <span class="o">=</span> <span class="n">matches_countries</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">match_sorted</span><span class="o">.</span><span class="n">toDebugString</span><span class="p">(),</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(4) PythonRDD[123] at RDD at PythonRDD.scala:43 []
+|  MapPartitionsRDD[122] at mapPartitions at PythonRDD.scala:374 []
+|  ShuffledRDD[121] at partitionBy at null:-1 []
++-(4) PairwiseRDD[120] at sortBy at &lt;ipython-input-74-dbeee14cc119&gt;:2 []
+  |  PythonRDD[119] at sortBy at &lt;ipython-input-74-dbeee14cc119&gt;:2 []
+  |  MapPartitionsRDD[116] at mapPartitions at PythonRDD.scala:374 []
+  |  ShuffledRDD[115] at partitionBy at NativeMethodAccessorImpl.java:-2 []
+  +-(2) PairwiseRDD[114] at reduceByKey at &lt;ipython-input-74-dbeee14cc119&gt;:1 []
+     |  PythonRDD[113] at reduceByKey at &lt;ipython-input-74-dbeee14cc119&gt;:1 []
+     |  MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:-2 []
+     |      CachedPartitions: 2; MemorySize: 3.4 KB; ExternalBlockStoreSize: 0.0 B; DiskSize: 0.0 B
+     |  file:///home/hadoop/lab/data/captains_ODI.csv HadoopRDD[0] at textFile at NativeMethodAccessorImpl.java:-2 []
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong> Now, the number of partitions have increased from first reduce stage. </strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[81]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Sort the captains by percentage of wins</span>
+<span class="n">captain_top_odi</span> <span class="o">=</span> <span class="n">captains</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+  <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+               <span class="nb">round</span><span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">won</span><span class="o">/</span><span class="n">rec</span><span class="o">.</span><span class="n">matches</span><span class="p">,</span>
+                     <span class="mi">2</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[82]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Read the Captains_Test.csv file</span>
+<span class="n">captains_tests</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="p">(</span> <span class="s">&quot;file:///home/hadoop/lab/data/captains_Test.csv&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[83]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Parse the records</span>
+<span class="n">captains_tests_recs</span> <span class="o">=</span> <span class="n">captains_tests</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">parseRecs</span><span class="p">(</span> <span class="n">rec</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[84]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Sort the captains by percentage of wins</span>
+<span class="n">captain_top_test</span> <span class="o">=</span> <span class="n">captains_tests_recs</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+  <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+               <span class="nb">round</span><span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">won</span><span class="o">/</span><span class="n">rec</span><span class="o">.</span><span class="n">matches</span><span class="p">,</span>
+                     <span class="mi">2</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Joining-multiple-data-sets">Joining multiple data sets<a class="anchor-link" href="#Joining-multiple-data-sets">&#182;</a></h3><ul>
+<li>Now let's join both ODI and Test performances and verify their efficiency. </li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[85]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Lets join both ODI and Test captaincy details. </span>
+<span class="c"># Default is inner join...</span>
+<span class="n">all_time_best_captains</span> <span class="o">=</span> <span class="n">captain_top_test</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">captain_top_odi</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[86]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="nb">print</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">all_time_best_captains</span><span class="o">.</span><span class="n">toDebugString</span><span class="p">(),</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(4) PythonRDD[154] at RDD at PythonRDD.scala:43 []
+|  MapPartitionsRDD[153] at mapPartitions at PythonRDD.scala:374 []
+|  ShuffledRDD[152] at partitionBy at null:-1 []
++-(4) PairwiseRDD[151] at join at &lt;ipython-input-85-64bc265f7afc&gt;:3 []
+  |  PythonRDD[150] at join at &lt;ipython-input-85-64bc265f7afc&gt;:3 []
+  |  UnionRDD[149] at union at NativeMethodAccessorImpl.java:-2 []
+  |  PythonRDD[147] at RDD at PythonRDD.scala:43 []
+  |  MapPartitionsRDD[146] at mapPartitions at PythonRDD.scala:374 []
+  |  ShuffledRDD[145] at partitionBy at null:-1 []
+  +-(2) PairwiseRDD[144] at sortBy at &lt;ipython-input-84-0fc037ee6758&gt;:5 []
+     |  PythonRDD[143] at sortBy at &lt;ipython-input-84-0fc037ee6758&gt;:5 []
+     |  MapPartitionsRDD[140] at textFile at NativeMethodAccessorImpl.java:-2 []
+     |  file:///home/hadoop/lab/data/captains_Test.csv HadoopRDD[139] at textFile at NativeMethodAccessorImpl.java:-2 []
+  |  PythonRDD[148] at RDD at PythonRDD.scala:43 []
+  |  MapPartitionsRDD[138] at mapPartitions at PythonRDD.scala:374 []
+  |  ShuffledRDD[137] at partitionBy at null:-1 []
+  +-(2) PairwiseRDD[136] at sortBy at &lt;ipython-input-81-92859234f101&gt;:5 []
+     |  PythonRDD[135] at sortBy at &lt;ipython-input-81-92859234f101&gt;:5 []
+     |  MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:-2 []
+     |      CachedPartitions: 2; MemorySize: 3.4 KB; ExternalBlockStoreSize: 0.0 B; DiskSize: 0.0 B
+     |  file:///home/hadoop/lab/data/captains_ODI.csv HadoopRDD[0] at textFile at NativeMethodAccessorImpl.java:-2 []
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Coalesce-to-less-number-of-partitions">Coalesce to less number of partitions<a class="anchor-link" href="#Coalesce-to-less-number-of-partitions">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[90]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_time_best_captains_2</span> <span class="o">=</span> <span class="n">all_time_best_captains</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[91]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="nb">print</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">all_time_best_captains_2</span><span class="o">.</span><span class="n">toDebugString</span><span class="p">(),</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(1) CoalescedRDD[157] at coalesce at NativeMethodAccessorImpl.java:-2 []
+|  PythonRDD[154] at RDD at PythonRDD.scala:43 []
+|  MapPartitionsRDD[153] at mapPartitions at PythonRDD.scala:374 []
+|  ShuffledRDD[152] at partitionBy at null:-1 []
++-(4) PairwiseRDD[151] at join at &lt;ipython-input-85-64bc265f7afc&gt;:3 []
+  |  PythonRDD[150] at join at &lt;ipython-input-85-64bc265f7afc&gt;:3 []
+  |  UnionRDD[149] at union at NativeMethodAccessorImpl.java:-2 []
+  |  PythonRDD[147] at RDD at PythonRDD.scala:43 []
+  |  MapPartitionsRDD[146] at mapPartitions at PythonRDD.scala:374 []
+  |  ShuffledRDD[145] at partitionBy at null:-1 []
+  +-(2) PairwiseRDD[144] at sortBy at &lt;ipython-input-84-0fc037ee6758&gt;:5 []
+     |  PythonRDD[143] at sortBy at &lt;ipython-input-84-0fc037ee6758&gt;:5 []
+     |  MapPartitionsRDD[140] at textFile at NativeMethodAccessorImpl.java:-2 []
+     |  file:///home/hadoop/lab/data/captains_Test.csv HadoopRDD[139] at textFile at NativeMethodAccessorImpl.java:-2 []
+  |  PythonRDD[148] at RDD at PythonRDD.scala:43 []
+  |  MapPartitionsRDD[138] at mapPartitions at PythonRDD.scala:374 []
+  |  ShuffledRDD[137] at partitionBy at null:-1 []
+  +-(2) PairwiseRDD[136] at sortBy at &lt;ipython-input-81-92859234f101&gt;:5 []
+     |  PythonRDD[135] at sortBy at &lt;ipython-input-81-92859234f101&gt;:5 []
+     |  MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:-2 []
+     |      CachedPartitions: 2; MemorySize: 3.4 KB; ExternalBlockStoreSize: 0.0 B; DiskSize: 0.0 B
+     |  file:///home/hadoop/lab/data/captains_ODI.csv HadoopRDD[0] at textFile at NativeMethodAccessorImpl.java:-2 []
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+  </div>
+</div>
