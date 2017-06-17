@@ -1,0 +1,3751 @@
+---
+layout: post
+title: "Exploring Rossmann store sales data using Spark framework"
+date: 2017-05-23
+description: "Exploratory data analysis using Spark"
+main-class: 'spark'
+published: true
+postbook: 'inotebook'
+color: '#7AAB13'
+tags:
+- spark
+- rossmann
+- exploratory
+- dataframes
+categories:
+- spark
+introduction: "Exploring Rossmann store sales data using Spark framework"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Rossmann operates over 3,000 drug stores in 7 European countries. Currently, Rossmann store managers are tasked with predicting their daily sales for up to six weeks in advance. Store sales are influenced by many factors, including promotions, competition, school and state holidays, seasonality, and locality. With thousands of individual managers predicting sales based on their unique circumstances, the accuracy of results can be quite varied.</p>
+<p>This dataset is taken from a kaggle competition and is available <a href="https://www.kaggle.com/c/rossmann-store-sales">here</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The dataset contains historical sales data for 1,115 Rossmann stores.</p>
+<ul>
+<li>train.csv - historical data including Sales</li>
+<li>store.csv - supplemental information about the stores</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong> This tutorial will explore the data to gain insights into sales and how various parameters are influencing sales across stores. This tutorial will use spark framework to explore the data. </strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Run this tutorial on hadoop deployment, so that HiveContext is initialized and all the steps will run correctely.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[1]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;pyspark.context.SparkContext at 0x7f1cf81ed278&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sqlContext</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[2]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;pyspark.sql.context.HiveContext at 0x7f1cddc97d30&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loading-the-dataset">Loading the dataset<a class="anchor-link" href="#Loading-the-dataset">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Load-and-cache-the-dataset">Load and cache the dataset<a class="anchor-link" href="#Load-and-cache-the-dataset">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;com.databricks.spark.csv&quot;</span><span class="p">)</span>            \
+        <span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>                                         \
+        <span class="o">.</span><span class="n">options</span><span class="p">(</span> <span class="n">header</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>                                          \
+        <span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;file:///home/hadoop/lab/data/rossmann/train.csv&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[4]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[Store: string, DayOfWeek: string, Date: string, Sales: string, Customers: string, Open: string, Promo: string, StateHoliday: string, SchoolHoliday: string]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-----+---------+----+-----+------------+-------------+
+|Store|DayOfWeek|      Date|Sales|Customers|Open|Promo|StateHoliday|SchoolHoliday|
++-----+---------+----------+-----+---------+----+-----+------------+-------------+
+|    1|        5|2015-07-31| 5263|      555|   1|    1|           0|            1|
+|    2|        5|2015-07-31| 6064|      625|   1|    1|           0|            1|
+|    3|        5|2015-07-31| 8314|      821|   1|    1|           0|            1|
+|    4|        5|2015-07-31|13995|     1498|   1|    1|           0|            1|
+|    5|        5|2015-07-31| 4822|      559|   1|    1|           0|            1|
++-----+---------+----------+-----+---------+----+-----+------------+-------------+
+only showing top 5 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="How-many-records?">How many records?<a class="anchor-link" href="#How-many-records?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1017209</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Print-Schema">Print Schema<a class="anchor-link" href="#Print-Schema">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- Store: integer (nullable = true)
+|-- DayOfWeek: integer (nullable = true)
+|-- Date: date (nullable = true)
+|-- Sales: integer (nullable = true)
+|-- Customers: integer (nullable = true)
+|-- Open: integer (nullable = true)
+|-- Promo: integer (nullable = true)
+|-- StateHoliday: string (nullable = true)
+|-- SchoolHoliday: string (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>From kaggle site, the column definitions are as follows</p>
+<ul>
+<li>Store - a unique Id for each store</li>
+<li>Sales - the turnover for any given day (this is what you are predicting)</li>
+<li>Customers - the number of customers on a given day</li>
+<li>Open - an indicator for whether the store was open: 0 = closed, 1 = open</li>
+<li>StateHoliday - indicates a state holiday. Normally all stores, with few exceptions, are closed on state holidays. Note that all schools are closed on public holidays and weekends. a = public holiday, b = Easter holiday, c = Christmas, 0 = None</li>
+<li>SchoolHoliday - indicates if the (Store, Date) was affected by the closure of public schools</li>
+<li>Promo - indicates whether a store is running a promo on that day</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Read-records-using-custom-schema">Read records using custom schema<a class="anchor-link" href="#Read-records-using-custom-schema">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>List of all data types supported by spark dataframe is available <a href="https://spark.apache.org/docs/1.6.0/sql-programming-guide.html#data-types">here</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="o">*</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">StructField</span><span class="p">(</span><span class="s">&quot;Store&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+       <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;DayOfWeek&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+       <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;Date&quot;</span><span class="p">,</span> <span class="n">DateType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+       <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;Sales&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+       <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;Customers&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+       <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;Open&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+       <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;Promo&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+       <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;StateHoliday&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="k">True</span><span class="p">),</span>
+       <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;SchoolHoliday&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="k">True</span><span class="p">)]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;com.databricks.spark.csv&quot;</span><span class="p">)</span>            \
+        <span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>                                         \
+        <span class="o">.</span><span class="n">options</span><span class="p">(</span> <span class="n">header</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>                                          \
+        <span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;file:///home/hadoop/lab/data/rossmann/train.csv&#39;</span><span class="p">,</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="n">retail_df</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[21]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[Store: int, DayOfWeek: int, Date: date, Sales: int, Customers: int, Open: int, Promo: int, StateHoliday: string, SchoolHoliday: string]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-----+---------+----+-----+------------+-------------+
+|Store|DayOfWeek|      Date|Sales|Customers|Open|Promo|StateHoliday|SchoolHoliday|
++-----+---------+----------+-----+---------+----+-----+------------+-------------+
+|    1|        5|2015-07-31| 5263|      555|   1|    1|           0|            1|
+|    2|        5|2015-07-31| 6064|      625|   1|    1|           0|            1|
+|    3|        5|2015-07-31| 8314|      821|   1|    1|           0|            1|
+|    4|        5|2015-07-31|13995|     1498|   1|    1|           0|            1|
+|    5|        5|2015-07-31| 4822|      559|   1|    1|           0|            1|
++-----+---------+----------+-----+---------+----+-----+------------+-------------+
+only showing top 5 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Print-only-column-names">Print only column names<a class="anchor-link" href="#Print-only-column-names">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[23]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&apos;Store&apos;,
+&apos;DayOfWeek&apos;,
+&apos;Date&apos;,
+&apos;Sales&apos;,
+&apos;Customers&apos;,
+&apos;Open&apos;,
+&apos;Promo&apos;,
+&apos;StateHoliday&apos;,
+&apos;SchoolHoliday&apos;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Selection-and-Filter">Selection and Filter<a class="anchor-link" href="#Selection-and-Filter">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Selecting-few-columns-from-a-dataframe">Selecting few columns from a dataframe<a class="anchor-link" href="#Selecting-few-columns-from-a-dataframe">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_custs_df</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span> <span class="s">&quot;Store&quot;</span><span class="p">,</span> <span class="s">&quot;Sales&quot;</span><span class="p">,</span> <span class="s">&quot;Customers&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_custs_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+-----+---------+
+|Store|Sales|Customers|
++-----+-----+---------+
+|    1| 5263|      555|
+|    2| 6064|      625|
+|    3| 8314|      821|
+|    4|13995|     1498|
+|    5| 4822|      559|
++-----+-----+---------+
+only showing top 5 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Filtering-records-based-on-a-condition">Filtering records based on a condition<a class="anchor-link" href="#Filtering-records-based-on-a-condition">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retails_open_df</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">Open</span> <span class="o">&gt;</span> <span class="mi">0</span>  <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retails_open_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-----+---------+----+-----+------------+-------------+
+|Store|DayOfWeek|      Date|Sales|Customers|Open|Promo|StateHoliday|SchoolHoliday|
++-----+---------+----------+-----+---------+----+-----+------------+-------------+
+|    1|        5|2015-07-31| 5263|      555|   1|    1|           0|            1|
+|    2|        5|2015-07-31| 6064|      625|   1|    1|           0|            1|
+|    3|        5|2015-07-31| 8314|      821|   1|    1|           0|            1|
+|    4|        5|2015-07-31|13995|     1498|   1|    1|           0|            1|
+|    5|        5|2015-07-31| 4822|      559|   1|    1|           0|            1|
++-----+---------+----------+-----+---------+----+-----+------------+-------------+
+only showing top 5 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="How-many-stores-remained-&quot;Open&quot;-on-days-when-it-was-both-school-and-state-holiday?">How many stores remained <em>"Open"</em> on days when it was both school and state holiday?<a class="anchor-link" href="#How-many-stores-remained-&quot;Open&quot;-on-days-when-it-was-both-school-and-state-holiday?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">holidays_df</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="p">(</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">StateHoliday</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">SchoolHoliday</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">holidays_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">holidays_df</span><span class="o">.</span><span class="n">Open</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----+-----+---------+----+-----+------------+-------------+
+|Store|DayOfWeek|Date|Sales|Customers|Open|Promo|StateHoliday|SchoolHoliday|
++-----+---------+----+-----+---------+----+-----+------------+-------------+
++-----+---------+----+-----+---------+----+-----+------------+-------------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>None of those days any store was opened? </li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="How-many-stores?">How many stores?<a class="anchor-link" href="#How-many-stores?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">store_ids</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">Store</span> <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">store_ids</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[31]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1115</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="There-are-1115-stores-in-rossmann.">There are 1115 stores in rossmann.<a class="anchor-link" href="#There-are-1115-stores-in-rossmann.">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Which-weekday-have-maximum-number-of-promos-running">Which weekday have maximum number of promos running<a class="anchor-link" href="#Which-weekday-have-maximum-number-of-promos-running">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">weekday_promos</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span> <span class="s">&quot;DayOfWeek&quot;</span> <span class="p">,</span> <span class="s">&quot;Promo&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">weekday_promos</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+---------------+------+-----+
+|DayOfWeek_Promo|     0|    1|
++---------------+------+-----+
+|              5| 68265|77580|
+|              1| 66970|77760|
+|              6|144730|    0|
+|              2| 68084|77580|
+|              7|144730|    0|
+|              3| 68085|77580|
+|              4| 68265|77580|
++---------------+------+-----+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Rename-columns">Rename columns<a class="anchor-link" href="#Rename-columns">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">weekday_promos</span> <span class="o">=</span> <span class="n">weekday_promos</span><span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span> <span class="s">&quot;DayOfWeek_Promo&quot;</span><span class="p">,</span> <span class="s">&quot;DayOfWeek&quot;</span> <span class="p">)</span>  \
+                             <span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span> <span class="s">&quot;0&quot;</span><span class="p">,</span> <span class="s">&quot;NoPromo&quot;</span> <span class="p">)</span>                  \
+                             <span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span> <span class="s">&quot;1&quot;</span><span class="p">,</span><span class="s">&quot;Promo&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">weekday_promos</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+---------+-------+-----+
+|DayOfWeek|NoPromo|Promo|
++---------+-------+-----+
+|        5|  68265|77580|
+|        1|  66970|77760|
+|        6| 144730|    0|
+|        2|  68084|77580|
+|        7| 144730|    0|
++---------+-------+-----+
+only showing top 5 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Sorting-dataframe-by-column-in-ascending-and-descending-order">Sorting dataframe by column in ascending and descending order<a class="anchor-link" href="#Sorting-dataframe-by-column-in-ascending-and-descending-order">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">weekday_promos</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="s">&quot;Promo&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+---------+-------+-----+
+|DayOfWeek|NoPromo|Promo|
++---------+-------+-----+
+|        7| 144730|    0|
+|        6| 144730|    0|
+|        2|  68084|77580|
+|        3|  68085|77580|
+|        4|  68265|77580|
+|        5|  68265|77580|
+|        1|  66970|77760|
++---------+-------+-----+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">weekday_promos</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="s">&quot;Promo&quot;</span><span class="p">,</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+---------+-------+-----+
+|DayOfWeek|NoPromo|Promo|
++---------+-------+-----+
+|        1|  66970|77760|
+|        5|  68265|77580|
+|        2|  68084|77580|
+|        4|  68265|77580|
+|        3|  68085|77580|
+|        6| 144730|    0|
+|        7| 144730|    0|
++---------+-------+-----+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><p>No promos running on weekends. This may be because sales are typically high on the weekends.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Assignment:-Find-sales-revenue-for-each-weekday.">Assignment: Find sales revenue for each weekday.<a class="anchor-link" href="#Assignment:-Find-sales-revenue-for-each-weekday.">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Add-a-month-column">Add a month column<a class="anchor-link" href="#Add-a-month-column">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">month</span><span class="p">,</span> <span class="n">year</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span> <span class="s">&#39;month&#39;</span><span class="p">,</span> <span class="n">month</span><span class="p">(</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">Date</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span> <span class="s">&#39;year&#39;</span><span class="p">,</span> <span class="n">year</span><span class="p">(</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">Date</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-----+---------+----+-----+------------+-------------+-----+----+
+|Store|DayOfWeek|      Date|Sales|Customers|Open|Promo|StateHoliday|SchoolHoliday|month|year|
++-----+---------+----------+-----+---------+----+-----+------------+-------------+-----+----+
+|    1|        5|2015-07-31| 5263|      555|   1|    1|           0|            1|    7|2015|
+|    2|        5|2015-07-31| 6064|      625|   1|    1|           0|            1|    7|2015|
+|    3|        5|2015-07-31| 8314|      821|   1|    1|           0|            1|    7|2015|
+|    4|        5|2015-07-31|13995|     1498|   1|    1|           0|            1|    7|2015|
+|    5|        5|2015-07-31| 4822|      559|   1|    1|           0|            1|    7|2015|
++-----+---------+----------+-----+---------+----+-----+------------+-------------+-----+----+
+only showing top 5 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Data-Aggregations">Data Aggregations<a class="anchor-link" href="#Data-Aggregations">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Sales-Contribution-by-stores">Sales Contribution by stores<a class="anchor-link" href="#Sales-Contribution-by-stores">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_by_stores</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span> <span class="s">&quot;Store&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="s">&quot;Sales&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_by_stores</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+----------+
+|Store|sum(Sales)|
++-----+----------+
+|   31|   4596143|
+|  231|   2967114|
+|  431|   7419918|
+|  631|   4233841|
+|  831|   9884733|
++-----+----------+
+only showing top 5 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Multiple-Aggregation">Multiple Aggregation<a class="anchor-link" href="#Multiple-Aggregation">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_by_stores_custs</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span> <span class="s">&quot;Store&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span> <span class="p">{</span> <span class="s">&quot;Sales&quot;</span> <span class="p">:</span><span class="s">&quot;sum&quot;</span><span class="p">,</span> <span class="s">&quot;Customers&quot;</span><span class="p">:</span> <span class="s">&quot;sum&quot;</span> <span class="p">}</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_by_stores_custs</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+----------+--------------+
+|Store|sum(Sales)|sum(Customers)|
++-----+----------+--------------+
+|   31|   4596143|        459464|
+|  231|   2967114|        245380|
+|  431|   7419918|        780912|
+|  631|   4233841|        500538|
+|  831|   9884733|       1228453|
++-----+----------+--------------+
+only showing top 5 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Top-10-stores-by-sales-contribution">Top 10 stores by sales contribution<a class="anchor-link" href="#Top-10-stores-by-sales-contribution">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_by_stores_custs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="s">&quot;sum(Sales)&quot;</span><span class="p">,</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+----------+--------------+
+|Store|sum(Sales)|sum(Customers)|
++-----+----------+--------------+
+|  262|  19516842|       3204694|
+|  817|  17057867|       2454370|
+|  562|  16927322|       2924960|
+| 1114|  16202585|       2509542|
+|  251|  14896870|       1908934|
+|  513|  14252406|       1643527|
+|  788|  14082141|       1346835|
+|  733|  14067158|       3206058|
+|  383|  13489879|       1720249|
+|  756|  12911782|       1827980|
++-----+----------+--------------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Average-purchase-value-by-customers-in-each-store"><em>Average purchase value</em> by customers in each store<a class="anchor-link" href="#Average-purchase-value-by-customers-in-each-store">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">col</span><span class="p">,</span> <span class="nb">round</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_by_stores_custs</span> <span class="o">=</span> <span class="n">sales_by_stores_custs</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+  <span class="s">&quot;avg_purchase_val&quot;</span><span class="p">,</span>
+  <span class="nb">round</span><span class="p">(</span> <span class="n">col</span><span class="p">(</span> <span class="s">&quot;sum(Sales)&quot;</span> <span class="p">)</span> <span class="o">/</span> <span class="n">col</span><span class="p">(</span> <span class="s">&quot;sum(Customers)&quot;</span> <span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_by_stores_custs</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+----------+--------------+----------------+
+|Store|sum(Sales)|sum(Customers)|avg_purchase_val|
++-----+----------+--------------+----------------+
+|   31|   4596143|        459464|            10.0|
+|  231|   2967114|        245380|           12.09|
+|  431|   7419918|        780912|             9.5|
+|  631|   4233841|        500538|            8.46|
+|  831|   9884733|       1228453|            8.05|
+| 1031|   3773364|        325598|           11.59|
+|   32|   2526117|        296333|            8.52|
+|  232|   2583221|        232738|            11.1|
+|  432|   8610571|       1218907|            7.06|
+|  632|   5510559|        708433|            7.78|
++-----+----------+--------------+----------------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[50]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_purchse_val</span> <span class="o">=</span> <span class="n">sales_by_stores_custs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="s">&quot;avg_purchase_val&quot;</span><span class="p">,</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[51]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sn</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>:0: FutureWarning: IPython widgets are experimental and may change in the future.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Collecting-the-data-as-pandas-dataframe">Collecting the data as pandas dataframe<a class="anchor-link" href="#Collecting-the-data-as-pandas-dataframe">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[52]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top_10_avg_purchse_val</span> <span class="o">=</span> <span class="n">avg_purchse_val</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top_10_avg_purchse_val</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[53]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>Store</th>
+    <th>sum(Sales)</th>
+    <th>sum(Customers)</th>
+    <th>avg_purchase_val</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>842</td>
+    <td>11553523</td>
+    <td>714829</td>
+    <td>16.16</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>612</td>
+    <td>4246423</td>
+    <td>264263</td>
+    <td>16.07</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>455</td>
+    <td>5727571</td>
+    <td>359933</td>
+    <td>15.91</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>158</td>
+    <td>6354198</td>
+    <td>405068</td>
+    <td>15.69</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>52</td>
+    <td>4607742</td>
+    <td>313176</td>
+    <td>14.71</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>868</td>
+    <td>7480652</td>
+    <td>509296</td>
+    <td>14.69</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>1115</td>
+    <td>4922229</td>
+    <td>337884</td>
+    <td>14.57</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>56</td>
+    <td>5718290</td>
+    <td>395919</td>
+    <td>14.44</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>540</td>
+    <td>3513672</td>
+    <td>243396</td>
+    <td>14.44</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>903</td>
+    <td>7300878</td>
+    <td>508657</td>
+    <td>14.35</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Visualizing-top-10-stores-by-avg_purchase_val">Visualizing top 10 stores by avg_purchase_val<a class="anchor-link" href="#Visualizing-top-10-stores-by-avg_purchase_val">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;figure.figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">)});</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sn</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span> <span class="n">x</span> <span class="o">=</span> <span class="s">&#39;Store&#39;</span><span class="p">,</span>
+         <span class="n">y</span> <span class="o">=</span> <span class="s">&#39;avg_purchase_val&#39;</span> <span class="p">,</span>
+         <span class="n">data</span> <span class="o">=</span> <span class="n">top_10_avg_purchse_val</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">],</span>
+         <span class="n">order</span> <span class="o">=</span> <span class="n">top_10_avg_purchse_val</span><span class="o">.</span><span class="n">Store</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span> <span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span> <span class="n">xlabel</span><span class="o">=</span><span class="s">&#39;Store Number&#39;</span><span class="p">,</span>
+     <span class="n">ylabel</span><span class="o">=</span><span class="s">&#39;Total Sales&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+97/X6NGjVVJSosDAQE2ePFlRUVE+rrTqyju3dOjQQaNGjdKBAwcUEhKiv/71r7r22mv97thd/Jrc
+vHmzXn31VU2aNEldu3aVVHo+GTt2rD744APdeOONkqS4uDg1aNDA8//dlClTFBsb66s2qqy812dy
+cnK5x9JflNfTa6+9JunSn32ZmZlauHChAgIC1LdvXz355JM+q7uqzp07p3Hjxun7779XnTp19MYb
+bygoKEgjR47UuXPnFB0drbS0NDkcDqWnp+uf//yn3G63unbtqhdeeMGyOq+qwLVixQo1b95cQ4cO
+1eHDh/XMM8/oH//4h06fPq358+crJiZGklRYWKgpU6YoKytLISEh6tu3r3r27KkWLVr4uIPLc7lc
+mjVrllasWKFTp05p5syZcrlcOn78uKc3yX/7O2/OnDmeTyuw2WwaPny4unTpUmZOWFiYFi1a5Ivy
+rlhhYaFSU1M9vwRI5fe3Z88ebd68WRkZGXK73Xr00UfVq1cv1atXzxdlX5H27dtrxowZnq+Tk5PV
+t29fPfLII1q8eLHee+89jRgxwocVeqe8c0tiYqLq1aunqVOn6v3339fWrVvVuHFjvzp2F78mDxw4
+oEWLFunuu+/2zNm8ebM2bdqk3/zmN7r4b7Deeecdzy95/uTi1+fixYsvOZZxcXE+rNB7F/ck6ZKf
+fQUFBZo9e7aWLVumOnXq6Mknn9RDDz2k6667zhclV9maNWt08uRJZWRk6MCBA5o4caLq1aunAQMG
+qHv37po+fbo+/PBD3X///fr++++VkZGhc+fOqUePHnryyScVHR1tSZ01/1f+alSvXj0dPXpUknTs
+2DFFRkZKkubOnasBAwYoMLA0fwYFBSkzM1MhISGSpPDwcM/jarKNGzfq3nvvVXBwsKKjozVhwgR1
+69ZNL774Ypl5/tqfJO3du1c//vhjmQBSW/7Q1uFwaN68eZfs7Fzc33XXXafi4mIVFxersLBQAQEB
+uuaaa6ws9Ve7uKfXX39d3bt3lyRFRET4zevxvIvPLREREVq7dq0ee+wxSVLfvn0VFxfnd8fu4tdk
+bGysZs6c6Tl3SNLtt9+uCRMmyG63X/KpIf76/+bFdX/++ed6/PHHJf1yLP1Necfi4p99O3bs0O23
+367Q0FDVrVtXbdq00ddff211qV7bv3+/7rjjDknS9ddfr+zsbG3ZssVznB544AFt3LhRjRo18oTO
+o0ePymazKTQ01LI6r6rA1aNHDx08eFDdunVTYmKikpOTtW/fPu3du9dzsj/v/EH47rvvlJOTo9at
+W/uiZK/VvGUgAAAMCklEQVTk5OSoqKhIL7zwgvr376+NGzdWeFNZf+xPkiZPnqzRo0eXGfuP//gP
+PfPMMxo6dKhcrtKPcjl9+rSGDRump59+Wn//+999UKn37Ha7HA7HJeMX9xcbG6sePXooLi5ODz74
+oPr371/mB2BNZ7PZtHfvXr3wwgvq16+fvvzySwUHB8tut6ukpERLlizx/HDzFxeeWwYOHKjk5GTl
+5ORo/fr1SkxM1NChQ3Xs2DG/O3YXvybr1q17Sai63I2rx40bp379+mnq1KnGaqxuF78+v/jiC+Xk
+5GjdunVljqU/Ke//ufJ+9h05csSzESGV/iLhD591fNNNN+mf//ynzp07px9//FEHDx7Uzz//rDp1
+6kgq/czmw4cPe+ZPnDhRjz/+uIYMGWLpDuxV9Zbixx9/rAYNGujtt9/W7t279dprrykqKkopKSnl
+zv/pp580fPhwTZ06VXa73eJqved2u3X06FHNmjVLOTk5GjhwoNauXVvhfH/r76OPPtLdd9+thg0b
+en5b69mzpyIiItSqVSvNnz9f6enpSklJUXJysnr27ClJ6t+/v+6++27ddtttviz/ipTX36BBg7Rq
+1SqtWbNGZ86c0dNPP63u3buXOVHWZE2bNlVSUpJ69Oih7OxsDRw4UJ999plsNptGjhypDh06qEOH
+Dr4u0yvlnVvcbreaN2+upKQkzZkzR/PmzdPTTz/t18fOGy+//LLuu+8+XXfddRoyZIhWrlx5yS+2
+NdHFr8/ExEQFBgZecixHjhzp61KrrLyebrrpJo0fP/6yj/OXHcouXbpo69at6tevn9q2bauYmBgd
+PPjL54Ze3Mdrr72ml156SYmJiWrTpo0aN25sSZ1X1Q7Xtm3bPNcitGrVSrt27dIPP/ygoUOHKiEh
+QXl5eUpMTJQkHTp0SElJSUpLS1OrVt59gKqvREVFqU2bNgoICFCTJk0UEhIip9NZ7lx/7G/dunX6
+9NNPlZCQoGXLlmn27NmS5Kk/Li5Oe/bskSQlJCQoKChIQUFB6tixo2fc33Ts2NHT34MPPqg9e/bo
+m2++0Z133qm6desqNDRULVu29Kv+zu/ySFKTJk0UFRWlQ4cOafTo0WrWrJmGDBni4wq9d/G55dCh
+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
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loading-Stores-Data">Loading Stores Data<a class="anchor-link" href="#Loading-Stores-Data">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[55]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;com.databricks.spark.csv&quot;</span><span class="p">)</span>            \
+        <span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>                                         \
+        <span class="o">.</span><span class="n">options</span><span class="p">(</span> <span class="n">header</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>                                          \
+        <span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;file:///home/hadoop/lab/data/rossmann/store.csv&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[56]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+---------------+
+|Store|StoreType|Assortment|CompetitionDistance|CompetitionOpenSinceMonth|CompetitionOpenSinceYear|Promo2|Promo2SinceWeek|Promo2SinceYear|  PromoInterval|
++-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+---------------+
+|    1|        c|         a|               1270|                        9|                    2008|     0|               |               |               |
+|    2|        a|         a|                570|                       11|                    2007|     1|             13|           2010|Jan,Apr,Jul,Oct|
+|    3|        a|         a|              14130|                       12|                    2006|     1|             14|           2011|Jan,Apr,Jul,Oct|
+|    4|        c|         c|                620|                        9|                    2009|     0|               |               |               |
+|    5|        a|         a|              29910|                        4|                    2015|     0|               |               |               |
++-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+---------------+
+only showing top 5 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Again, from kaggle site, the column defintions are as follows:</p>
+<ul>
+<li>StoreType - differentiates between 4 different store models: a, b, c, d</li>
+<li>Assortment - describes an assortment level: a = basic, b = extra, c = extended</li>
+<li>CompetitionDistance - distance in meters to the nearest competitor store</li>
+<li>CompetitionOpenSince[Month/Year] - gives the approximate year and month of the time the nearest competitor was opened</li>
+<li>Promo - indicates whether a store is running a promo on that day</li>
+<li>Promo2 - Promo2 is a continuing and consecutive promotion for some stores: 0 = store is not participating, 1 = store is participating</li>
+<li>Promo2Since[Year/Week] - describes the year and calendar week when the store started participating in Promo2</li>
+<li>PromoInterval - describes the consecutive intervals Promo2 is started, naming the months the promotion is started anew. E.g. "Feb,May,Aug,Nov" means each round starts in February, May, August, November of any given year for that store</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[57]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- Store: string (nullable = true)
+|-- StoreType: string (nullable = true)
+|-- Assortment: string (nullable = true)
+|-- CompetitionDistance: string (nullable = true)
+|-- CompetitionOpenSinceMonth: string (nullable = true)
+|-- CompetitionOpenSinceYear: string (nullable = true)
+|-- Promo2: string (nullable = true)
+|-- Promo2SinceWeek: string (nullable = true)
+|-- Promo2SinceYear: string (nullable = true)
+|-- PromoInterval: string (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[58]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[58]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&apos;Store&apos;,
+&apos;StoreType&apos;,
+&apos;Assortment&apos;,
+&apos;CompetitionDistance&apos;,
+&apos;CompetitionOpenSinceMonth&apos;,
+&apos;CompetitionOpenSinceYear&apos;,
+&apos;Promo2&apos;,
+&apos;Promo2SinceWeek&apos;,
+&apos;Promo2SinceYear&apos;,
+&apos;PromoInterval&apos;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="How-many-different-types-of-stores-are-there?">How many different types of stores are there?<a class="anchor-link" href="#How-many-different-types-of-stores-are-there?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[59]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">store_by_types</span> <span class="o">=</span> <span class="n">stores_df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span> <span class="s">&quot;StoreType&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">store_by_types</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+---------+-----+
+|StoreType|count|
++---------+-----+
+|        a|  602|
+|        b|   17|
+|        c|  148|
+|        d|  348|
++---------+-----+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Different-store-types-in-percentages">Different store types in percentages<a class="anchor-link" href="#Different-store-types-in-percentages">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Total-Number-of-stores">Total Number of stores<a class="anchor-link" href="#Total-Number-of-stores">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[61]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">total</span> <span class="o">=</span> <span class="n">stores_df</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[62]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">total</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[62]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1115</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[63]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">lit</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[64]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">store_by_types</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span> <span class="s">&quot;percentage&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span> <span class="n">col</span><span class="p">(</span> <span class="s">&quot;count&quot;</span> <span class="p">)</span> <span class="o">/</span> <span class="n">lit</span><span class="p">(</span> <span class="n">total</span> <span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+---------+-----+----------+
+|StoreType|count|percentage|
++---------+-----+----------+
+|        a|  602|      0.54|
+|        b|   17|      0.02|
+|        c|  148|      0.13|
+|        d|  348|      0.31|
++---------+-----+----------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="How-long-competitions-exist-for-the-stores?">How long competitions exist for the stores?<a class="anchor-link" href="#How-long-competitions-exist-for-the-stores?">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Write-a-function-to-calculate-the-total-months-passed-since-competition-is-opened?">Write a function to calculate the total months passed since competition is opened?<a class="anchor-link" href="#Write-a-function-to-calculate-the-total-months-passed-since-competition-is-opened?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[65]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span> <span class="o">=</span> <span class="n">stores_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+  <span class="s">&quot;CompetitionOpenSinceMonth&quot;</span><span class="p">,</span>
+  <span class="n">stores_df</span><span class="p">[</span><span class="s">&quot;CompetitionOpenSinceMonth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span> <span class="s">&#39;float&#39;</span> <span class="p">)</span> <span class="p">)</span>
+
+<span class="n">stores_df</span> <span class="o">=</span> <span class="n">stores_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+  <span class="s">&quot;CompetitionOpenSinceYear&quot;</span><span class="p">,</span>
+  <span class="n">stores_df</span><span class="p">[</span><span class="s">&quot;CompetitionOpenSinceYear&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span> <span class="s">&#39;float&#39;</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[66]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span> <span class="o">=</span> <span class="n">stores_df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span> <span class="mf">0.0</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[67]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">col</span><span class="p">(</span> <span class="s">&quot;CompetitionOpenSinceYear&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">isNull</span><span class="p">()</span> <span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+-------------+
+|Store|StoreType|Assortment|CompetitionDistance|CompetitionOpenSinceMonth|CompetitionOpenSinceYear|Promo2|Promo2SinceWeek|Promo2SinceYear|PromoInterval|
++-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+-------------+
++-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+-------------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[68]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">col</span><span class="p">(</span> <span class="s">&quot;CompetitionOpenSinceMonth&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">isNull</span><span class="p">()</span> <span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+-------------+
+|Store|StoreType|Assortment|CompetitionDistance|CompetitionOpenSinceMonth|CompetitionOpenSinceYear|Promo2|Promo2SinceWeek|Promo2SinceYear|PromoInterval|
++-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+-------------+
++-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+-------------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[69]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">dateutil.relativedelta</span> <span class="k">import</span> <span class="n">relativedelta</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="k">def</span> <span class="nf">diff_in_months</span><span class="p">(</span> <span class="n">fromYear</span><span class="p">,</span> <span class="n">fromMonth</span> <span class="p">):</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">fromYear</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">fromMonth</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">):</span>
+      <span class="k">return</span> <span class="mf">0.0</span>
+  <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="p">(</span> <span class="mf">2015.0</span> <span class="o">-</span> <span class="n">fromYear</span> <span class="p">)</span> <span class="o">*</span> <span class="mf">12.0</span> <span class="o">+</span> <span class="p">(</span> <span class="mf">12.0</span> <span class="o">-</span> <span class="n">fromMonth</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[70]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">diff_in_months</span><span class="p">(</span> <span class="mi">2012</span><span class="p">,</span> <span class="mi">3</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[70]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>45.0</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[71]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">udf</span><span class="p">,</span> <span class="n">array</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[72]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">comp_months_udf</span> <span class="o">=</span> <span class="n">udf</span><span class="p">(</span> <span class="n">diff_in_months</span><span class="p">,</span> <span class="n">FloatType</span><span class="p">()</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[73]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- Store: string (nullable = true)
+|-- StoreType: string (nullable = true)
+|-- Assortment: string (nullable = true)
+|-- CompetitionDistance: string (nullable = true)
+|-- CompetitionOpenSinceMonth: double (nullable = false)
+|-- CompetitionOpenSinceYear: double (nullable = false)
+|-- Promo2: string (nullable = true)
+|-- Promo2SinceWeek: string (nullable = true)
+|-- Promo2SinceYear: string (nullable = true)
+|-- PromoInterval: string (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[74]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- Store: string (nullable = true)
+|-- StoreType: string (nullable = true)
+|-- Assortment: string (nullable = true)
+|-- CompetitionDistance: string (nullable = true)
+|-- CompetitionOpenSinceMonth: double (nullable = false)
+|-- CompetitionOpenSinceYear: double (nullable = false)
+|-- Promo2: string (nullable = true)
+|-- Promo2SinceWeek: string (nullable = true)
+|-- Promo2SinceYear: string (nullable = true)
+|-- PromoInterval: string (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[75]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span> <span class="o">=</span> <span class="n">stores_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span> <span class="s">&quot;comp_months&quot;</span><span class="p">,</span>
+                   <span class="n">comp_months_udf</span><span class="p">(</span> <span class="n">stores_df</span><span class="o">.</span><span class="n">CompetitionOpenSinceYear</span><span class="p">,</span>
+                                <span class="n">stores_df</span><span class="o">.</span><span class="n">CompetitionOpenSinceMonth</span> <span class="p">)</span> <span class="p">)</span>
+
+<span class="n">stores_df</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[75]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[Store: string, StoreType: string, Assortment: string, CompetitionDistance: string, CompetitionOpenSinceMonth: double, CompetitionOpenSinceYear: double, Promo2: string, Promo2SinceWeek: string, Promo2SinceYear: string, PromoInterval: string, comp_months: float]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[76]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+---------------+-----------+
+|Store|StoreType|Assortment|CompetitionDistance|CompetitionOpenSinceMonth|CompetitionOpenSinceYear|Promo2|Promo2SinceWeek|Promo2SinceYear|  PromoInterval|comp_months|
++-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+---------------+-----------+
+|    1|        c|         a|               1270|                      9.0|                  2008.0|     0|               |               |               |       87.0|
+|    2|        a|         a|                570|                     11.0|                  2007.0|     1|             13|           2010|Jan,Apr,Jul,Oct|       97.0|
++-----+---------+----------+-------------------+-------------------------+------------------------+------+---------------+---------------+---------------+-----------+
+only showing top 2 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Advanced-OLAP-functions">Advanced OLAP functions<a class="anchor-link" href="#Advanced-OLAP-functions">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Creating-multi-dimensional-cubes-for-sales-on-customers,-month,-year,-promo,-weekday-dimensions">Creating multi-dimensional cubes for sales on customers, month, year, promo, weekday dimensions<a class="anchor-link" href="#Creating-multi-dimensional-cubes-for-sales-on-customers,-month,-year,-promo,-weekday-dimensions">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[97]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- Store: integer (nullable = true)
+|-- DayOfWeek: integer (nullable = true)
+|-- Date: date (nullable = true)
+|-- Sales: integer (nullable = true)
+|-- Customers: integer (nullable = true)
+|-- Open: integer (nullable = true)
+|-- Promo: integer (nullable = true)
+|-- StateHoliday: string (nullable = true)
+|-- SchoolHoliday: string (nullable = true)
+|-- month: integer (nullable = true)
+|-- year: integer (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[98]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_cubes</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">cube</span><span class="p">(</span> <span class="s">&quot;year&quot;</span><span class="p">,</span> <span class="s">&quot;month&quot;</span><span class="p">,</span> <span class="s">&quot;DayOfWeek&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="s">&quot;Sales&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[99]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_cubes</span> <span class="o">=</span> <span class="n">sales_cubes</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="s">&quot;year&quot;</span><span class="p">,</span> <span class="s">&quot;month&quot;</span><span class="p">,</span> <span class="s">&quot;DayOfWeek&quot;</span><span class="p">,</span>
+                             <span class="n">ascending</span> <span class="o">=</span> <span class="p">[</span><span class="k">False</span><span class="p">,</span> <span class="k">False</span><span class="p">,</span> <span class="k">False</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[100]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_cubes</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[100]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[year: int, month: int, DayOfWeek: int, avg(Sales): double]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[101]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_cubes</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">65</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+----+-----+---------+------------------+
+|year|month|DayOfWeek|        avg(Sales)|
++----+-----+---------+------------------+
+|2015|    7|        7|253.49282511210762|
+|2015|    7|        6| 5557.611210762332|
+|2015|    7|        5| 7220.753542600897|
+|2015|    7|        4|7039.3309417040355|
+|2015|    7|        3| 7044.266188340807|
+|2015|    7|        2| 6996.633183856502|
+|2015|    7|        1| 8167.792152466368|
+|2015|    7|     null| 6142.705511355417|
+|2015|    6|        7| 234.2035874439462|
+|2015|    6|        6|5811.1556053811655|
+|2015|    6|        5| 7045.798878923767|
+|2015|    6|        4| 5491.128699551569|
+|2015|    6|        3| 6980.366367713004|
+|2015|    6|        2| 7929.010582959641|
+|2015|    6|        1| 8816.090762331838|
+|2015|    6|     null| 6199.203976083707|
+|2015|    5|        7| 232.5886995515695|
+|2015|    5|        6| 6590.219910313901|
+|2015|    5|        5|6143.7431390134525|
+|2015|    5|        4| 5390.822197309417|
+|2015|    5|        3| 7177.902242152466|
+|2015|    5|        2| 7212.469058295964|
+|2015|    5|        1| 6419.562331838565|
+|2015|    5|     null|  5472.12200202517|
+|2015|    4|        7|209.32780269058296|
+|2015|    4|        6| 6431.994170403587|
+|2015|    4|        5|4936.6813901345295|
+|2015|    4|        4| 7863.491121076233|
+|2015|    4|        3|7443.0651121076235|
+|2015|    4|        2|7265.6174887892375|
+|2015|    4|        1| 6399.615695067265|
+|2015|    4|     null| 5916.857578475337|
+|2015|    3|        7|203.92502242152466|
+|2015|    3|        6| 5923.364125560538|
+|2015|    3|        5| 6909.351793721973|
+|2015|    3|        4| 6519.332735426009|
+|2015|    3|        3| 6448.600448430493|
+|2015|    3|        2| 7477.686098654708|
+|2015|    3|        1| 8562.476412556054|
+|2015|    3|     null| 5949.130131636048|
+|2015|    2|        7|190.68183856502242|
+|2015|    2|        6| 6055.761659192825|
+|2015|    2|        5| 7068.506726457399|
+|2015|    2|        4| 6418.807847533632|
+|2015|    2|        3| 6416.215919282511|
+|2015|    2|        2| 6630.320403587444|
+|2015|    2|        1| 7191.781390134529|
+|2015|    2|     null| 5710.296540679052|
+|2015|    1|        7| 169.3645739910314|
+|2015|    1|        6| 5761.383139013453|
+|2015|    1|        5|7128.9840358744395|
+|2015|    1|        4| 5293.223497757847|
+|2015|    1|        3|6797.2262331838565|
+|2015|    1|        2|  6606.85067264574|
+|2015|    1|        1| 8280.866143497758|
+|2015|    1|     null| 5752.747866338782|
+|2015| null|        7|213.69503736920777|
+|2015| null|        6| 6029.252077727952|
+|2015| null|        5| 6655.121249819182|
+|2015| null|        4| 6330.986894257197|
+|2015| null|        3|6923.9300448430495|
+|2015| null|        2| 7196.034887892377|
+|2015| null|        1| 7757.710224215247|
+|2015| null|     null| 5878.245380319824|
+|2014|   12|        7|238.62513368983957|
++----+-----+---------+------------------+
+only showing top 65 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[102]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">custs_rollups</span> <span class="o">=</span> <span class="n">retail_df</span><span class="o">.</span><span class="n">rollup</span><span class="p">(</span> <span class="s">&quot;year&quot;</span><span class="p">,</span> <span class="s">&quot;month&quot;</span><span class="p">,</span> <span class="s">&quot;DayOfWeek&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s">&quot;Customers&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[103]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">custs_rollups</span> <span class="o">=</span> <span class="n">custs_rollups</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span> <span class="s">&quot;year&quot;</span><span class="p">,</span> <span class="s">&quot;month&quot;</span><span class="p">,</span> <span class="s">&quot;DayOfWeek&quot;</span><span class="p">,</span>
+                             <span class="n">ascending</span> <span class="o">=</span> <span class="p">[</span><span class="k">False</span><span class="p">,</span> <span class="k">False</span><span class="p">,</span> <span class="k">False</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[104]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">custs_rollups</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[104]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[year: int, month: int, DayOfWeek: int, sum(Customers): bigint]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[105]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">custs_rollups</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+----+-----+---------+--------------+
+|year|month|DayOfWeek|sum(Customers)|
++----+-----+---------+--------------+
+|2015|    7|        7|        188144|
+|2015|    7|        6|       2699949|
+|2015|    7|        5|       4229917|
+|2015|    7|        4|       4135350|
+|2015|    7|        3|       4084639|
+|2015|    7|        2|       3270527|
+|2015|    7|        1|       3645362|
+|2015|    7|     null|      22253888|
+|2015|    6|        7|        177292|
+|2015|    6|        6|       2817690|
+|2015|    6|        5|       3381020|
+|2015|    6|        4|       2737228|
+|2015|    6|        3|       3325603|
+|2015|    6|        2|       4438681|
+|2015|    6|        1|       4767615|
+|2015|    6|     null|      21645129|
+|2015|    5|        7|        217516|
+|2015|    5|        6|       3921955|
+|2015|    5|        5|       3663158|
+|2015|    5|        4|       2576555|
+|2015|    5|        3|       3432759|
+|2015|    5|        2|       3441435|
+|2015|    5|        1|       2940470|
+|2015|    5|     null|      20193848|
+|2015|    4|        7|        161366|
+|2015|    4|        6|       3120909|
+|2015|    4|        5|       2473489|
+|2015|    4|        4|       4618265|
+|2015|    4|        3|       4321340|
+|2015|    4|        2|       3477838|
+|2015|    4|        1|       2880784|
+|2015|    4|     null|      21053991|
+|2015|    3|        7|        193657|
+|2015|    3|        6|       2874050|
+|2015|    3|        5|       3343678|
+|2015|    3|        4|       3215772|
+|2015|    3|        3|       3161923|
+|2015|    3|        2|       4276840|
+|2015|    3|        1|       4743721|
+|2015|    3|     null|      21809641|
+|2015|    2|        7|        146914|
+|2015|    2|        6|       2954720|
+|2015|    2|        5|       3405752|
+|2015|    2|        4|       3185048|
+|2015|    2|        3|       3169238|
+|2015|    2|        2|       3235330|
+|2015|    2|        1|       3384379|
+|2015|    2|     null|      19481381|
+|2015|    1|        7|        131477|
+|2015|    1|        6|       3489789|
+|2015|    1|        5|       4222693|
+|2015|    1|        4|       3163920|
+|2015|    1|        3|       3211087|
+|2015|    1|        2|       3148225|
+|2015|    1|        1|       3743290|
+|2015|    1|     null|      21110481|
+|2015| null|     null|     147548359|
+|2014|   12|        7|        146729|
+|2014|   12|        6|       2926291|
+|2014|   12|        5|       2639423|
++----+-----+---------+--------------+
+only showing top 60 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Joining-two-dataframes">Joining two dataframes<a class="anchor-link" href="#Joining-two-dataframes">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[106]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_limited_df</span> <span class="o">=</span> <span class="n">stores_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span> <span class="s">&#39;Store&#39;</span><span class="p">,</span>
+                                    <span class="s">&#39;StoreType&#39;</span><span class="p">,</span>
+                                    <span class="s">&#39;Assortment&#39;</span><span class="p">,</span>
+                                    <span class="s">&#39;CompetitionDistance&#39;</span><span class="p">,</span>
+                                    <span class="s">&#39;comp_months&#39;</span><span class="p">)</span>
+
+<span class="n">stores_limited_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-------------------+-----------+
+|Store|StoreType|Assortment|CompetitionDistance|comp_months|
++-----+---------+----------+-------------------+-----------+
+|    1|        c|         a|               1270|       87.0|
+|    2|        a|         a|                570|       97.0|
+|    3|        a|         a|              14130|      108.0|
+|    4|        c|         c|                620|       75.0|
+|    5|        a|         a|              29910|        8.0|
+|    6|        a|         a|                310|       24.0|
+|    7|        a|         c|              24000|       32.0|
+|    8|        a|         a|               7520|       14.0|
+|    9|        a|         c|               2030|      184.0|
+|   10|        a|         a|               3160|       75.0|
++-----+---------+----------+-------------------+-----------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[75]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_by_stores_custs</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+----------+--------------+----------------+
+|Store|sum(Sales)|sum(Customers)|avg_purchase_val|
++-----+----------+--------------+----------------+
+|   31|   4596143|        459464|            10.0|
+|  231|   2967114|        245380|           12.09|
+|  431|   7419918|        780912|             9.5|
+|  631|   4233841|        500538|            8.46|
+|  831|   9884733|       1228453|            8.05|
+| 1031|   3773364|        325598|           11.59|
+|   32|   2526117|        296333|            8.52|
+|  232|   2583221|        232738|            11.1|
+|  432|   8610571|       1218907|            7.06|
+|  632|   5510559|        708433|            7.78|
++-----+----------+--------------+----------------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[76]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_df</span> <span class="o">=</span> <span class="n">stores_limited_df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">sales_by_stores_custs</span><span class="p">,</span>
+                                     <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Store&quot;</span><span class="p">],</span> <span class="n">how</span> <span class="o">=</span> <span class="s">&#39;inner&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[78]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-------------------+-----------+----------+--------------+----------------+
+|Store|StoreType|Assortment|CompetitionDistance|comp_months|sum(Sales)|sum(Customers)|avg_purchase_val|
++-----+---------+----------+-------------------+-----------+----------+--------------+----------------+
+|   31|        d|         c|               9800|       null|   4596143|        459464|            10.0|
+|  231|        d|         c|               3840|       null|   2967114|        245380|           12.09|
+|  431|        d|         c|               4520|          0|   7419918|        780912|             9.5|
+|  631|        d|         c|               2870|          0|   4233841|        500538|            8.46|
+|  831|        a|         a|                800|       null|   9884733|       1228453|            8.05|
+| 1031|        d|         a|                590|       null|   3773364|        325598|           11.59|
+|   32|        a|         a|               2910|          0|   2526117|        296333|            8.52|
+|  232|        c|         c|              13570|       null|   2583221|        232738|            11.1|
+|  432|        a|         a|                810|       null|   8610571|       1218907|            7.06|
+|  632|        a|         a|               3350|       null|   5510559|        708433|            7.78|
++-----+---------+----------+-------------------+-----------+----------+--------------+----------------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Statistical-Functions">Statistical Functions<a class="anchor-link" href="#Statistical-Functions">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[79]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- Store: string (nullable = true)
+|-- StoreType: string (nullable = true)
+|-- Assortment: string (nullable = true)
+|-- CompetitionDistance: string (nullable = true)
+|-- comp_months: integer (nullable = true)
+|-- sum(Sales): long (nullable = true)
+|-- sum(Customers): long (nullable = true)
+|-- avg_purchase_val: double (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[80]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_stats</span> <span class="o">=</span> <span class="n">all_stores_df</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[81]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_stats</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+-----------+------------------+------------------+------------------+
+|summary|comp_months|        sum(Sales)|    sum(Customers)|  avg_purchase_val|
++-------+-----------+------------------+------------------+------------------+
+|  count|        354|              1115|              1115|              1115|
+|   mean|        0.0| 5267426.567713005| 577615.9237668162|  9.64365919282511|
+| stddev|        0.0|1951304.4839653843|304654.53314051765|1.9869552301495719|
+|    min|          0|           2114322|            187583|              3.51|
+|    max|          0|          19516842|           3206058|             16.16|
++-------+-----------+------------------+------------------+------------------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Convert-the-data-types-of-the-columns">Convert the data types of the columns<a class="anchor-link" href="#Convert-the-data-types-of-the-columns">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[82]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_df</span> <span class="o">=</span> <span class="n">all_stores_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+  <span class="s">&quot;CompetitionDistance&quot;</span><span class="p">,</span>
+  <span class="n">all_stores_df</span><span class="p">[</span><span class="s">&quot;CompetitionDistance&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span> <span class="s">&#39;int&#39;</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[83]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>root
+|-- Store: string (nullable = true)
+|-- StoreType: string (nullable = true)
+|-- Assortment: string (nullable = true)
+|-- CompetitionDistance: integer (nullable = true)
+|-- comp_months: integer (nullable = true)
+|-- sum(Sales): long (nullable = true)
+|-- sum(Customers): long (nullable = true)
+|-- avg_purchase_val: double (nullable = true)
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[84]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_stats</span> <span class="o">=</span> <span class="n">all_stores_df</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+<span class="n">all_stores_stats</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+-------------------+-----------+-----------------+-----------------+-----------------+
+|summary|CompetitionDistance|comp_months|       sum(Sales)|   sum(Customers)| avg_purchase_val|
++-------+-------------------+-----------+-----------------+-----------------+-----------------+
+|  count|               1112|        354|             1115|             1115|             1115|
+|   mean|  5404.901079136691|        0.0|5267426.567713005|577615.9237668162|9.643659192825108|
+| stddev|  7663.174720367947|        0.0|1951304.483965384|304654.5331405178|1.986955230149572|
+|    min|                 20|          0|          2114322|           187583|             3.51|
+|    max|              75860|          0|         19516842|          3206058|            16.16|
++-------+-------------------+-----------+-----------------+-----------------+-----------------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><ul>
+<li>Some data points missing in <em>CompetitionDistance</em> column. Only 1112 out of 1115 are available.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Describe-on-a-subset-of-columns">Describe on a subset of columns<a class="anchor-link" href="#Describe-on-a-subset-of-columns">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[85]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_df</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span> <span class="s">&quot;CompetitionDistance&quot;</span><span class="p">,</span> <span class="s">&quot;avg_purchase_val&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+-------------------+------------------+
+|summary|CompetitionDistance|  avg_purchase_val|
++-------+-------------------+------------------+
+|  count|               1112|              1115|
+|   mean|  5404.901079136691| 9.643659192825114|
+| stddev|  7663.174720367955|1.9869552301495716|
+|    min|                 20|              3.51|
+|    max|              75860|             16.16|
++-------+-------------------+------------------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Finding-correlation-between-variables">Finding correlation between variables<a class="anchor-link" href="#Finding-correlation-between-variables">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[86]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_df</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span> <span class="s">&#39;CompetitionDistance&#39;</span><span class="p">,</span> <span class="s">&#39;avg_purchase_val&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[86]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.23007011949360373</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><ul>
+<li>Surprisingly not very highly correlated. In fact, it is positively correlated, which sound unintuitive. This may be because the stores with low CompetitionDistance are located in crowded places. And Stores with high competition distance are placed in very low population areas. This explains why the sales are low, even when there is no competition.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[87]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">all_stores_df</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span> <span class="s">&#39;sum(Sales)&#39;</span><span class="p">,</span> <span class="s">&#39;sum(Customers)&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[87]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.8542650646315247</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>This is expected to be highly correlated. Sales are higher when when there are higher footfalls.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><p><a href="https://databricks.com/blog/2015/06/02/statistical-and-mathematical-functions-with-dataframes-in-spark.html">Here</a> is a nice article from databricks, which is good introduction to applying statistical and mathematical functions in spark.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Running-SQL-Queries">Running SQL Queries<a class="anchor-link" href="#Running-SQL-Queries">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Registering-sales-data-as-a-table">Registering sales data as a table<a class="anchor-link" href="#Registering-sales-data-as-a-table">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[88]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span> <span class="s">&quot;retail&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Running-SQL-Queries">Running SQL Queries<a class="anchor-link" href="#Running-SQL-Queries">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[89]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_sales_custs</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&quot;&quot;&quot;select Store, avg(Sales) as avg_sales,                 </span>
+<span class="s">                                 avg(Customers) as avg_custs from retail group by Store&quot;&quot;&quot;</span> <span class="p">)</span>
+<span class="n">avg_sales_custs</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[89]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[Store: int, avg_sales: double, avg_custs: double]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[90]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">avg_sales_custs</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+------------------+------------------+
+|Store|         avg_sales|         avg_custs|
++-----+------------------+------------------+
+|   31| 4879.132696390659|487.75371549893845|
+|  231|3914.3984168865436| 323.7203166226913|
+|  431| 7876.770700636943| 828.9936305732484|
+|  631| 4494.523354564756| 531.3566878980891|
+|  831|10493.347133757961|1304.0902335456476|
+| 1031|4005.6942675159235| 345.6454352441614|
+|   32| 3332.608179419525|390.94063324538257|
+|  232| 2742.272823779193|247.06794055201698|
+|  432| 9140.733545647558|1293.9564755838642|
+|  632| 5849.850318471337|  752.052016985138|
++-----+------------------+------------------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Creating-Cubes-and-Rollups">Creating Cubes and Rollups<a class="anchor-link" href="#Creating-Cubes-and-Rollups">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[91]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&quot;describe retail&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------------+---------+-------+
+|     col_name|data_type|comment|
++-------------+---------+-------+
+|        Store|      int|       |
+|    DayOfWeek|      int|       |
+|         Date|     date|       |
+|        Sales|      int|       |
+|    Customers|      int|       |
+|         Open|      int|       |
+|        Promo|      int|       |
+| StateHoliday|   string|       |
+|SchoolHoliday|   string|       |
+|        month|      int|       |
+|         year|      int|       |
++-------------+---------+-------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[92]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sqlContext</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[92]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;pyspark.sql.context.HiveContext at 0x7fc054440d30&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[93]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_rollups</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="s">&#39;&#39;&#39;select year, month, Store, sum(Sales) as total_sales</span>
+<span class="s">            from retail group by year, month, Store with rollup&#39;&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[94]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_rollups</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[94]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[year: int, month: int, Store: int, total_sales: bigint]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[95]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_rollups</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+----+-----+-----+-----------+
+|year|month|Store|total_sales|
++----+-----+-----+-----------+
+|2015|    7|   34|     228254|
+|2015|    7|  234|     272817|
+|2015|    7|  434|     273987|
+|2015|    7|  634|     184245|
+|2015|    7|  834|     163256|
+|2015|    7| 1034|     169809|
+|2015|    6|   71|     237000|
+|2015|    6|  271|     219222|
+|2015|    6|  471|     177985|
+|2015|    6|  671|     178178|
++----+-----+-----+-----------+
+only showing top 10 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[96]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sales_rollups</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span> <span class="s">&quot;sales_rollups&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Top-3-Stores-for-each-month-by-sales-revenue-contribution">Top 3 Stores for each month by sales revenue contribution<a class="anchor-link" href="#Top-3-Stores-for-each-month-by-sales-revenue-contribution">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[97]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top3_query</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;SELECT</span>
+<span class="s">  year,</span>
+<span class="s">  month,</span>
+<span class="s">  Store,</span>
+<span class="s">  total_sales,</span>
+<span class="s">  rank</span>
+<span class="s">FROM (</span>
+<span class="s">  SELECT</span>
+<span class="s">    Store,</span>
+<span class="s">    year,</span>
+<span class="s">    month,</span>
+<span class="s">    total_sales,</span>
+<span class="s">    rank() OVER (PARTITION BY year, month ORDER BY total_sales DESC) as rank</span>
+<span class="s">  FROM sales_rollups) tmp</span>
+<span class="s">WHERE</span>
+<span class="s">  rank &lt;= 3 ORDER BY year, month, rank&quot;&quot;&quot;</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[98]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top3_store_by_month</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span> <span class="n">top3_query</span> <span class="p">)</span>
+<span class="n">top3_store_by_month</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[98]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DataFrame[year: int, month: int, Store: int, total_sales: bigint, rank: int]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[99]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">top3_store_by_month</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">30</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+----+-----+-----+-----------+----+
+|year|month|Store|total_sales|rank|
++----+-----+-----+-----------+----+
+|2013|    1|  817|     616461|   1|
+|2013|    1|  262|     566482|   2|
+|2013|    1|  562|     527869|   3|
+|2013|    2|  817|     561454|   1|
+|2013|    2|  262|     549174|   2|
+|2013|    2|  562|     488061|   3|
+|2013|    3|  262|     673085|   1|
+|2013|    3|  817|     615420|   2|
+|2013|    3|  562|     572658|   3|
+|2013|    4|  262|     610222|   1|
+|2013|    4|  817|     606697|   2|
+|2013|    4|  562|     528838|   3|
+|2013|    5|  262|     711428|   1|
+|2013|    5|  817|     617836|   2|
+|2013|    5|  562|     564743|   3|
+|2013|    6|  262|     630094|   1|
+|2013|    6|  817|     609556|   2|
+|2013|    6|  562|     541954|   3|
+|2013|    7|  262|     615851|   1|
+|2013|    7|  817|     609614|   2|
+|2013|    7| 1114|     548603|   3|
+|2013|    8|  262|     628556|   1|
+|2013|    8|  817|     587789|   2|
+|2013|    8| 1114|     559259|   3|
+|2013|    9|  262|     600554|   1|
+|2013|    9|  817|     507966|   2|
+|2013|    9|  562|     505259|   3|
+|2013|   10|  262|     624051|   1|
+|2013|   10|  817|     556556|   2|
+|2013|   10|  562|     552199|   3|
++----+-----+-----+-----------+----+
+only showing top 30 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Writing-dataframes-using-Parquet-Format">Writing dataframes using Parquet Format<a class="anchor-link" href="#Writing-dataframes-using-Parquet-Format">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[108]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">retail_df</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span> <span class="s">&quot;retail.parquet&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[110]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_limited_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-----+---------+----------+-------------------+-----------+
+|Store|StoreType|Assortment|CompetitionDistance|comp_months|
++-----+---------+----------+-------------------+-----------+
+|    1|        c|         a|               1270|       87.0|
+|    2|        a|         a|                570|       97.0|
+|    3|        a|         a|              14130|      108.0|
+|    4|        c|         c|                620|       75.0|
+|    5|        a|         a|              29910|        8.0|
++-----+---------+----------+-------------------+-----------+
+only showing top 5 rows
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[111]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">stores_limited_df</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span> <span class="s">&quot;stores_limited.parquet&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+  </div>
+</div>
