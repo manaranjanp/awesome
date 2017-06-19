@@ -31,7 +31,44 @@ introduction: "Using Spark RDD APIs"
 <li>When spark starts, the sparkContext is created and available as variable <em>sc</em></li>
 <li>This dataset is taken from cricinfo.com. There are two datasets available: <a href="/assets/data/captains_ODI.csv">Captains ODIs</a> &amp; <a href="/assets/data/captains_Test.csv">Captains Tests</a> </li>
 </ul>
+<ul>
+<li>Using RDD APIs, we will explore the following steps:</p>
+<ul>
+<li>Reading text files</li>
+<li>Parse records and associate with a schema </li>
+<li>Filtering of records</li>
+<li>Grouping of records</li>
+<li>Sorting by key and values</li>
+<li>Applying map and reduce functions</li>
+<li>Caching RDDs</li>
+<li>Applying <em>groupByKey()</em> and <em>mapValues()</em> functions</li>
+<li>Collecting data into driver</li>
+<li>Joining RDDs</li>
+<li>Saving RDDs into files</li>
+<li>Using Broadcast variables</li>
+<li>Using Accumulators</li>
+</ul>
+</li>
+</ul>
 
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Check-Spark-Context">Check Spark Context<a class="anchor-link" href="#Check-Spark-Context">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Checking-if-SparkContext-is-Created">Checking if SparkContext is Created<a class="anchor-link" href="#Checking-if-SparkContext-is-Created">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -56,7 +93,7 @@ introduction: "Using Spark RDD APIs"
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;pyspark.context.SparkContext at 0x7f1fa479b400&gt;</pre>
+<pre>&lt;pyspark.context.SparkContext at 0x7f2a4c425278&gt;</pre>
 </div>
 
 </div>
@@ -70,7 +107,197 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="ODI-Performance-Analysis">ODI Performance Analysis<a class="anchor-link" href="#ODI-Performance-Analysis">&#182;</a></h2>
+<h3 id="Checking-spark-version">Checking spark version<a class="anchor-link" href="#Checking-spark-version">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[184]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span><span class="o">.</span><span class="n">version</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[184]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;1.6.0&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Check-Spark-Master-Deployment-Mode">Check Spark Master Deployment Mode<a class="anchor-link" href="#Check-Spark-Master-Deployment-Mode">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[185]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span><span class="o">.</span><span class="n">master</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[185]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;local[2]&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Spark-Application-Name-and-ID">Spark Application Name and ID<a class="anchor-link" href="#Spark-Application-Name-and-ID">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[186]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span><span class="o">.</span><span class="n">appName</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[186]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;pyspark-shell&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[187]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span><span class="o">.</span><span class="n">applicationId</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[187]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;local-1469738969083&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Spark-using-which-python-version">Spark using which python version<a class="anchor-link" href="#Spark-using-which-python-version">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[188]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">sc</span><span class="o">.</span><span class="n">pythonVer</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[188]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&apos;3.4&apos;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="ODI-Performance-Analysis">ODI Performance Analysis<a class="anchor-link" href="#ODI-Performance-Analysis">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loading-the-dataset">Loading the dataset<a class="anchor-link" href="#Loading-the-dataset">&#182;</a></h2>
 </div>
 </div>
 </div>
@@ -145,7 +372,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[130]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
@@ -159,7 +386,7 @@ introduction: "Using Spark RDD APIs"
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[4]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[130]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -220,6 +447,35 @@ introduction: "Using Spark RDD APIs"
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis</span><span class="o">.</span><span class="n">persist</span><span class="p">(</span> <span class="n">StorageLevel</span><span class="o">.</span><span class="n">MEMORY_ONLY_SER</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>MapPartitionsRDD[1] at textFile at NativeMethodAccessorImpl.java:-2</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
 </div>
@@ -231,7 +487,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Count the number of records</span>
@@ -246,7 +502,7 @@ introduction: "Using Spark RDD APIs"
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -265,7 +521,7 @@ introduction: "Using Spark RDD APIs"
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Parsing-the-lines-and-creating-records">Parsing the lines and creating records<a class="anchor-link" href="#Parsing-the-lines-and-creating-records">&#182;</a></h3><ul>
-<li>The RDD does not have a header. Let's define a header and then assign it to the RDD</li>
+<li>Each line from the file is taken as a record. The records are not associated with a schema. Let's define a schema and associate the fields in each line with the schema. One way of doing it is defining a named tuple and converting the lines into named tuples.</li>
 </ul>
 
 </div>
@@ -273,7 +529,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;country&quot;</span><span class="p">,</span> <span class="s">&quot;career&quot;</span><span class="p">,</span> <span class="s">&quot;matches&quot;</span><span class="p">,</span> <span class="s">&quot;won&quot;</span><span class="p">,</span> <span class="s">&quot;lost&quot;</span><span class="p">,</span> <span class="s">&quot;ties&quot;</span><span class="p">,</span> <span class="s">&quot;toss&quot;</span> <span class="p">)</span>
@@ -286,7 +542,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
@@ -311,7 +567,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">Captain</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span> <span class="s">&#39;Captain&#39;</span><span class="p">,</span> <span class="n">fields</span> <span class="p">)</span>
@@ -336,7 +592,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Define a function to parse each line and convert them into records</span>
@@ -353,7 +609,7 @@ introduction: "Using Spark RDD APIs"
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">captains</span> <span class="o">=</span> <span class="n">captains_odis</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">parseRecs</span><span class="p">(</span> <span class="n">rec</span><span class="p">)</span> <span class="p">)</span>
@@ -364,9 +620,59 @@ introduction: "Using Spark RDD APIs"
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Cache-the-RDD">Cache the RDD<a class="anchor-link" href="#Cache-the-RDD">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>We will be using the RDD in future for many analysis. So, let's cache the RDD.</li>
+</ul>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[40]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>PythonRDD[6] at RDD at PythonRDD.scala:43</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Now captains refer to all the records. Let&#39;s display the first 10 records.</span>
@@ -381,7 +687,7 @@ introduction: "Using Spark RDD APIs"
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[41]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -405,7 +711,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># What is the type of the captains RDD</span>
@@ -420,7 +726,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[42]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -438,7 +744,16 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Filtering-records">Filtering records<a class="anchor-link" href="#Filtering-records">&#182;</a></h3><ul>
+<h2 id="Finding-ODI-Insights">Finding ODI Insights<a class="anchor-link" href="#Finding-ODI-Insights">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Filtering-records:-Captain's-who-captained-for-more-than-100-ODIs">Filtering records: Captain's who captained for more than 100 ODIs<a class="anchor-link" href="#Filtering-records:-Captain's-who-captained-for-more-than-100-ODIs">&#182;</a></h3><ul>
 <li>Filter only those captains that have captained for at least 100 ODI matches. And then we can compare the statistics of these captains</li>
 </ul>
 
@@ -447,7 +762,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">captains_100</span> <span class="o">=</span> <span class="n">captains</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">matches</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="p">)</span>
@@ -469,7 +784,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">captains_100</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
@@ -483,7 +798,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[44]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -498,11 +813,11 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Who are these captains</span>
-<span class="n">captains</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+<span class="n">captains_100</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
 </pre></div>
 
 </div>
@@ -513,7 +828,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[45]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -535,9 +850,197 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Writing-an-utility-/-data-function-to-return-num-captains">Writing an utility / data function to return num captains<a class="anchor-link" href="#Writing-an-utility-/-data-function-to-return-num-captains">&#182;</a></h3>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[72]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="k">def</span> <span class="nf">getNumCaptainsByMinMatches</span><span class="p">(</span> <span class="n">anRDD</span><span class="p">,</span> <span class="n">num_matches</span> <span class="p">):</span>
+  <span class="k">return</span> <span class="n">anRDD</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">parseRecs</span><span class="p">(</span> <span class="n">rec</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">matches</span> <span class="o">&gt;</span> <span class="n">num_matches</span> <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Writing-script-to-test-functions">Writing script to test functions<a class="anchor-link" href="#Writing-script-to-test-functions">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[73]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">test_input_data</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Ponting  R T,Australia,1995-2012,230,165,51,14,124&#39;</span><span class="p">,</span>
+<span class="s">&#39;Fleming  S P,New Zealand,1994-2007,218,98,106,14,105&#39;</span><span class="p">,</span>
+<span class="s">&#39;Ranatunga  A,Sri Lanka,1982-1999,193,89,95,9,102&#39;</span><span class="p">,</span>
+<span class="s">&#39;Dhoni  M S*,India,2004-,186,103,68,15,88&#39;</span><span class="p">,</span>
+<span class="s">&#39;Crowe  M D,New Zealand,1982-1995,44,21,22,1,28&#39;</span><span class="p">,</span>
+<span class="s">&#39;Atherton  M A,England,1990-1998,43,20,21,2,20&#39;</span><span class="p">,</span>
+<span class="s">&#39;Walsh  C A,West Indies,1985-2000,43,22,20,1,20&#39;</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[74]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">test_input_rdd</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span> <span class="n">test_input_data</span><span class="p">,</span> <span class="mi">2</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Testing-a-successful-condition">Testing a successful condition<a class="anchor-link" href="#Testing-a-successful-condition">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[75]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="k">assert</span> <span class="n">getNumCaptainsByMinMatches</span><span class="p">(</span> <span class="n">test_input_rdd</span><span class="p">,</span> <span class="mi">100</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span>    \
+          <span class="s">&quot;getNumCaptainsByMinMatches() returning incorrect matches&quot;</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Testing-a-failure-condition">Testing a failure condition<a class="anchor-link" href="#Testing-a-failure-condition">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[77]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="k">assert</span> <span class="n">getNumCaptainsByMinMatches</span><span class="p">(</span> <span class="n">test_input_rdd</span><span class="p">,</span> <span class="mi">100</span> <span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">,</span>    \
+          <span class="s">&quot;getNumCaptainsByMinMatches() returning incorrect matches&quot;</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansired">---------------------------------------------------------------------------</span>
+<span class="ansired">AssertionError</span>                            Traceback (most recent call last)
+<span class="ansigreen">&lt;ipython-input-77-412e927eebe4&gt;</span> in <span class="ansicyan">&lt;module&gt;</span><span class="ansiblue">()</span>
+<span class="ansigreen">----&gt; 1</span><span class="ansiyellow"> </span><span class="ansigreen">assert</span> getNumCaptainsByMinMatches<span class="ansiyellow">(</span> test_input_rdd<span class="ansiyellow">,</span> <span class="ansicyan">100</span> <span class="ansiyellow">)</span> <span class="ansiyellow">==</span> <span class="ansicyan">5</span><span class="ansiyellow">,</span>                <span class="ansiblue">&quot;getNumCaptainsByMinMatches() returning incorrect matches&quot;</span><span class="ansiyellow"></span>
+
+<span class="ansired">AssertionError</span>: getNumCaptainsByMinMatches() returning incorrect matches</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><strong>assert()</strong> failed indicating the function is not working.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Invoking-the-function-on-original-data">Invoking the function on original data<a class="anchor-link" href="#Invoking-the-function-on-original-data">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[83]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">getNumCaptainsByMinMatches</span><span class="p">(</span> <span class="n">captains_odis</span><span class="p">,</span> <span class="mi">100</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[83]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>16</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Captains-with-more-wins-than-losses">Captains with more wins than losses<a class="anchor-link" href="#Captains-with-more-wins-than-losses">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Filtering: Captains who have more wins then losses...</span>
@@ -554,13 +1057,13 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Collecting-the-results-in-the-driver">Collecting the results in the driver<a class="anchor-link" href="#Collecting-the-results-in-the-driver">&#182;</a></h3>
+<h3 id="Collecting-the-captain-names-in-the-driver">Collecting the captain names in the driver<a class="anchor-link" href="#Collecting-the-captain-names-in-the-driver">&#182;</a></h3>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Captains with more wins than losses</span>
@@ -575,7 +1078,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[47]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -602,7 +1105,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="prompt input_prompt">In&nbsp;[48]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Captains with less wins than losses</span>
@@ -618,7 +1121,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[48]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -642,7 +1145,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Which country has played how many matches..</span>
@@ -656,7 +1159,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[50]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">countries</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
@@ -670,7 +1173,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[21]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[50]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -703,7 +1206,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[51]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Aggregate by countries</span>
@@ -717,7 +1220,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[52]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">matches_countries</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">20</span> <span class="p">)</span>
@@ -731,7 +1234,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[23]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[52]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -761,7 +1264,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="prompt input_prompt">In&nbsp;[53]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Sort the countries by the number of matches they played. </span>
@@ -777,7 +1280,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[24]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[53]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -819,7 +1322,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="prompt input_prompt">In&nbsp;[54]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="n">matches_countries</span><span class="o">.</span><span class="n">sortByKey</span><span class="p">(</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
@@ -833,7 +1336,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[25]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[54]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -863,7 +1366,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="prompt input_prompt">In&nbsp;[55]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Sort by values.. default is ascending...</span>
@@ -878,7 +1381,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[26]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[55]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -908,7 +1411,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="prompt input_prompt">In&nbsp;[56]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Sort by value by descending</span>
@@ -923,7 +1426,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[27]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[56]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -951,9 +1454,113 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Writing-a-data-function-to-return-countries-and-total-matches-played-in-sorted-order">Writing a data function to return countries and total matches played in sorted order<a class="anchor-link" href="#Writing-a-data-function-to-return-countries-and-total-matches-played-in-sorted-order">&#182;</a></h3>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="prompt input_prompt">In&nbsp;[67]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="k">def</span> <span class="nf">getNumMatchesPerCountry</span><span class="p">(</span> <span class="n">anRDD</span> <span class="p">):</span>
+  <span class="k">return</span> <span class="n">anRDD</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">parseRecs</span><span class="p">(</span> <span class="n">rec</span><span class="p">)</span> <span class="p">)</span>          \
+  <span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">country</span> <span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">matches</span><span class="p">)</span> <span class="p">)</span>         \
+  <span class="o">.</span><span class="n">reduceByKey</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="p">)</span>                       \
+  <span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Testing-the-Function:-getNumMatchesPerCountry">Testing the Function: <em>getNumMatchesPerCountry</em><a class="anchor-link" href="#Testing-the-Function:-getNumMatchesPerCountry">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[78]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="k">assert</span> <span class="n">getNumMatchesPerCountry</span><span class="p">(</span> <span class="n">test_input_rdd</span> <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="s">&#39;New Zealand&#39;</span><span class="p">,</span> <span class="mi">262</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Invoking-the-Function">Invoking the Function<a class="anchor-link" href="#Invoking-the-Function">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[85]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">getNumMatchesPerCountry</span><span class="p">(</span> <span class="n">captains_odis</span> <span class="p">)</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[85]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Australia&apos;, 832),
+(&apos;Pakistan&apos;, 781),
+(&apos;India&apos;, 770),
+(&apos;Sri Lanka&apos;, 710),
+(&apos;West Indies&apos;, 658),
+(&apos;New Zealand&apos;, 608),
+(&apos;England&apos;, 554),
+(&apos;South Africa&apos;, 463),
+(&apos;Zimbabwe&apos;, 394),
+(&apos;Bangladesh&apos;, 251)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Top-Baptains-by-Percentage-Wins">Top Baptains by Percentage Wins<a class="anchor-link" href="#Top-Baptains-by-Percentage-Wins">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[57]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Captains by percentage of wins</span>
@@ -973,7 +1580,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[28]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[57]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -1006,18 +1613,92 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="For-further-explorations-for-the-readers-to-try-out">For further explorations for the readers to try out<a class="anchor-link" href="#For-further-explorations-for-the-readers-to-try-out">&#182;</a></h3><ul>
-<li>Filter countries which have played more than hundred matches</li>
-<li>Sort counties by the percentage of matches they have won</li>
-<li>Find the top10 lucky captains in terms of TOSS won compared to how many matches they captained</li>
-</ul>
-
+<h3 id="Lucky-Captains">Lucky Captains<a class="anchor-link" href="#Lucky-Captains">&#182;</a></h3>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="prompt input_prompt">In&nbsp;[65]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="c"># Captains by percentage of wins</span>
+<span class="n">lucky_captains</span> <span class="o">=</span> <span class="n">captains_100</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+  <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">toss</span> <span class="o">/</span> <span class="n">rec</span><span class="o">.</span><span class="n">matches</span><span class="p">,</span> <span class="mi">2</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[66]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">lucky_captains</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[66]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Azharuddin  M&apos;, 0.55),
+(&apos;Ponting  R T&apos;, 0.54),
+(&apos;Ranatunga  A&apos;, 0.53),
+(&apos;Cronje  W J&apos;, 0.53),
+(&apos;Wasim Akram&apos;, 0.53)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="For-further-explorations-for-the-readers-to-try-out">For further explorations for the readers to try out<a class="anchor-link" href="#For-further-explorations-for-the-readers-to-try-out">&#182;</a></h3><ul>
+<li>Filter countries which have played more than hundred matches</li>
+<li>Sort counties by the percentage of matches they have won</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Captain's-Test-Match-Performances">Captain's Test Match Performances<a class="anchor-link" href="#Captain's-Test-Match-Performances">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loading-the-dataset">Loading the dataset<a class="anchor-link" href="#Loading-the-dataset">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Read the Captains_Test.csv file</span>
@@ -1031,7 +1712,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Parse the records</span>
@@ -1045,7 +1726,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Display the first 10 records</span>
@@ -1060,7 +1741,7 @@ Captain(name=&apos;Imran Khan&apos;, country=&apos;Pakistan&apos;, career=&apos;
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[31]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[41]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -1084,7 +1765,7 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Filter the captains who have captained for more than 100 tests</span>
@@ -1099,7 +1780,7 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="prompt input_prompt">In&nbsp;[63]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c">## How many captains?</span>
@@ -1114,7 +1795,7 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[33]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[63]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -1132,14 +1813,17 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="There-is-only-one-captain-who-has-captained-more-then-100-tests">There is only one captain who has captained more then 100 tests<a class="anchor-link" href="#There-is-only-one-captain-who-has-captained-more-then-100-tests">&#182;</a></h3><p>So, we must lower the number of matches to look at more captains performance. We will filter out all captains who have played more than 50 matches.</p>
+<h4 id="Note:">Note:<a class="anchor-link" href="#Note:">&#182;</a></h4><ul>
+<li>There is only one captain who has captained more then 100 tests</li>
+<li>So, we must lower the number of matches to look at more captains performance. We will filter out all captains who have played more than 50 matches.</li>
+</ul>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="prompt input_prompt">In&nbsp;[64]:</div>
 <div class="inner_cell">
   <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span class="c"># Filter the captains who have captained for more than 50 tests</span>
@@ -1189,6 +1873,15 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Calculating-the-test-percentage-wins">Calculating the test percentage wins<a class="anchor-link" href="#Calculating-the-test-percentage-wins">&#182;</a></h3>
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
@@ -1385,6 +2078,15 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Flattening-the-tuples">Flattening the tuples<a class="anchor-link" href="#Flattening-the-tuples">&#182;</a></h3>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[42]:</div>
@@ -1503,6 +2205,479 @@ Captain(name=&apos;Cronje  W J&apos;, country=&apos;South Africa&apos;, career=&
 
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Exercises">Exercises<a class="anchor-link" href="#Exercises">&#182;</a></h2><h3 id="Sorting-countries-by-percentage-wins">Sorting countries by percentage wins<a class="anchor-link" href="#Sorting-countries-by-percentage-wins">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>We have multiple elements in the value part of (key, value) tuple. So, we can not invoke reduce by key function. We will call groupByKey() and then map each element of values to sum. And then divide the total wins by total matches to get percentage wins.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Generate-the-key-and-values">Generate the key and values<a class="anchor-link" href="#Generate-the-key-and-values">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[107]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">country_matches_list</span> <span class="o">=</span> <span class="n">captains</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">country</span> <span class="p">,</span> <span class="p">(</span> <span class="n">rec</span><span class="o">.</span><span class="n">won</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">matches</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[108]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">country_matches_list</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[108]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Australia&apos;, (165, 230)),
+(&apos;New Zealand&apos;, (98, 218)),
+(&apos;Sri Lanka&apos;, (89, 193)),
+(&apos;India&apos;, (103, 186)),
+(&apos;Australia&apos;, (107, 178))]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Group-the-values">Group the values<a class="anchor-link" href="#Group-the-values">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[109]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">country_matches_list</span><span class="o">.</span><span class="n">groupByKey</span><span class="p">()</span><span class="o">.</span><span class="n">mapValues</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span> <span class="n">rec</span> <span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">2</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[109]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Pakistan&apos;,
+[(75, 139),
+ (66, 109),
+ (52, 89),
+ (45, 87),
+ (26, 62),
+ (37, 62),
+ (19, 38),
+ (24, 36),
+ (20, 34),
+ (21, 34),
+ (13, 25),
+ (9, 22),
+ (7, 22),
+ (8, 22)]),
+(&apos;South Africa&apos;, [(91, 149), (99, 140), (60, 98), (44, 76)])]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Apply-sum()-to-each-element-of-values-tuple">Apply sum() to each element of values tuple<a class="anchor-link" href="#Apply-sum()-to-each-element-of-values-tuple">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[100]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="k">def</span> <span class="nf">getWinMatchPercentage</span><span class="p">(</span> <span class="n">allrecs</span> <span class="p">):</span>
+  <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span> <span class="p">[</span><span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">allrecs</span><span class="p">]</span> <span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span> <span class="n">allrecs</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[111]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">country_matches_rdd</span> <span class="o">=</span> <span class="n">country_matches_list</span><span class="o">.</span><span class="n">groupByKey</span><span class="p">()</span><span class="o">.</span><span class="n">mapValues</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span>
+                                          <span class="p">(</span> <span class="nb">sum</span><span class="p">(</span> <span class="p">[</span><span class="n">rec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">rec</span><span class="p">]</span> <span class="p">),</span>
+                                            <span class="nb">sum</span><span class="p">(</span> <span class="p">[</span><span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">rec</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[112]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">country_matches_rdd</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[112]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;Pakistan&apos;, (422, 781)),
+(&apos;South Africa&apos;, (294, 463)),
+(&apos;Ireland&apos;, (42, 93)),
+(&apos;Australia&apos;, (503, 832)),
+(&apos;West Indies&apos;, (342, 658)),
+(&apos;Kenya&apos;, (34, 114)),
+(&apos;India&apos;, (387, 770)),
+(&apos;Bermuda&apos;, (6, 31)),
+(&apos;Netherlands&apos;, (10, 31)),
+(&apos;Afghanistan&apos;, (25, 50))]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Get-percentage-wins">Get percentage wins<a class="anchor-link" href="#Get-percentage-wins">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[119]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">most_win_countries</span> <span class="o">=</span> <span class="n">country_matches_rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span>
+                                           <span class="p">(</span> <span class="n">rec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                            <span class="nb">round</span><span class="p">(</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span>  <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>     \
+                                      <span class="o">.</span><span class="n">sortBy</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ascending</span> <span class="o">=</span> <span class="k">False</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[120]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">most_win_countries</span><span class="o">.</span><span class="n">take</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[120]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[(&apos;South Africa&apos;, 0.63),
+(&apos;Australia&apos;, 0.6),
+(&apos;Pakistan&apos;, 0.54),
+(&apos;West Indies&apos;, 0.52),
+(&apos;India&apos;, 0.5),
+(&apos;Afghanistan&apos;, 0.5),
+(&apos;England&apos;, 0.5),
+(&apos;Sri Lanka&apos;, 0.49),
+(&apos;Ireland&apos;, 0.45),
+(&apos;New Zealand&apos;, 0.45)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Broadcasting-Variables">Broadcasting Variables<a class="anchor-link" href="#Broadcasting-Variables">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[124]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="k">def</span> <span class="nf">getNumCaptainsByMinimumMatches</span><span class="p">(</span> <span class="n">anRDD</span><span class="p">,</span> <span class="n">num_matches</span> <span class="p">):</span>
+  <span class="n">min_matches</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span> <span class="n">num_matches</span> <span class="p">)</span>
+  <span class="k">return</span> <span class="n">anRDD</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">parseRecs</span><span class="p">(</span> <span class="n">rec</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">rec</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">matches</span> <span class="o">&gt;</span> <span class="n">min_matches</span><span class="o">.</span><span class="n">value</span> <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[126]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">getNumCaptainsByMinimumMatches</span><span class="p">(</span> <span class="n">captains_odis</span><span class="p">,</span> <span class="mi">100</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[126]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>16</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[128]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">getNumCaptainsByMinimumMatches</span><span class="p">(</span> <span class="n">captains_odis</span><span class="p">,</span> <span class="mi">50</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[128]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>48</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Accumulators">Accumulators<a class="anchor-link" href="#Accumulators">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[179]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="k">def</span> <span class="nf">parRecsNew</span><span class="p">(</span> <span class="n">line</span> <span class="p">):</span>
+  <span class="k">global</span> <span class="n">playing_caps</span>
+  <span class="k">if</span> <span class="s">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+     <span class="n">playing_caps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span>
+  <span class="k">return</span> <span class="n">parseRecs</span><span class="p">(</span> <span class="n">line</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[180]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">playing_caps</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">accumulator</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[181]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis_new</span> <span class="o">=</span> <span class="n">captains_odis</span><span class="o">.</span><span class="n">map</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">line</span><span class="p">:</span> <span class="n">parRecsNew</span><span class="p">(</span> <span class="n">line</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[182]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">captains_odis_new</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[182]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>98</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[183]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">playing_caps</span><span class="o">.</span><span class="n">value</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[183]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>27</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
 </div>
   </div>
 </div>
