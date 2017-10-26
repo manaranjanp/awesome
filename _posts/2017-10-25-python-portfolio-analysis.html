@@ -1,0 +1,2849 @@
+---
+layout: post
+title: "Portfolio Analysis of Stocks"
+date: 2016-05-25
+description: "Analyzing mean and variance of portfolios"
+main-class: 'python'
+postbook: 'inotebook'
+published: true
+color: '#b31917'
+tags:
+- python
+- pandas
+- "data Science"
+- "portfolio analysis"
+- regression
+categories:
+- python
+introduction: "Analyzing mean and variance of portfolios"
+---
+
+<div tabindex="-1" id="notebook" class="border-box-sizing">
+  <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Portfolio-Analysis">Portfolio Analysis<a class="anchor-link" href="#Portfolio-Analysis">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Download the Daily Stock Prices of following stocks from the site for the period of 01-04-2012 to 31-03-2017.</p>
+<ul>
+<li>D L F Ltd</li>
+<li>Dabur India Ltd</li>
+<li>3M India Ltd</li>
+<li>Titan Company Ltd</li>
+</ul>
+<p>Download from the site:
+<a href="http://www.bseindia.com/markets/equity/EQReports/StockPrcHistori.aspx?expandable=7&amp;flag=0">http://www.bseindia.com/markets/equity/EQReports/StockPrcHistori.aspx?expandable=7&amp;flag=0</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Daily-Returns-Analysis">1. Daily Returns Analysis<a class="anchor-link" href="#1.-Daily-Returns-Analysis">&#182;</a></h2>
+<pre><code>- a) Calculate the daily gain for the stocks.
+Hint: (today’s close price - Yesterday’s close price)/ Yesterday’s close price
+- b)    Calculate the mean and variance of the percentage daily returns?
+- c)    Which stock has highest volatility? Draw the distribution of daily returns for all stock in one plot.
+- d)    Are the percentage daily returns of these stocks correlated? Compute the correlations between the daily returns of the above 4 stocks and draw a heatmap.</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sn</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Load-all-the-required-data">Load all the required data<a class="anchor-link" href="#Load-all-the-required-data">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">D3M</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span> <span class="s1">&#39;3M.csv&#39;</span> <span class="p">)</span>
+<span class="n">Dabur</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span> <span class="s1">&#39;Dabur.csv&#39;</span> <span class="p">)</span>
+<span class="n">DLF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span> <span class="s1">&#39;DLF.csv&#39;</span> <span class="p">)</span>
+<span class="n">Titan</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span> <span class="s1">&#39;Titan.csv&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Some-Data-cleaning-and-QC-to-ensure-all-the-data-has-loaded-correctly">Some Data cleaning and QC to ensure all the data has loaded correctly<a class="anchor-link" href="#Some-Data-cleaning-and-QC-to-ensure-all-the-data-has-loaded-correctly">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Titan</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">Titan</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;[^a-zA-Z0-9]&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="n">DLF</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">DLF</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;[^a-zA-Z0-9]&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="n">Dabur</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">Dabur</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;[^a-zA-Z0-9]&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="n">D3M</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">D3M</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;[^a-zA-Z0-9]&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Titan</span> <span class="o">=</span> <span class="n">Titan</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">Titan</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">])</span> <span class="p">)</span>
+<span class="n">Dabur</span> <span class="o">=</span> <span class="n">Dabur</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">Dabur</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">])</span> <span class="p">)</span>
+<span class="n">DLF</span> <span class="o">=</span> <span class="n">DLF</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">DLF</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">])</span> <span class="p">)</span>
+<span class="n">D3M</span> <span class="o">=</span> <span class="n">D3M</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">D3M</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">])</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Sorting-the-datetime-index-from-2012---2017">Sorting the datetime index from 2012 - 2017<a class="anchor-link" href="#Sorting-the-datetime-index-from-2012---2017">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Titan</span> <span class="o">=</span> <span class="n">Titan</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+<span class="n">Dabur</span> <span class="o">=</span> <span class="n">Dabur</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+<span class="n">DLF</span> <span class="o">=</span> <span class="n">DLF</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+<span class="n">D3M</span> <span class="o">=</span> <span class="n">D3M</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">DLF</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[6]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>Date</th>
+    <th>OpenPrice</th>
+    <th>HighPrice</th>
+    <th>LowPrice</th>
+    <th>ClosePrice</th>
+    <th>WAP</th>
+    <th>NoofShares</th>
+    <th>NoofTrades</th>
+    <th>TotalTurnoverRs</th>
+    <th>DeliverableQuantity</th>
+    <th>DeliQtytoTradedQty</th>
+    <th>SpreadHighLow</th>
+    <th>SpreadCloseOpen</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>2012-04-02</th>
+    <td>2-April-2012</td>
+    <td>201.00</td>
+    <td>209.20</td>
+    <td>200.25</td>
+    <td>207.3</td>
+    <td>206.709448</td>
+    <td>1028861</td>
+    <td>14144</td>
+    <td>212675289.0</td>
+    <td>170280.0</td>
+    <td>16.55</td>
+    <td>8.95</td>
+    <td>6.30</td>
+  </tr>
+  <tr>
+    <th>2012-04-03</th>
+    <td>3-April-2012</td>
+    <td>209.50</td>
+    <td>210.95</td>
+    <td>206.15</td>
+    <td>207.0</td>
+    <td>208.479581</td>
+    <td>630615</td>
+    <td>8132</td>
+    <td>131470351.0</td>
+    <td>97668.0</td>
+    <td>15.49</td>
+    <td>4.80</td>
+    <td>-2.50</td>
+  </tr>
+  <tr>
+    <th>2012-04-04</th>
+    <td>4-April-2012</td>
+    <td>207.00</td>
+    <td>207.00</td>
+    <td>201.20</td>
+    <td>204.2</td>
+    <td>203.683239</td>
+    <td>632284</td>
+    <td>7807</td>
+    <td>128785653.0</td>
+    <td>50993.0</td>
+    <td>8.06</td>
+    <td>5.80</td>
+    <td>-2.80</td>
+  </tr>
+  <tr>
+    <th>2012-04-09</th>
+    <td>9-April-2012</td>
+    <td>202.00</td>
+    <td>207.70</td>
+    <td>201.15</td>
+    <td>205.5</td>
+    <td>205.538726</td>
+    <td>765619</td>
+    <td>10538</td>
+    <td>157364354.0</td>
+    <td>68847.0</td>
+    <td>8.99</td>
+    <td>6.55</td>
+    <td>3.50</td>
+  </tr>
+  <tr>
+    <th>2012-04-10</th>
+    <td>10-April-2012</td>
+    <td>206.75</td>
+    <td>207.20</td>
+    <td>202.00</td>
+    <td>204.2</td>
+    <td>204.758825</td>
+    <td>505360</td>
+    <td>7423</td>
+    <td>103476920.0</td>
+    <td>42197.0</td>
+    <td>8.35</td>
+    <td>5.20</td>
+    <td>-2.55</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="a)-Calculate-the-daily-gain-for-the-stocks">a) Calculate the daily gain for the stocks<a class="anchor-link" href="#a)-Calculate-the-daily-gain-for-the-stocks">&#182;</a></h3><h4 id="Hint:-(-Today&#8217;s-close-price---Yesterday&#8217;s-close-price)/-Yesterday&#8217;s-close-price">Hint: ( Today&#8217;s close price - Yesterday&#8217;s close price)/ Yesterday&#8217;s close price<a class="anchor-link" href="#Hint:-(-Today&#8217;s-close-price---Yesterday&#8217;s-close-price)/-Yesterday&#8217;s-close-price">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Titan</span><span class="p">[</span><span class="s2">&quot;Gain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Titan</span><span class="o">.</span><span class="n">ClosePrice</span><span class="o">.</span><span class="n">pct_change</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">DLF</span><span class="p">[</span><span class="s2">&quot;Gain&quot;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">DLF</span><span class="o">.</span><span class="n">ClosePrice</span><span class="o">.</span><span class="n">pct_change</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">Dabur</span><span class="p">[</span><span class="s2">&quot;Gain&quot;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">Dabur</span><span class="o">.</span><span class="n">ClosePrice</span><span class="o">.</span><span class="n">pct_change</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">D3M</span><span class="p">[</span><span class="s2">&quot;Gain&quot;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">D3M</span><span class="o">.</span><span class="n">ClosePrice</span><span class="o">.</span><span class="n">pct_change</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Titan</span><span class="p">[[</span><span class="s2">&quot;Date&quot;</span><span class="p">,</span><span class="s2">&quot;Gain&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[8]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>Date</th>
+    <th>Gain</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>2012-04-02</th>
+    <td>2-April-2012</td>
+    <td>NaN</td>
+  </tr>
+  <tr>
+    <th>2012-04-03</th>
+    <td>3-April-2012</td>
+    <td>2.039555</td>
+  </tr>
+  <tr>
+    <th>2012-04-04</th>
+    <td>4-April-2012</td>
+    <td>0.625883</td>
+  </tr>
+  <tr>
+    <th>2012-04-09</th>
+    <td>9-April-2012</td>
+    <td>-2.387640</td>
+  </tr>
+  <tr>
+    <th>2012-04-10</th>
+    <td>10-April-2012</td>
+    <td>0.390545</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Titan</span> <span class="o">=</span> <span class="n">Titan</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+<span class="n">DLF</span> <span class="o">=</span> <span class="n">DLF</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+<span class="n">Dabur</span> <span class="o">=</span> <span class="n">Dabur</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+<span class="n">D3M</span> <span class="o">=</span> <span class="n">D3M</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:-Displyaing-the-daily-gains-of-all-the-stocks">Answer: Displyaing the daily gains of all the stocks<a class="anchor-link" href="#Answer:-Displyaing-the-daily-gains-of-all-the-stocks">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Titan</span><span class="p">[[</span><span class="s2">&quot;Date&quot;</span><span class="p">,</span><span class="s2">&quot;Gain&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[10]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>Date</th>
+    <th>Gain</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>2012-04-03</th>
+    <td>3-April-2012</td>
+    <td>2.039555</td>
+  </tr>
+  <tr>
+    <th>2012-04-04</th>
+    <td>4-April-2012</td>
+    <td>0.625883</td>
+  </tr>
+  <tr>
+    <th>2012-04-09</th>
+    <td>9-April-2012</td>
+    <td>-2.387640</td>
+  </tr>
+  <tr>
+    <th>2012-04-10</th>
+    <td>10-April-2012</td>
+    <td>0.390545</td>
+  </tr>
+  <tr>
+    <th>2012-04-11</th>
+    <td>11-April-2012</td>
+    <td>-0.941851</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">DLF</span><span class="p">[[</span><span class="s2">&quot;Date&quot;</span><span class="p">,</span><span class="s2">&quot;Gain&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[11]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>Date</th>
+    <th>Gain</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>2012-04-03</th>
+    <td>3-April-2012</td>
+    <td>-0.144718</td>
+  </tr>
+  <tr>
+    <th>2012-04-04</th>
+    <td>4-April-2012</td>
+    <td>-1.352657</td>
+  </tr>
+  <tr>
+    <th>2012-04-09</th>
+    <td>9-April-2012</td>
+    <td>0.636631</td>
+  </tr>
+  <tr>
+    <th>2012-04-10</th>
+    <td>10-April-2012</td>
+    <td>-0.632603</td>
+  </tr>
+  <tr>
+    <th>2012-04-11</th>
+    <td>11-April-2012</td>
+    <td>-1.224290</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">D3M</span><span class="p">[[</span><span class="s2">&quot;Date&quot;</span><span class="p">,</span><span class="s2">&quot;Gain&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[12]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>Date</th>
+    <th>Gain</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>2012-04-03</th>
+    <td>3-April-2012</td>
+    <td>7.174972</td>
+  </tr>
+  <tr>
+    <th>2012-04-04</th>
+    <td>4-April-2012</td>
+    <td>0.460835</td>
+  </tr>
+  <tr>
+    <th>2012-04-09</th>
+    <td>9-April-2012</td>
+    <td>4.309238</td>
+  </tr>
+  <tr>
+    <th>2012-04-10</th>
+    <td>10-April-2012</td>
+    <td>1.486616</td>
+  </tr>
+  <tr>
+    <th>2012-04-11</th>
+    <td>11-April-2012</td>
+    <td>0.189581</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Dabur</span><span class="p">[[</span><span class="s2">&quot;Date&quot;</span><span class="p">,</span><span class="s2">&quot;Gain&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[13]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>Date</th>
+    <th>Gain</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>2012-04-03</th>
+    <td>3-April-2012</td>
+    <td>-0.047259</td>
+  </tr>
+  <tr>
+    <th>2012-04-04</th>
+    <td>4-April-2012</td>
+    <td>-0.283688</td>
+  </tr>
+  <tr>
+    <th>2012-04-09</th>
+    <td>9-April-2012</td>
+    <td>-1.043148</td>
+  </tr>
+  <tr>
+    <th>2012-04-10</th>
+    <td>10-April-2012</td>
+    <td>1.054145</td>
+  </tr>
+  <tr>
+    <th>2012-04-11</th>
+    <td>11-April-2012</td>
+    <td>-0.094832</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="b)-Calculate-the-mean-and-variance-of-the-percentage-daily-returns?">b) Calculate the mean and variance of the percentage daily returns?<a class="anchor-link" href="#b)-Calculate-the-mean-and-variance-of-the-percentage-daily-returns?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_mean_var</span><span class="p">(</span> <span class="n">df</span><span class="p">,</span> <span class="n">name</span> <span class="p">):</span>
+  <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;---------- Stock: &quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;-------------------&quot;</span> <span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average daily returns is (%): &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Gain&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="mi">3</span> <span class="p">)</span> <span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variance of daily returns is (%): &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Gain&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="mi">3</span> <span class="p">)</span> <span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;-------------------------------------------&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_mean_var</span><span class="p">(</span> <span class="n">DLF</span><span class="p">,</span> <span class="s1">&#39;DLF&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>---------- Stock:  DLF -------------------
+Average daily returns is (%):  0.024
+Variance of daily returns is (%):  3.158
+-------------------------------------------
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_mean_var</span><span class="p">(</span> <span class="n">D3M</span><span class="p">,</span> <span class="s1">&#39;D3M&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>---------- Stock:  D3M -------------------
+Average daily returns is (%):  0.11
+Variance of daily returns is (%):  1.91
+-------------------------------------------
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_mean_var</span><span class="p">(</span> <span class="n">Dabur</span><span class="p">,</span> <span class="s1">&#39;Dabur&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>---------- Stock:  Dabur -------------------
+Average daily returns is (%):  0.089
+Variance of daily returns is (%):  1.496
+-------------------------------------------
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_mean_var</span><span class="p">(</span> <span class="n">Titan</span><span class="p">,</span> <span class="s1">&#39;Titan&#39;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>---------- Stock:  Titan -------------------
+Average daily returns is (%):  0.074
+Variance of daily returns is (%):  2.04
+-------------------------------------------
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="c)-Which-stock-has-highest-volatility?-Draw-the-distribution-of-daily-returns-for-all-stock-in-one-plot">c) Which stock has highest volatility? Draw the distribution of daily returns for all stock in one plot<a class="anchor-link" href="#c)-Which-stock-has-highest-volatility?-Draw-the-distribution-of-daily-returns-for-all-stock-in-one-plot">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">)});</span>
+<span class="n">sn</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">Titan</span><span class="o">.</span><span class="n">Gain</span><span class="p">,</span> <span class="n">hist</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Titan&#39;</span><span class="p">)</span>
+<span class="n">sn</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">Dabur</span><span class="o">.</span><span class="n">Gain</span><span class="p">,</span> <span class="n">hist</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Dabur&#39;</span><span class="p">)</span>
+<span class="n">sn</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">DLF</span><span class="o">.</span><span class="n">Gain</span><span class="p">,</span> <span class="n">hist</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;DLF&#39;</span><span class="p">)</span>
+<span class="n">sn</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">D3M</span><span class="o">.</span><span class="n">Gain</span><span class="p">,</span> <span class="n">hist</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;3M&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[19]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x10d541048&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3><ul>
+<li>DLF shows highest variability, hence DLF stock has the most volatility.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="d)-Are-the-percentage-daily-returns-of-these-stocks-correlated?">d) Are the percentage daily returns of these stocks correlated?<a class="anchor-link" href="#d)-Are-the-percentage-daily-returns-of-these-stocks-correlated?">&#182;</a></h3><h3 id="Compute-the-correlations-between-the-daily-returns-of-the-above-4-stocks-and-draw-a-heatmap">Compute the correlations between the daily returns of the above 4 stocks and draw a heatmap<a class="anchor-link" href="#Compute-the-correlations-between-the-daily-returns-of-the-above-4-stocks-and-draw-a-heatmap">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">All_stocks_gain</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">DLF</span><span class="p">[</span><span class="s1">&#39;Gain&#39;</span><span class="p">]</span> <span class="p">)</span>
+<span class="n">All_stocks_gain</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DLF_gain&#39;</span><span class="p">]</span>
+<span class="n">All_stocks_gain</span><span class="p">[</span><span class="s1">&#39;Dabur_gain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Dabur</span><span class="o">.</span><span class="n">Gain</span>
+<span class="n">All_stocks_gain</span><span class="p">[</span><span class="s1">&#39;D3M_gain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">D3M</span><span class="o">.</span><span class="n">Gain</span>
+<span class="n">All_stocks_gain</span><span class="p">[</span><span class="s1">&#39;Titan_gain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Titan</span><span class="o">.</span><span class="n">Gain</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">All_stocks_gain</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[21]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>DLF_gain</th>
+    <th>Dabur_gain</th>
+    <th>D3M_gain</th>
+    <th>Titan_gain</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>2012-04-03</th>
+    <td>-0.144718</td>
+    <td>-0.047259</td>
+    <td>7.174972</td>
+    <td>2.039555</td>
+  </tr>
+  <tr>
+    <th>2012-04-04</th>
+    <td>-1.352657</td>
+    <td>-0.283688</td>
+    <td>0.460835</td>
+    <td>0.625883</td>
+  </tr>
+  <tr>
+    <th>2012-04-09</th>
+    <td>0.636631</td>
+    <td>-1.043148</td>
+    <td>4.309238</td>
+    <td>-2.387640</td>
+  </tr>
+  <tr>
+    <th>2012-04-10</th>
+    <td>-0.632603</td>
+    <td>1.054145</td>
+    <td>1.486616</td>
+    <td>0.390545</td>
+  </tr>
+  <tr>
+    <th>2012-04-11</th>
+    <td>-1.224290</td>
+    <td>-0.094832</td>
+    <td>0.189581</td>
+    <td>-0.941851</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">All_stocks_gain</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[22]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>DLF_gain</th>
+    <th>Dabur_gain</th>
+    <th>D3M_gain</th>
+    <th>Titan_gain</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>DLF_gain</th>
+    <td>1.000000</td>
+    <td>0.177479</td>
+    <td>0.236269</td>
+    <td>0.232812</td>
+  </tr>
+  <tr>
+    <th>Dabur_gain</th>
+    <td>0.177479</td>
+    <td>1.000000</td>
+    <td>0.217062</td>
+    <td>0.239658</td>
+  </tr>
+  <tr>
+    <th>D3M_gain</th>
+    <td>0.236269</td>
+    <td>0.217062</td>
+    <td>1.000000</td>
+    <td>0.169081</td>
+  </tr>
+  <tr>
+    <th>Titan_gain</th>
+    <td>0.232812</td>
+    <td>0.239658</td>
+    <td>0.169081</td>
+    <td>1.000000</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)});</span>
+<span class="n">sn</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span> <span class="n">All_stocks_gain</span><span class="o">.</span><span class="n">corr</span><span class="p">(),</span> <span class="n">annot</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[23]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x10d541048&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3><ul>
+<li>Based on the correlation matrix, the average daily returns of these four stocks do not seem to be highly corrrelated.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="2.-Monthly-Returns-Analysis">2. Monthly Returns Analysis<a class="anchor-link" href="#2.-Monthly-Returns-Analysis">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="a)-Calculate-the-mean-and-variance-of-percentage-monthly-returns?">a) Calculate the mean and variance of percentage monthly returns?<a class="anchor-link" href="#a)-Calculate-the-mean-and-variance-of-percentage-monthly-returns?">&#182;</a></h3><h3 id="Hint:-Use-resample(&#8216;M&#8217;)-method-of-pandas-to-create-monthly-records">Hint: Use resample(&#8216;M&#8217;) method of pandas to create monthly records<a class="anchor-link" href="#Hint:-Use-resample(&#8216;M&#8217;)-method-of-pandas-to-create-monthly-records">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_monthly_df</span><span class="p">(</span> <span class="n">df</span> <span class="p">):</span>
+  <span class="n">ohlc_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ClosePrice&#39;</span><span class="p">:</span> <span class="s1">&#39;first&#39;</span><span class="p">}</span>
+  <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s1">&#39;M&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span> <span class="n">ohlc_dict</span> <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">DLF_monthly_df</span> <span class="o">=</span> <span class="n">get_monthly_df</span><span class="p">(</span> <span class="n">DLF</span> <span class="p">)</span>
+<span class="n">D3M_monthly_df</span> <span class="o">=</span> <span class="n">get_monthly_df</span><span class="p">(</span> <span class="n">D3M</span> <span class="p">)</span>
+<span class="n">Titan_monthly_df</span> <span class="o">=</span> <span class="n">get_monthly_df</span><span class="p">(</span> <span class="n">Titan</span> <span class="p">)</span>
+<span class="n">Dabur_monthly_df</span> <span class="o">=</span> <span class="n">get_monthly_df</span><span class="p">(</span> <span class="n">Dabur</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">DLF_monthly_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[26]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>index</th>
+    <th>ClosePrice</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>2012-04-30</td>
+    <td>207.00</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2012-05-31</td>
+    <td>192.00</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>2012-06-30</td>
+    <td>182.40</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>2012-07-31</td>
+    <td>204.60</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>2012-08-31</td>
+    <td>208.25</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Titan_monthly_df</span><span class="p">[</span><span class="s2">&quot;Gain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Titan_monthly_df</span><span class="o">.</span><span class="n">ClosePrice</span><span class="o">.</span><span class="n">pct_change</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">DLF_monthly_df</span><span class="p">[</span><span class="s2">&quot;Gain&quot;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">DLF_monthly_df</span><span class="o">.</span><span class="n">ClosePrice</span><span class="o">.</span><span class="n">pct_change</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">Dabur_monthly_df</span><span class="p">[</span><span class="s2">&quot;Gain&quot;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">Dabur_monthly_df</span><span class="o">.</span><span class="n">ClosePrice</span><span class="o">.</span><span class="n">pct_change</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">D3M_monthly_df</span><span class="p">[</span><span class="s2">&quot;Gain&quot;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">D3M_monthly_df</span><span class="o">.</span><span class="n">ClosePrice</span><span class="o">.</span><span class="n">pct_change</span><span class="p">(</span> <span class="mi">1</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Titan_monthly_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[28]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>index</th>
+    <th>ClosePrice</th>
+    <th>Gain</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>2012-04-30</td>
+    <td>247.65</td>
+    <td>NaN</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>2012-05-31</td>
+    <td>242.85</td>
+    <td>-1.938219</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>2012-06-30</td>
+    <td>221.55</td>
+    <td>-8.770846</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>2012-07-31</td>
+    <td>225.30</td>
+    <td>1.692620</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>2012-08-31</td>
+    <td>221.75</td>
+    <td>-1.575677</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_monthly_mean_var</span><span class="p">(</span> <span class="n">df</span><span class="p">,</span> <span class="n">name</span> <span class="p">):</span>
+  <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;---------- Stock: &quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;-------------------&quot;</span> <span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average monthly returns is (%): &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Gain&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="mi">3</span> <span class="p">)</span> <span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variance of monthly returns is (%): &quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Gain&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="mi">3</span> <span class="p">)</span> <span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;-------------------------------------------&quot;</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_monthly_mean_var</span><span class="p">(</span> <span class="n">Titan_monthly_df</span><span class="p">,</span> <span class="s1">&#39;Titan&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>---------- Stock:  Titan -------------------
+Average monthly returns is (%):  1.356
+Variance of monthly returns is (%):  8.903
+-------------------------------------------
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_monthly_mean_var</span><span class="p">(</span> <span class="n">DLF_monthly_df</span><span class="p">,</span> <span class="s1">&#39;DLF&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>---------- Stock:  DLF -------------------
+Average monthly returns is (%):  0.491
+Variance of monthly returns is (%):  14.528
+-------------------------------------------
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_monthly_mean_var</span><span class="p">(</span> <span class="n">D3M_monthly_df</span><span class="p">,</span> <span class="s1">&#39;D3M&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>---------- Stock:  D3M -------------------
+Average monthly returns is (%):  2.068
+Variance of monthly returns is (%):  8.239
+-------------------------------------------
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_monthly_mean_var</span><span class="p">(</span> <span class="n">Dabur_monthly_df</span><span class="p">,</span> <span class="s1">&#39;Dabir&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>---------- Stock:  Dabir -------------------
+Average monthly returns is (%):  1.771
+Variance of monthly returns is (%):  5.277
+-------------------------------------------
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="b.-Which-stock-has-highest-volatility-as-far-as-monthly-returns-is-concerned?">b. Which stock has highest volatility as far as monthly returns is concerned?<a class="anchor-link" href="#b.-Which-stock-has-highest-volatility-as-far-as-monthly-returns-is-concerned?">&#182;</a></h3><h3 id="Draw-the-box&#8208;plot-of-monthly-returns-for-all-stock-in-one-plot">Draw the box&#8208;plot of monthly returns for all stock in one plot<a class="anchor-link" href="#Draw-the-box&#8208;plot-of-monthly-returns-for-all-stock-in-one-plot">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">DLF_monthly_df</span><span class="p">[</span><span class="s1">&#39;Company&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;DLF&#39;</span>
+<span class="n">all_stocks_monthly_gain</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">DLF_monthly_df</span><span class="p">[[</span><span class="s1">&#39;Gain&#39;</span><span class="p">,</span> <span class="s1">&#39;Company&#39;</span><span class="p">]]</span> <span class="p">)</span>
+<span class="n">Dabur_monthly_df</span><span class="p">[</span><span class="s1">&#39;Company&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Dabur&#39;</span>
+<span class="n">all_stocks_monthly_gain</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span> <span class="p">[</span><span class="n">all_stocks_monthly_gain</span><span class="p">,</span>
+                                    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">Dabur_monthly_df</span><span class="p">[[</span><span class="s1">&#39;Gain&#39;</span><span class="p">,</span> <span class="s1">&#39;Company&#39;</span><span class="p">]]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+<span class="n">D3M_monthly_df</span><span class="p">[</span><span class="s1">&#39;Company&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;D3M&#39;</span>
+<span class="n">all_stocks_monthly_gain</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span> <span class="p">[</span><span class="n">all_stocks_monthly_gain</span><span class="p">,</span>
+                                    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">D3M_monthly_df</span><span class="p">[[</span><span class="s1">&#39;Gain&#39;</span><span class="p">,</span> <span class="s1">&#39;Company&#39;</span><span class="p">]]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+
+<span class="n">Titan_monthly_df</span><span class="p">[</span><span class="s1">&#39;Company&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Titan&#39;</span>
+<span class="n">all_stocks_monthly_gain</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span> <span class="p">[</span><span class="n">all_stocks_monthly_gain</span><span class="p">,</span>
+                                    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">Titan_monthly_df</span><span class="p">[[</span><span class="s1">&#39;Gain&#39;</span><span class="p">,</span> <span class="s1">&#39;Company&#39;</span><span class="p">]]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+<span class="n">all_stocks_monthly_gain</span> <span class="o">=</span> <span class="n">all_stocks_monthly_gain</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">all_stocks_monthly_gain</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[35]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>Gain</th>
+    <th>Company</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>47</th>
+    <td>-3.490924</td>
+    <td>Dabur</td>
+  </tr>
+  <tr>
+    <th>27</th>
+    <td>1.190476</td>
+    <td>Dabur</td>
+  </tr>
+  <tr>
+    <th>24</th>
+    <td>-0.782192</td>
+    <td>D3M</td>
+  </tr>
+  <tr>
+    <th>47</th>
+    <td>1.188630</td>
+    <td>DLF</td>
+  </tr>
+  <tr>
+    <th>42</th>
+    <td>6.522993</td>
+    <td>D3M</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>-1.575677</td>
+    <td>Titan</td>
+  </tr>
+  <tr>
+    <th>35</th>
+    <td>-4.683705</td>
+    <td>Titan</td>
+  </tr>
+  <tr>
+    <th>14</th>
+    <td>2.251704</td>
+    <td>D3M</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>17.147974</td>
+    <td>Titan</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>6.470070</td>
+    <td>Dabur</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sn</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span> <span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;Company&#39;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;Gain&#39;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">all_stocks_monthly_gain</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[36]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;matplotlib.axes._subplots.AxesSubplot at 0x10d541048&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Conclusion:">Conclusion:<a class="anchor-link" href="#Conclusion:">&#182;</a></h4><ul>
+<li>Based on the Boxplot, DLF shows the maximum volatility in monthly returns, followed by Titan.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="c.-Which-stock-has-highest-probability-of-giving-a-return-(monthly)-of-2%-or-more?">c. Which stock has highest probability of giving a return (monthly) of 2% or more?<a class="anchor-link" href="#c.-Which-stock-has-highest-probability-of-giving-a-return-(monthly)-of-2%-or-more?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+
+<span class="n">Titan_prob</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span>
+           <span class="n">loc</span> <span class="o">=</span> <span class="n">Titan_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+           <span class="n">scale</span> <span class="o">=</span> <span class="n">Titan_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+
+<span class="n">DLF_prob</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span>
+           <span class="n">loc</span> <span class="o">=</span> <span class="n">DLF_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+           <span class="n">scale</span> <span class="o">=</span> <span class="n">DLF_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+
+<span class="n">D3M_prob</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span>
+           <span class="n">loc</span> <span class="o">=</span> <span class="n">D3M_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+           <span class="n">scale</span> <span class="o">=</span> <span class="n">D3M_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+
+<span class="n">Dabur_prob</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span>
+           <span class="n">loc</span> <span class="o">=</span> <span class="n">Dabur_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+           <span class="n">scale</span> <span class="o">=</span> <span class="n">Dabur_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Titan prob:&quot;</span><span class="p">,</span><span class="nb">round</span><span class="p">(</span><span class="n">Titan_prob</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  DLF prob:&quot;</span><span class="p">,</span><span class="nb">round</span><span class="p">(</span><span class="n">DLF_prob</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dabur prob:&quot;</span><span class="p">,</span><span class="nb">round</span><span class="p">(</span><span class="n">Dabur_prob</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   3M prob:&quot;</span><span class="p">,</span><span class="nb">round</span><span class="p">(</span><span class="n">D3M_prob</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Titan prob: 0.56
+DLF prob: 0.513
+Dabur prob: 0.63
+ 3M prob: 0.598
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3><ul>
+<li>Dabur has the highest probabilty of a monthly gain of 2% or more.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="d)-Which-stock-has-highest-probability-of-making-a-loss-(monthly)-of-2%-or-more?">d) Which stock has highest probability of making a loss (monthly) of 2% or more?<a class="anchor-link" href="#d)-Which-stock-has-highest-probability-of-making-a-loss-(monthly)-of-2%-or-more?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Titan_prob</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span>
+           <span class="n">loc</span> <span class="o">=</span> <span class="n">Titan_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+           <span class="n">scale</span> <span class="o">=</span> <span class="n">Titan_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+
+<span class="n">DLF_prob</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span>
+           <span class="n">loc</span> <span class="o">=</span> <span class="n">DLF_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+           <span class="n">scale</span> <span class="o">=</span> <span class="n">DLF_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+
+<span class="n">D3M_prob</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span>
+           <span class="n">loc</span> <span class="o">=</span> <span class="n">D3M_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+           <span class="n">scale</span> <span class="o">=</span> <span class="n">D3M_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+
+<span class="n">Dabur_prob</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span>
+           <span class="n">loc</span> <span class="o">=</span> <span class="n">Dabur_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+           <span class="n">scale</span> <span class="o">=</span> <span class="n">Dabur_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Titan prob:&quot;</span><span class="p">,</span><span class="nb">round</span><span class="p">(</span><span class="n">Titan_prob</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  DLF prob:&quot;</span><span class="p">,</span><span class="nb">round</span><span class="p">(</span><span class="n">DLF_prob</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dabur prob:&quot;</span><span class="p">,</span><span class="nb">round</span><span class="p">(</span><span class="n">Dabur_prob</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   3M prob:&quot;</span><span class="p">,</span><span class="nb">round</span><span class="p">(</span><span class="n">D3M_prob</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Titan prob: 0.44
+DLF prob: 0.487
+Dabur prob: 0.37
+ 3M prob: 0.402
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3><ul>
+<li>DLF shows the highest probability of 2% loss, at 48.7% probability.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="3.-Portfolio-Analysis:">3. Portfolio Analysis:<a class="anchor-link" href="#3.-Portfolio-Analysis:">&#182;</a></h3><p>Create a portfolio of investment, where you invest in all stocks equally. The weight of investment in each stock in the portfolio is 0.25 (Total weight of all stocks should be always 1 If you had remained invested since 01‐01-2010 until 31-03-2017, in this portfolio:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">label_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DLF_Weight&#39;</span><span class="p">,</span><span class="s1">&#39;Dabur_Weight&#39;</span><span class="p">,</span><span class="s1">&#39;Titan_Weight&#39;</span><span class="p">,</span><span class="s1">&#39;3M_Weight&#39;</span><span class="p">]</span>
+<span class="n">stock_weights</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.25</span><span class="p">]</span>
+<span class="n">weights_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">stock_weights</span><span class="p">)</span>
+<span class="n">weights_mat</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[39]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>matrix([[ 0.25,  0.25,  0.25,  0.25]])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">all_stocks_mean</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span> <span class="n">DLF_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="mi">4</span><span class="p">),</span>
+                 <span class="nb">round</span><span class="p">(</span> <span class="n">Dabur_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="mi">4</span><span class="p">),</span>
+                 <span class="nb">round</span><span class="p">(</span> <span class="n">Titan_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="mi">4</span><span class="p">),</span>
+                 <span class="nb">round</span><span class="p">(</span> <span class="n">D3M_monthly_df</span><span class="o">.</span><span class="n">Gain</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="mi">4</span><span class="p">)]</span>
+<span class="n">all_stocks_mean_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">all_stocks_mean</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">all_stocks_mean</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[41]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[0.4912, 1.7708, 1.3559, 2.0677]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="a)-Average-monthly-returns-of-the-portfolio-and-variance-of-monthly-returns-of-the-portfolio?">a) Average monthly returns of the portfolio and variance of monthly returns of the portfolio?<a class="anchor-link" href="#a)-Average-monthly-returns-of-the-portfolio-and-variance-of-monthly-returns-of-the-portfolio?">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">portfolio_mean_rets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span> <span class="n">weights_mat</span><span class="p">,</span> <span class="n">all_stocks_mean_mat</span><span class="o">.</span><span class="n">T</span> <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;Portfolio monthly returns for equally weighted stocks is: &#39;</span><span class="p">,</span> <span class="n">portfolio_mean_rets</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Portfolio monthly returns for equally weighted stocks is:  1.4214
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3><ul>
+<li>Portfolio monthly returns for equally weighted stocks is:  1.421</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="The-variance-of-the-portfolio-is-given-by-the-below-equation">The variance of the portfolio is given by the below equation<a class="anchor-link" href="#The-variance-of-the-portfolio-is-given-by-the-below-equation">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">stocks_monthly_gains</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">DLF_monthly_df</span><span class="p">[</span><span class="s1">&#39;Gain&#39;</span><span class="p">]</span> <span class="p">)</span>
+<span class="n">stocks_monthly_gains</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DLF_gain&#39;</span><span class="p">]</span>
+<span class="n">stocks_monthly_gains</span><span class="p">[</span><span class="s1">&#39;Dabur_gain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Dabur_monthly_df</span><span class="o">.</span><span class="n">Gain</span>
+<span class="n">stocks_monthly_gains</span><span class="p">[</span><span class="s1">&#39;D3M_gain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">D3M_monthly_df</span><span class="o">.</span><span class="n">Gain</span>
+<span class="n">stocks_monthly_gains</span><span class="p">[</span><span class="s1">&#39;Titan_gain&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Titan_monthly_df</span><span class="o">.</span><span class="n">Gain</span>
+
+<span class="n">stocks_monthly_gains</span> <span class="o">=</span> <span class="n">stocks_monthly_gains</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cov_df</span> <span class="o">=</span> <span class="n">stocks_monthly_gains</span><span class="o">.</span><span class="n">cov</span><span class="p">()</span>
+<span class="n">cov_df</span>
+<span class="n">cov_matrix</span> <span class="o">=</span> <span class="n">cov_df</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">var</span> <span class="o">=</span> <span class="n">weights_mat</span> <span class="o">*</span> <span class="n">cov_matrix</span> <span class="o">*</span> <span class="n">weights_mat</span><span class="o">.</span><span class="n">T</span>
+<span class="n">portfolio_var</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span> <span class="n">var</span><span class="o">.</span><span class="n">item</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)),</span><span class="mi">3</span> <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The expected Var of the Portfolio is &quot;</span><span class="p">,</span><span class="n">portfolio_var</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>The expected Var of the Portfolio is  42.338
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3><ul>
+<li>The variance of the portfolio is 42.338</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_portfolio_mean_var</span><span class="p">(</span> <span class="n">weights</span><span class="p">,</span> <span class="n">all_stocks_mean_mat</span><span class="p">,</span> <span class="n">cov_matrix</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span> <span class="n">weights_mat</span><span class="p">,</span> <span class="n">all_stocks_mean_mat</span><span class="o">.</span><span class="n">T</span> <span class="p">),</span> <span class="n">weights_mat</span> <span class="o">*</span> <span class="n">cov_matrix</span> <span class="o">*</span> <span class="n">weights_mat</span><span class="o">.</span><span class="n">T</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="b)-If-investment-on-an-alternative-instrument-gives-you-an-average-return-of-0.5%-monthly,">b) If investment on an alternative instrument gives you an average return of 0.5% monthly,<a class="anchor-link" href="#b)-If-investment-on-an-alternative-instrument-gives-you-an-average-return-of-0.5%-monthly,">&#182;</a></h3><ul>
+<li>Is it wiser to invest in the alternative instrument or the equally weighted portfolio you created above? Can you verify if the above portfolio monthly returns are higher than 0.5%(0.005)? </li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Assumption:-It-is-assumed-the-alternative-instrument-has-a-fixed-monthly-return-of-0.5%-and-is-observed-during-the-same-period-for-which-the-portfolio-returns-are-observed-i.e.-2012-2017-(60-months)">Assumption: It is assumed the alternative instrument has a fixed monthly return of 0.5% and is observed during the same period for which the portfolio returns are observed i.e. 2012-2017 (60 months)<a class="anchor-link" href="#Assumption:-It-is-assumed-the-alternative-instrument-has-a-fixed-monthly-return-of-0.5%-and-is-observed-during-the-same-period-for-which-the-portfolio-returns-are-observed-i.e.-2012-2017-(60-months)">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Hypothesis-Test">Hypothesis Test<a class="anchor-link" href="#Hypothesis-Test">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>$H_{0}$ : Monhtly Returns of the portfolio = 0.5%</p>
+<p>$H_{1}$ : Monhtly Returns of the portfolio &lt;&gt; 0.5%</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">norm</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="n">stats</span><span class="o">.</span><span class="n">ttest_ind_from_stats</span><span class="p">(</span> <span class="n">portfolio_mean_rets</span><span class="p">,</span>
+                         <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="n">portfolio_var</span> <span class="p">),</span>
+                         <span class="mi">60</span><span class="p">,</span>
+                         <span class="mf">0.5</span><span class="p">,</span>
+                         <span class="mi">0</span><span class="p">,</span>
+                         <span class="mi">60</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[47]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Ttest_indResult(statistic=1.0968788533187079, pvalue=0.27492776713376194)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3><p>As the p-value is more than 0.27, the null hypothesis is retained. The returns of the portfolio and the alternative instruments are same.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="c)-Randomly-change-the-weights-of-the-stocks-in-the-portfolio-and-check-the-average-returns-and-the-variance-of-the-portfolio">c) Randomly change the weights of the stocks in the portfolio and check the average returns and the variance of the portfolio<a class="anchor-link" href="#c)-Randomly-change-the-weights-of-the-stocks-in-the-portfolio-and-check-the-average-returns-and-the-variance-of-the-portfolio">&#182;</a></h3><ul>
+<li>Create at least 10 different weight combinations of stocks and calculate the monthly mean returns and variances of all combination of portfolios</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Create-random-weights">Create random weights<a class="anchor-link" href="#Create-random-weights">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_stock_weights</span><span class="p">(</span> <span class="n">n</span> <span class="p">):</span>
+  <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">k</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">get_stock_weights</span><span class="p">(</span> <span class="mi">4</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[49]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([ 0.351796  ,  0.27231367,  0.33014558,  0.04574475])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[50]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_portfolio_ret_std</span><span class="p">(</span> <span class="n">df</span> <span class="p">):</span>
+  <span class="n">mean_rets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asmatrix</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span> <span class="n">df</span> <span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">)</span> <span class="p">)</span>
+
+  <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asmatrix</span><span class="p">(</span> <span class="n">get_stock_weights</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">)</span>
+  <span class="n">stock_covr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asmatrix</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span> <span class="n">df</span> <span class="p">)</span> <span class="p">)</span>
+
+  <span class="n">p_ret</span> <span class="o">=</span> <span class="n">weights</span> <span class="o">*</span> <span class="n">mean_rets</span><span class="o">.</span><span class="n">T</span>
+  <span class="n">p_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="n">weights</span> <span class="o">*</span> <span class="n">stock_covr</span> <span class="o">*</span> <span class="n">weights</span><span class="o">.</span><span class="n">T</span> <span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">weights</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p_ret</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p_sigma</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[51]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">asmatrix</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span> <span class="n">stocks_monthly_gains</span> <span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[51]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>matrix([[ 0.49124285,  1.77076328,  2.06769077,  1.3558581 ]])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[52]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asmatrix</span><span class="p">(</span> <span class="n">get_stock_weights</span><span class="p">(</span><span class="n">stocks_monthly_gains</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">weights</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[53]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>matrix([[ 0.33987245,  0.10312711,  0.51560038,  0.04140005]])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="d)-Create-a-dataframe-where-the-stocks-weight,-mean-and-variances-of-all-possible-portfolio-combinations-are-stored">d) Create a dataframe where the stocks weight, mean and variances of all possible portfolio combinations are stored<a class="anchor-link" href="#d)-Create-a-dataframe-where-the-stocks-weight,-mean-and-variances-of-all-possible-portfolio-combinations-are-stored">&#182;</a></h3><h4 id="The-columns-of-the-dataframe-should-be-[&#8216;DLF_weight&#8217;,-&#8216;Dabur_weight&#8217;,-&#8216;3M_weight&#8217;,-&#8216;Titan_weight&#8217;,-&#8216;mean_return&#8217;,-&#8216;std_returns&#8217;]">The columns of the dataframe should be [&#8216;DLF_weight&#8217;, &#8216;Dabur_weight&#8217;, &#8216;3M_weight&#8217;, &#8216;Titan_weight&#8217;, &#8216;mean_return&#8217;, &#8216;std_returns&#8217;]<a class="anchor-link" href="#The-columns-of-the-dataframe-should-be-[&#8216;DLF_weight&#8217;,-&#8216;Dabur_weight&#8217;,-&#8216;3M_weight&#8217;,-&#8216;Titan_weight&#8217;,-&#8216;mean_return&#8217;,-&#8216;std_returns&#8217;]">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">get_portfolio_ret_std</span><span class="p">(</span> <span class="n">stocks_monthly_gains</span><span class="o">.</span><span class="n">T</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[54]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>([0.2621110631239795,
+0.15344893353698918,
+0.16794616105155324,
+0.4164938422874781],
+[1.3124491996122276],
+[7.084680063707902])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[55]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">n_portfolios</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">all_portfolios_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DLF_weight&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Dabur_weight&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;3M_weight&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Titan_weight&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;mean_return&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;std_returns&#39;</span><span class="p">])</span>
+<span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">n_portfolios</span> <span class="p">):</span>
+  <span class="n">weights</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">get_portfolio_ret_std</span><span class="p">(</span> <span class="n">stocks_monthly_gains</span><span class="o">.</span><span class="n">T</span> <span class="p">)</span>
+  <span class="n">all_portfolios_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">weights</span> <span class="o">+</span> <span class="n">ret</span> <span class="o">+</span> <span class="n">std</span>
+  <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h3><ul>
+<li>Average return and variance of portfolios with different stock weights</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[56]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">all_portfolios_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span> <span class="mi">10</span> <span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[56]:</div>
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+  <tr style="text-align: right;">
+    <th></th>
+    <th>DLF_weight</th>
+    <th>Dabur_weight</th>
+    <th>3M_weight</th>
+    <th>Titan_weight</th>
+    <th>mean_return</th>
+    <th>std_returns</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <th>0</th>
+    <td>0.232853</td>
+    <td>0.354683</td>
+    <td>0.114846</td>
+    <td>0.297618</td>
+    <td>1.383441</td>
+    <td>6.319618</td>
+  </tr>
+  <tr>
+    <th>1</th>
+    <td>0.331365</td>
+    <td>0.214383</td>
+    <td>0.310622</td>
+    <td>0.143630</td>
+    <td>1.379414</td>
+    <td>7.114767</td>
+  </tr>
+  <tr>
+    <th>2</th>
+    <td>0.503565</td>
+    <td>0.139236</td>
+    <td>0.274415</td>
+    <td>0.082783</td>
+    <td>1.173575</td>
+    <td>8.746865</td>
+  </tr>
+  <tr>
+    <th>3</th>
+    <td>0.234397</td>
+    <td>0.218899</td>
+    <td>0.297131</td>
+    <td>0.249573</td>
+    <td>1.455525</td>
+    <td>6.473439</td>
+  </tr>
+  <tr>
+    <th>4</th>
+    <td>0.202351</td>
+    <td>0.298379</td>
+    <td>0.254588</td>
+    <td>0.244682</td>
+    <td>1.485925</td>
+    <td>6.112036</td>
+  </tr>
+  <tr>
+    <th>5</th>
+    <td>0.252858</td>
+    <td>0.409194</td>
+    <td>0.326381</td>
+    <td>0.011567</td>
+    <td>1.539338</td>
+    <td>6.325052</td>
+  </tr>
+  <tr>
+    <th>6</th>
+    <td>0.303682</td>
+    <td>0.279494</td>
+    <td>0.205740</td>
+    <td>0.211084</td>
+    <td>1.355705</td>
+    <td>6.817395</td>
+  </tr>
+  <tr>
+    <th>7</th>
+    <td>0.391361</td>
+    <td>0.040037</td>
+    <td>0.135107</td>
+    <td>0.433495</td>
+    <td>1.130267</td>
+    <td>8.376037</td>
+  </tr>
+  <tr>
+    <th>8</th>
+    <td>0.338188</td>
+    <td>0.385714</td>
+    <td>0.106708</td>
+    <td>0.169389</td>
+    <td>1.299448</td>
+    <td>6.977918</td>
+  </tr>
+  <tr>
+    <th>9</th>
+    <td>0.166167</td>
+    <td>0.310770</td>
+    <td>0.280903</td>
+    <td>0.242161</td>
+    <td>1.541084</td>
+    <td>5.897693</td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="e)-Plot-the-mean-and-variance-of-monthly-returns-of-different-portfolio-combination-on-a-scatter-plot">e) Plot the mean and variance of monthly returns of different portfolio combination on a scatter plot<a class="anchor-link" href="#e)-Plot-the-mean-and-variance-of-monthly-returns-of-different-portfolio-combination-on-a-scatter-plot">&#182;</a></h3><h4 id="Please-explain-your-observations">Please explain your observations<a class="anchor-link" href="#Please-explain-your-observations">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[57]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sn</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[58]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span> <span class="n">y</span> <span class="o">=</span> <span class="n">all_portfolios_df</span><span class="o">.</span><span class="n">mean_return</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">all_portfolios_df</span><span class="o">.</span><span class="n">std_returns</span> <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Average Returns&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Variance in Returns&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[58]:</div>
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;matplotlib.text.Text at 0x11136eba8&gt;</pre>
+</div>
+
+</div>
+
+<div class="output_area">
+<div class="prompt"></div>
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+TkSuQmCC
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Answer:">Answer:<a class="anchor-link" href="#Answer:">&#182;</a></h4><p>It is observed that:</p>
+<p>For same of amount of risk (variance), there can be different portfolios of stocks (with different weight combinations), that give different rate of return. So, for a certain amount of expected return, the risk can be minimized by optimally allocating stock weights. Or for certain amount of risk, the return can be maximized by allocating stocks weights optimally.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+  <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+  </div>
+</div>
